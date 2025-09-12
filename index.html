@@ -19,11 +19,89 @@
     </div>
 
     <div id="mining-container" class="container hidden">
-        <h1>Welcome to Moo Deng Coin Mining</h1>
-        <p id="user-email"></p>
-        <button id="mine-btn">Start Mining</button>
-        <p id="mine-status"></p>
-        <button id="logout-btn">Logout</button>
+        <div id="side-menu" class="side-menu">
+            <a href="#" class="close-btn">&times;</a>
+            <div class="user-info">
+                <img src="https://i.imgur.com/your-profile-pic.png" alt="Profile Picture" class="profile-pic"> <p id="user-display-name">দেবাশিস সরকার</p>
+            </div>
+            <a href="#" id="home-link"><i class="fas fa-home"></i> Home</a>
+            <a href="#" id="mining-link"><i class="fas fa-hammer"></i> Mining</a>
+            <a href="#" id="wallet-link"><i class="fas fa-wallet"></i> Wallet</a>
+            <a href="#" id="history-link"><i class="fas fa-history"></i> History</a>
+            <a href="#" id="referral-link"><i class="fas fa-users"></i> Referrals</a>
+            <a href="#" id="whitepaper-link"><i class="fas fa-file-alt"></i> Whitepaper</a>
+            <a href="#" id="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </div>
+        
+        <span class="menu-btn" onclick="openNav()">&#9776;</span>
+        <div id="main-content">
+            <h1 id="page-title">Welcome to Moo Deng Coin Mining</h1>
+            <p id="user-email"></p>
+            
+            <div id="mining-content">
+                <div id="mining-coin-container">
+                    <button id="mine-btn">Start Mining</button>
+                    <p id="mine-status"></p>
+                </div>
+            </div>
+
+            <div id="wallet-content" class="hidden content-page">
+                <h2>Your Wallet</h2>
+                <p>Total Moo Deng Coins: <span id="wallet-balance">0</span></p>
+            </div>
+
+            <div id="history-content" class="hidden content-page">
+                <h2>Transaction History</h2>
+                <ul id="history-list"></ul>
+            </div>
+
+            <div id="referral-content" class="hidden content-page">
+                <h2>Refer and Earn</h2>
+                <p>Share your unique referral code to earn bonus tokens!</p>
+                <p>Your Referral Code: <span id="referral-code">...</span></p>
+                <button id="copy-referral-btn">Copy Code</button>
+            </div>
+            
+            <div id="whitepaper-content" class="hidden content-page">
+                <h2>Moo Deng Coin Whitepaper</h2>
+                <p>Moo Deng Coin is a community-driven meme token designed to create a fun, secure, and transparent digital ecosystem. We believe that a strong community is the foundation of any successful project. Our mission is to build a platform that rewards participation and fosters long-term growth for all our holders.</p>
+
+                <h3>Vision and Mission</h3>
+                <p>Our vision is to become the most trusted and engaging meme token in the crypto space. We aim to achieve this by:</p>
+                <ul>
+                    <li>Building a decentralized platform focused on transparency.</li>
+                    <li>Rewarding our loyal community through innovative mechanisms.</li>
+                    <li>Creating a vibrant and active social community.</li>
+                </ul>
+
+                <h3>Tokenomics</h3>
+                <p>Moo Deng Coin is built on the Binance Smart Chain (BSC) for fast and low-cost transactions. Our token supply is set at 1 billion.</p>
+                <p>Token Symbol: **MDCOIN**</p>
+                <p>Total Supply: 1,000,000,000</p>
+
+                <h3>Roadmap</h3>
+                <p><b>Phase 1: The Beginning</b></p>
+                <ul>
+                    <li>Smart contract deployment on BSC.</li>
+                    <li>Community building on Telegram and Twitter.</li>
+                    <li>Website launch with a clean, modern design.</li>
+                </ul>
+                <p><b>Phase 2: Expansion</b></p>
+                <ul>
+                    <li>Adding liquidity to PancakeSwap.</li>
+                    <li>Initial marketing campaigns and influencer partnerships.</li>
+                    <li>Community-exclusive airdrops and contests.</li>
+                </ul>
+                <p><b>Phase 3: The Future</b></p>
+                <ul>
+                    <li>Listing on centralized exchanges (CEX).</li>
+                    <li>Introduction of new utilities and partnerships.</li>
+                    <li>Expansion into new markets.</li>
+                </ul>
+                <h3>Future Development</h3>
+                <p>We are actively working on a "Proof of Participation" model where users can engage with our platform to earn rewards. Our upcoming mining system, which will be accessible through our website, will allow users to earn tokens every 24 hours. We are also developing a referral program to further expand our community.</p>
+            </div>
+        </div>
     </div>
 </body>
 </html>
