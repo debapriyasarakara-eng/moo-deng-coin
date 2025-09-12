@@ -17,6 +17,20 @@ const mineBtn = document.getElementById('mine-btn');
 const mineStatus = document.getElementById('mine-status');
 const userEmail = document.getElementById('user-email');
 
+// Auth state listener
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        // User is signed in. Hide the auth container and show the mining container.
+        if (authContainer) authContainer.classList.add('hidden');
+        if (miningContainer) miningContainer.classList.remove('hidden');
+        if (userEmail) userEmail.textContent = `Logged in as: ${user.email}`;
+    } else {
+        // User is signed out. Hide the mining container and show the auth container.
+        if (authContainer) authContainer.classList.remove('hidden');
+        if (miningContainer) miningContainer.classList.add('hidden');
+    }
+});
+
 // Signup
 if (signupBtn) {
     signupBtn.addEventListener('click', () => {
@@ -51,22 +65,6 @@ if (loginBtn) {
             });
     });
 }
-
-// Auth state listener
-onAuthStateChanged(auth, (user) => {
-    if (user) {
-        if (authContainer && miningContainer) {
-            authContainer.classList.add('hidden');
-            miningContainer.classList.remove('hidden');
-            userEmail.textContent = `Logged in as: ${user.email}`;
-        }
-    } else {
-        if (authContainer && miningContainer) {
-            authContainer.classList.remove('hidden');
-            miningContainer.classList.add('hidden');
-        }
-    }
-});
 
 // Logout
 if (logoutBtn) {
