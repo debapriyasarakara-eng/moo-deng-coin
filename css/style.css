@@ -5,36 +5,34 @@ body {
     text-align: center;
     padding: 20px;
     margin: 0;
-    overflow: hidden; /* Prevent scroll if coin animation overflows */
-    position: relative; /* For background positioning */
+    overflow-x: hidden;
+    position: relative;
 }
 
-/* Background Coin Styling */
 body::before {
     content: '';
     position: fixed;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%) scale(1.5); /* Adjust scale for desired size */
+    transform: translate(-50%, -50%) scale(1.5);
     width: 100vw;
     height: 100vh;
-    background-image: url('https://i.imgur.com/your-moo-deng-coin-image.png'); /* Replace with your Moo Deng Coin image URL */
-    background-size: cover; /* or contain, depending on desired effect */
+    background-image: url('https://i.imgur.com/your-moo-deng-coin-image.png');
+    background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    opacity: 0.1; /* Adjust for desired transparency */
-    z-index: -1; /* Send to background */
-    filter: blur(5px); /* Optional: blur the background coin */
+    opacity: 0.1;
+    z-index: -1;
+    filter: blur(5px);
 }
-
 
 .container {
     max-width: 400px;
     margin: 50px auto;
-    background-color: rgba(30, 30, 30, 0.9); /* Slightly transparent background */
+    background-color: rgba(30, 30, 30, 0.9);
     padding: 20px;
-    border-radius: 50%; /* Makes the container circular */
-    box-shadow: 0 0 20px rgba(0, 255, 200, 0.5); /* Glowing effect */
+    border-radius: 50%;
+    box-shadow: 0 0 20px rgba(0, 255, 200, 0.5);
     transition: all 0.5s ease-in-out;
 }
 
@@ -68,27 +66,127 @@ button:hover {
     display: none;
 }
 
+/* Sidebar Navigation */
+.side-menu {
+    height: 100%;
+    width: 0;
+    position: fixed;
+    z-index: 10;
+    top: 0;
+    left: 0;
+    background-color: #1a1a1a;
+    overflow-x: hidden;
+    transition: 0.5s;
+    padding-top: 60px;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.5);
+}
+
+.side-menu a {
+    padding: 8px 8px 8px 32px;
+    text-decoration: none;
+    font-size: 20px;
+    color: #818181;
+    display: block;
+    transition: 0.3s;
+    text-align: left;
+}
+
+.side-menu a:hover {
+    color: #f1f1f1;
+    background-color: #333;
+}
+
+.side-menu .close-btn {
+    position: absolute;
+    top: 0;
+    right: 25px;
+    font-size: 36px;
+    margin-left: 50px;
+}
+
+.menu-btn {
+    font-size: 30px;
+    cursor: pointer;
+    background-color: #1a1a1a;
+    color: #fff;
+    padding: 10px 15px;
+    border-radius: 5px;
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 2;
+}
+
+.user-info {
+    text-align: center;
+    padding-bottom: 20px;
+}
+
+.profile-pic {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: 2px solid #00ffc8;
+}
+
+/* Page Content Styling */
+#main-content {
+    transition: margin-left .5s;
+    padding: 16px;
+}
+
+.content-page {
+    display: none;
+}
+
+/* Add some styles for the new buttons and lists */
+#copy-referral-btn {
+    padding: 8px 15px;
+    background-color: #00ffc8;
+    color: #000;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+#history-list {
+    list-style-type: none;
+    padding: 0;
+}
+
+#history-list li {
+    background-color: #2e2e2e;
+    padding: 10px;
+    margin-bottom: 5px;
+    border-radius: 5px;
+}
+
 /* Mining Coin Animation and Timer Styling */
-.mining-coin-wrapper {
+#mining-coin-container {
     position: relative;
-    width: 200px; /* Adjust coin size */
+    width: 200px;
     height: 200px;
     margin: 30px auto;
     border-radius: 50%;
-    overflow: hidden;
     box-shadow: 0 0 25px rgba(0, 255, 200, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
 }
 
 .mining-coin {
     width: 100%;
     height: 100%;
-    background-image: url('https://i.imgur.com/your-moo-deng-coin-image.png'); /* Replace with your Moo Deng Coin image URL */
+    background-image: url('https://i.imgur.com/your-moo-deng-coin-image.png');
     background-size: cover;
     background-position: center;
     border-radius: 50%;
     position: absolute;
     top: 0;
     left: 0;
+    z-index: 1;
 }
 
 .mining-timer {
@@ -111,11 +209,17 @@ button:hover {
     height: 100%;
     border-radius: 50%;
     background: conic-gradient(#00ffc8 0%, #00ffc8 var(--progress), transparent var(--progress), transparent 100%);
-    transition: background 0.1s linear; /* Smooth progress update */
+    transition: background 0.1s linear;
+    z-index: 5;
 }
 
-/* Disable button when mining */
+.mine-btn {
+    z-index: 15;
+    position: relative;
+}
+
 .mine-btn[disabled] {
     background-color: #555;
     cursor: not-allowed;
 }
+
