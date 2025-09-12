@@ -4,22 +4,17 @@ import { app } from "./firebase-config.js";
 const db = getFirestore(app);
 
 const joinBtn = document.getElementById("join-btn");
-const nameInput = document.getElementById("name");
-const emailInput = document.getElementById("email");
-const message = document.getElementById("message");
-
 if (joinBtn) {
     joinBtn.addEventListener("click", async () => {
-        const name = nameInput.value;
-        const email = emailInput.value;
+        const name = document.getElementById("name").value;
+        const email = document.getElementById("email").value;
+        const message = document.getElementById("message");
 
         try {
             await addDoc(collection(db, "waitlist"), { name, email, timestamp: Date.now() });
             message.innerText = "You are now on the waitlist!";
-            nameInput.value = "";
-            emailInput.value = "";
         } catch (e) {
-            message.innerText = "Error joining waitlist: " + e.message;
+            message.innerText = "Error joining waitlist.";
         }
     });
 }
