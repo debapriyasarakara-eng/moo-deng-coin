@@ -1,258 +1,841 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Moo Deng Coin</title>
-  <style>
-    * { margin:0; padding:0; box-sizing:border-box; font-family: 'Arial', sans-serif; }
-    body { background:#0d0d0d; color:#fff; display:flex; justify-content:center; align-items:flex-start; min-height:100vh; padding:20px; }
-    a { color:#00ffdd; text-decoration:none; }
-    button { cursor:pointer; background:#00ffdd; border:none; padding:10px 20px; color:#000; font-weight:bold; border-radius:5px; transition:0.3s; }
-    button:hover { background:#00ccaa; }
-    .container { max-width:500px; width:100%; background:#111; padding:20px; border-radius:10px; box-shadow:0 0 20px rgba(0,255,221,0.3); }
-    h1,h2,h3 { margin-bottom:10px; }
-    .wallet, .referral, .tabs, .tab-content { margin-top:20px; }
-    .wallet span, .referral span { font-weight:bold; color:#00ffdd; }
-    .mining-container { position:relative; width:200px; height:200px; margin:20px auto; }
-    .circle { width:100%; height:100%; border-radius:50%; border:5px solid #00ffdd; display:flex; justify-content:center; align-items:center; font-size:20px; font-weight:bold; position:relative; }
-    .circle::after { content:''; position:absolute; width:100%; height:100%; border-radius:50%; border:5px solid rgba(0,255,221,0.3); animation: rotateCircle linear infinite; }
-    @keyframes rotateCircle { from{transform:rotate(0deg);} to{transform:rotate(360deg);} }
-    .tabs { display:flex; justify-content:space-around; }
-    .tabs button { flex:1; margin:0 5px; }
-    .tab-content { display:none; margin-top:20px; background:#111; padding:15px; border-radius:10px; }
-    .referral-link { display:flex; justify-content:space-between; align-items:center; margin-top:10px; }
-    input.copy-input { width:70%; padding:5px; border-radius:5px; border:none; }
-    .logout-warning { margin-top:15px; color:#ff5555; font-weight:bold; text-align:center; }
-    input, select { padding:8px; margin-bottom:10px; width:100%; border-radius:5px; border:none; }
-    .form-container { display:none; margin-top:20px; }
-    .wallet-section { display:none; margin-top:20px; }
-    .profile-pic { width:50px; height:50px; border-radius:50%; background:#222; display:flex; justify-content:center; align-items:center; margin-bottom:10px; cursor:pointer; }
-    .wallet-balance { margin-bottom:10px; font-size:18px; font-weight:bold; }
-    .withdraw-btn { margin-top:10px; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Moo Deng Coin</title>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; font-family: 'Arial', sans-serif; }
+        body { background:#0d0d0d; color:#fff; display:flex; justify-content:center; align-items:flex-start; min-height:100vh; padding:20px; }
+        a { color:#00ffdd; text-decoration:none; }
+        button { cursor:pointer; background:#00ffdd; border:none; padding:10px 20px; color:#000; font-weight:bold; border-radius:5px; transition:0.3s; }
+        button:hover { background:#00ccaa; }
+        .container { max-width:450px; width:100%; background:#111; padding:20px; border-radius:10px; box-shadow:0 0 20px rgba(0,255,221,0.3); }
+        h1,h2,h3 { margin-bottom:10px; }
+        .wallet, .referral, .tabs, .tab-content { margin-top:20px; }
+        .wallet span, .referral span { font-weight:bold; color:#00ffdd; }
+        .mining-container { position:relative; width:200px; height:200px; margin:20px auto; }
+        .circle { width:100%; height:100%; border-radius:50%; border:5px solid #00ffdd; display:flex; justify-content:center; align-items:center; font-size:20px; font-weight:bold; position:relative; }
+        .circle::after { content:''; position:absolute; width:100%; height:100%; border-radius:50%; border:5px solid rgba(0,255,221,0.3); animation: rotateCircle linear infinite; }
+        @keyframes rotateCircle { from{transform:rotate(0deg);} to{transform:rotate(360deg);} }
+        .tabs { display:flex; justify-content:space-around; }
+        .tabs button { flex:1; margin:0 5px; }
+        .tab-content { display:none; margin-top:20px; background:#111; padding:15px; border-radius:10px; }
+        .referral-link { display:flex; justify-content:space-between; align-items:center; margin-top:10px; }
+        input.copy-input { width:70%; padding:5px; border-radius:5px; border:none; }
+        .logout-warning { margin-top:15px; color:#ff5555; font-weight:bold; text-align:center; }
+        
+        /* New styles for wallet and login */
+        .login-container { max-width:450px; width:100%; background:#111; padding:20px; border-radius:10px; box-shadow:0 0 20px rgba(0,255,221,0.3); text-align:center; }
+        .login-form { margin-top:20px; }
+        .login-form input { width:100%; padding:10px; margin-bottom:15px; border-radius:5px; border:none; }
+        .wallet-button { width:100%; margin-top:10px; }
+        .modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:1000; justify-content:center; align-items:center; }
+        .modal-content { background:#222; padding:20px; border-radius:10px; width:90%; max-width:500px; }
+        .modal-buttons { display:flex; justify-content:space-between; margin-top:20px; }
+        .words-grid { display:grid; grid-template-columns:repeat(3, 1fr); gap:10px; margin:15px 0; }
+        .word-box { background:#333; padding:8px; border-radius:5px; text-align:center; }
+        .withdraw-dialog { text-align:center; }
+        .withdraw-dialog input { width:100%; padding:10px; margin:10px 0; border-radius:5px; border:none; }
+        
+        /* Referral benefits styling */
+        .benefits-container { background: #1a1a1a; padding: 15px; border-radius: 8px; margin-top: 15px; }
+        .benefit-item { margin: 10px 0; display: flex; align-items: center; }
+        .benefit-icon { color: #00ffdd; margin-right: 10px; font-size: 20px; }
+        
+        /* History styling */
+        .history-item { padding: 10px; border-bottom: 1px solid #333; }
+        .history-type-mine { color: #00ffdd; }
+        .history-type-referral { color: #ffcc00; }
+        .history-type-bonus { color: #00ff99; }
+        
+        /* Wallet access styling */
+        .wallet-access { text-align: center; margin-top: 20px; }
+        .wallet-input { width: 100%; padding: 10px; margin: 10px 0; border-radius: 5px; border: none; }
+    </style>
 </head>
 <body>
-<div class="container">
-
-  <h1>Moo Deng Coin</h1>
-
-  <!-- Sign Up / Login Tabs -->
-  <div class="tabs">
-    <button id="signupTabBtn">Sign Up</button>
-    <button id="loginTabBtn">Login</button>
-  </div>
-
-  <!-- Sign Up Form -->
-  <div class="form-container" id="signupForm">
-    <h3>Sign Up</h3>
-    <input type="text" id="signupName" placeholder="Name" required>
-    <input type="email" id="signupEmail" placeholder="Email" required>
-    <input type="password" id="signupPassword" placeholder="Password" required>
-    <button id="signupBtn">Sign Up</button>
-  </div>
-
-  <!-- Login Form -->
-  <div class="form-container" id="loginForm">
-    <h3>Login</h3>
-    <input type="email" id="loginEmail" placeholder="Email" required>
-    <input type="password" id="loginPassword" placeholder="Password" required>
-    <button id="loginBtn">Login</button>
-  </div>
-
-  <!-- Wallet Section -->
-  <div class="wallet-section" id="walletSection">
-    <div class="profile-pic" id="profilePic">👤</div>
-    <div class="wallet-balance" id="walletBalance">MDC Balance: 0</div>
-    <button id="registerWalletBtn">Register Wallet</button>
-    <div class="mining-container">
-      <div class="circle">
-        <span id="timerText">02:00:00</span>
-      </div>
-    </div>
-    <button id="mineBtn">Mine Token</button>
-    <p class="logout-warning">⭐ Keep this tab open! If you close it, mining will stop. You can minimize it safely.</p>
-    <button id="logoutBtn">Logout</button>
-
-    <!-- Referral -->
-    <div class="referral">
-      <h3>Your Referral</h3>
-      <p>Your Referral Code: <span id="refCode"></span></p>
-      <div class="referral-link">
-        <input class="copy-input" id="refLink" readonly>
-        <button id="copyBtn">Copy</button>
-      </div>
-      <p>Referred Users: <span id="refCount">0</span></p>
+    <!-- Login Screen (initially shown) -->
+    <div id="loginScreen" class="login-container">
+        <h1>Moo Deng Coin</h1>
+        <div class="login-form">
+            <input type="email" id="loginEmail" placeholder="Email Address" required>
+            <input type="password" id="loginPassword" placeholder="Password" required>
+            <button id="loginBtn">Login</button>
+            <p style="margin-top:15px;">Don't have an account? <a href="#" id="showRegister">Register</a></p>
+        </div>
     </div>
 
-    <!-- Tabs for History / Whitepaper -->
-    <div class="tabs">
-      <button data-tab="historyTab">History</button>
-      <button data-tab="whitepaperTab">Whitepaper</button>
+    <!-- Register Screen -->
+    <div id="registerScreen" class="login-container" style="display:none;">
+        <h1>Register Account</h1>
+        <div class="login-form">
+            <input type="email" id="registerEmail" placeholder="Email Address" required>
+            <input type="password" id="registerPassword" placeholder="Password" required>
+            <input type="password" id="registerConfirmPassword" placeholder="Confirm Password" required>
+            <input type="text" id="registerRefCode" placeholder="Referral Code (optional)">
+            <button id="registerBtn">Register</button>
+            <p style="margin-top:15px;">Already have an account? <a href="#" id="showLogin">Login</a></p>
+        </div>
     </div>
 
-    <div class="tab-content" id="historyTab">
-      <h3>Mining History</h3>
-      <ul id="historyList"></ul>
+    <!-- Main App (initially hidden) -->
+    <div id="appContainer" class="container" style="display:none;">
+        <h1>Moo Deng Coin</h1>
+        
+        <div class="wallet">
+            <h2>Wallet Access</h2>
+            <div class="wallet-access">
+                <button id="accessWalletBtn">Access Your Wallet</button>
+            </div>
+        </div>
+
+        <div class="mining-container">
+            <div class="circle">
+                <span id="timerText">02:00:00</span>
+            </div>
+        </div>
+        
+        <div style="text-align:center;">
+            <button id="mineBtn">Mine Token</button>
+            <button id="logoutBtn">Logout</button>
+        </div>
+        
+        <p class="logout-warning">⭐ Keep this tab open! If you close it, mining will stop. You can minimize it safely.</p>
+
+        <div class="referral">
+            <h2>Your Referral</h2>
+            <p>Your Referral Code: <span id="refCode"></span></p>
+            <div class="referral-link">
+                <input type="text" id="refLink" class="copy-input" readonly>
+                <button id="copyBtn">Copy</button>
+            </div>
+            <p>Referred Users: <span id="refCount">0</span></p>
+            
+            <div class="benefits-container">
+                <h3>Referral Benefits</h3>
+                <div class="benefit-item">
+                    <span class="benefit-icon">💰</span>
+                    <span>Get <strong>50 MDC</strong> for each successful referral</span>
+                </div>
+                <div class="benefit-item">
+                    <span class="benefit-icon">📈</span>
+                    <span>Earn <strong>2% bonus</strong> from your referrals' mining for 7 days</span>
+                </div>
+                <div class="benefit-item">
+                    <span class="benefit-icon">🎯</span>
+                    <span>Increase your earnings by sharing your referral link</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <button data-tab="history">History</button>
+            <button data-tab="referrals">Referrals</button>
+            <button data-tab="whitelist">White List</button>
+        </div>
+
+        <div id="history" class="tab-content">
+            <h3>Transaction History</h3>
+            <div id="historyList"></div>
+        </div>
+
+        <div id="referrals" class="tab-content">
+            <h3>Your Referrals</h3>
+            <div id="referralsList"></div>
+        </div>
+
+        <div id="whitelist" class="tab-content">
+            <h3>White List</h3>
+            <p>Update your whitelist here later.</p>
+        </div>
     </div>
-    <div class="tab-content" id="whitepaperTab">
-      <h3>Whitepaper</h3>
-      <p>Coming soon...</p>
+
+    <!-- Wallet Access Modal -->
+    <div id="walletAccessModal" class="modal">
+        <div class="modal-content">
+            <h2>Access Your Wallet</h2>
+            <div id="walletLogin">
+                <p>Enter your 24-word password to access your wallet</p>
+                <input type="text" id="walletPassword" class="wallet-input" placeholder="24-word password">
+                <div class="modal-buttons">
+                    <button id="loginWalletBtn">Access Wallet</button>
+                    <button id="cancelWalletLoginBtn" style="background:#ff5555;">Cancel</button>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
 
-</div>
+    <!-- Wallet Modal -->
+    <div id="walletModal" class="modal">
+        <div class="modal-content">
+            <h2>MDC Wallet</h2>
+            <div id="walletContent">
+                <p>Balance: <span id="walletBalance">0</span> MDC</p>
+                <button id="withdrawBtn">Withdraw MDC</button>
+                <button id="registerWalletBtn" style="margin-top:10px; display:none;">Register Wallet</button>
+            </div>
+        </div>
+    </div>
 
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-app.js";
-  import { getFirestore, doc, setDoc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-firestore.js";
+    <!-- Register Wallet Modal -->
+    <div id="registerWalletModal" class="modal">
+        <div class="modal-content">
+            <h2>Register Wallet</h2>
+            <p>Please save these 24 words securely. You will need them to access your wallet.</p>
+            <div id="wordsContainer" class="words-grid">
+                <!-- Words will be generated here -->
+            </div>
+            <p style="color:#ff5555; font-size:14px; margin:10px 0;">⚠️ Warning: If you lose these words, you will lose access to your wallet permanently!</p>
+            <div class="modal-buttons">
+                <button id="copyWordsBtn">Copy Words</button>
+                <button id="confirmWordsBtn">I've Saved These Words</button>
+                <button id="cancelRegisterBtn" style="background:#ff5555;">Cancel</button>
+            </div>
+        </div>
+    </div>
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyBRitTsyqXfk6XNh3t1j0boebQa1LNQkKs",
-    authDomain: "moo-deng-coin.firebaseapp.com",
-    projectId: "moo-deng-coin",
-    storageBucket: "moo-deng-coin.appspot.com",
-    messagingSenderId: "629636349388",
-    appId: "1:629636349388:web:a9a7924aaea9354a09f169",
-    measurementId: "G-T7FVX8DW2Z"
-  };
+    <!-- Withdraw Modal -->
+    <div id="withdrawModal" class="modal">
+        <div class="modal-content withdraw-dialog">
+            <h2>Withdraw MDC</h2>
+            <p>Available: <span id="withdrawBalance">0</span> MDC</p>
+            <input type="number" id="withdrawAmount" placeholder="Amount to withdraw" min="1">
+            <input type="text" id="withdrawAddress" placeholder="Destination Address">
+            <div class="modal-buttons">
+                <button id="confirmWithdrawBtn">Confirm Withdrawal</button>
+                <button id="cancelWithdrawBtn" style="background:#ff5555;">Cancel</button>
+            </div>
+        </div>
+    </div>
 
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-
-  // UI Elements
-  const signupTabBtn = document.getElementById('signupTabBtn');
-  const loginTabBtn = document.getElementById('loginTabBtn');
-  const signupForm = document.getElementById('signupForm');
-  const loginForm = document.getElementById('loginForm');
-  const signupBtn = document.getElementById('signupBtn');
-  const loginBtn = document.getElementById('loginBtn');
-  const walletSection = document.getElementById('walletSection');
-  const walletBalance = document.getElementById('walletBalance');
-  const registerWalletBtn = document.getElementById('registerWalletBtn');
-  const profilePic = document.getElementById('profilePic');
-  const logoutBtn = document.getElementById('logoutBtn');
-  const mineBtn = document.getElementById('mineBtn');
-  const timerText = document.getElementById('timerText');
-  const refCodeEl = document.getElementById('refCode');
-  const refLinkInput = document.getElementById('refLink');
-  const copyBtn = document.getElementById('copyBtn');
-  const historyList = document.getElementById('historyList');
-  const tabs = document.querySelectorAll('.tabs button');
-  const tabContents = document.querySelectorAll('.tab-content');
-  const refCount = document.getElementById('refCount');
-
-  // State
-  let currentUser = null;
-  let userData = {};
-  const MINE_INTERVAL = 2*60*60*1000;
-  const MAX_DAILY_MINES = 5;
-
-  // Show signup by default
-  signupForm.style.display = 'block';
-
-  signupTabBtn.addEventListener('click', () => { signupForm.style.display='block'; loginForm.style.display='none'; });
-  loginTabBtn.addEventListener('click', () => { signupForm.style.display='none'; loginForm.style.display='block'; });
-
-  // Helper functions
-  function saveToLocal(userId,data){ localStorage.setItem('userData_'+userId,JSON.stringify(data)); }
-  function loadFromLocal(userId){ return JSON.parse(localStorage.getItem('userData_'+userId)||'null'); }
-
-  function showWallet(){
-    walletSection.style.display='block';
-    walletBalance.textContent = 'MDC Balance: ' + userData.balance;
-    refCodeEl.textContent = userData.refCode;
-    refLinkInput.value = window.location.href + '?ref=' + userData.refCode;
-    refCount.textContent = userData.referrals || 0;
-    updateMiningTimer();
-  }
-
-  // Copy referral
-  copyBtn.addEventListener('click',()=>{
-    refLinkInput.select(); refLinkInput.setSelectionRange(0,99999); document.execCommand('copy'); alert('Referral link copied!');
-  });
-
-  // Tabs
-  tabs.forEach(tab=>{
-    tab.addEventListener('click',()=>{
-      tabContents.forEach(tc=>tc.style.display='none');
-      document.getElementById(tab.dataset.tab).style.display='block';
-    });
-  });
-
-  // Sign Up
-  signupBtn.addEventListener('click',()=>{
-    const name=document.getElementById('signupName').value;
-    const email=document.getElementById('signupEmail').value;
-    const password=document.getElementById('signupPassword').value;
-    if(!name||!email||!password){ alert('Fill all fields'); return; }
-    currentUser=email;
-    userData = loadFromLocal(currentUser) || {name, email, balance:0, mines:0,lastMine:0,refCode:'ref_'+Math.random().toString(36).substring(2,8),referrals:0,history:[]};
-    saveToLocal(currentUser,userData);
-    signupForm.style.display='none';
-    showWallet();
-  });
-
-  // Login
-  loginBtn.addEventListener('click',()=>{
-    const email=document.getElementById('loginEmail').value;
-    const password=document.getElementById('loginPassword').value;
-    let data = loadFromLocal(email);
-    if(!data){ alert('No account found'); return; }
-    currentUser=email;
-    userData=data;
-    loginForm.style.display='none';
-    showWallet();
-  });
-
-  // Logout
-  logoutBtn.addEventListener('click',()=>{
-    currentUser=null;
-    userData={};
-    walletSection.style.display='none';
-    signupForm.style.display='block';
-  });
-
-  // Mining logic
-  function updateMiningTimer(){
-    if(!userData.lastMine) userData.lastMine=0;
-    const now=Date.now();
-    let remaining = userData.lastMine + MINE_INTERVAL - now;
-    if(remaining<=0 || userData.mines<MAX_DAILY_MINES){
-      timerText.textContent='Ready';
-      mineBtn.disabled=false;
-    } else {
-      mineBtn.disabled=true;
-      let hrs=Math.floor(remaining/3600000);
-      let mins=Math.floor((remaining%3600000)/60000);
-      let secs=Math.floor((remaining%60000)/1000);
-      timerText.textContent=`${hrs.toString().padStart(2,'0')}:${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`;
-      requestAnimationFrame(updateMiningTimer);
-    }
-  }
-
-  mineBtn.addEventListener('click',()=>{
-    if(userData.mines>=MAX_DAILY_MINES){ alert('Daily limit reached'); return; }
-    const now=Date.now();
-    userData.balance+=10;
-    userData.mines+=1;
-    userData.lastMine=now;
-    userData.history.unshift({type:'mine',amount:10,time:now});
-    saveToLocal(currentUser,userData);
-    walletBalance.textContent='MDC Balance: '+userData.balance;
-    const li=document.createElement('li');
-    li.textContent=`Mined 10 tokens at ${new Date(now).toLocaleTimeString()}`;
-    historyList.prepend(li);
-    updateMiningTimer();
-  });
-
-  // Profile pic update (local only)
-  profilePic.addEventListener('click',()=>{
-    let url=prompt('Enter image URL for profile pic (local only):');
-    if(url){ profilePic.style.backgroundImage=`url(${url})`; profilePic.style.backgroundSize='cover'; }
-  });
-
-  // Register Wallet (24-word pass)
-  registerWalletBtn.addEventListener('click',()=>{
-    if(!userData.walletPass){
-      userData.wallet
+    <script>
+        // Server simulation (in a real app, this would be actual server calls)
+        const server = {
+            users: {},
+            miningData: {},
+            referralData: {},
+            transactions: {},
+            
+            // Initialize with demo data if needed
+            init: function() {
+                // Load from localStorage or initialize empty
+                const savedData = localStorage.getItem('mooDengServerData');
+                if (savedData) {
+                    const parsed = JSON.parse(savedData);
+                    this.users = parsed.users || {};
+                    this.miningData = parsed.miningData || {};
+                    this.referralData = parsed.referralData || {};
+                    this.transactions = parsed.transactions || {};
+                }
+            },
+            
+            // Save server data to localStorage (simulating database)
+            save: function() {
+                const dataToSave = {
+                    users: this.users,
+                    miningData: this.miningData,
+                    referralData: this.referralData,
+                    transactions: this.transactions
+                };
+                localStorage.setItem('mooDengServerData', JSON.stringify(dataToSave));
+            },
+            
+            // User management
+            registerUser: function(email, password, refCode = null) {
+                if (this.users[email]) {
+                    return { success: false, message: "User already exists" };
+                }
+                
+                const userId = 'user_' + Math.random().toString(36).substring(2,10);
+                this.users[email] = {
+                    userId,
+                    password,
+                    balance: 0,
+                    mines: 0,
+                    lastMine: 0,
+                    referrals: 0,
+                    refCode: userId,
+                    walletRegistered: false,
+                    mnemonic: '',
+                    createdAt: Date.now()
+                };
+                
+                // Handle referral if provided
+                if (refCode) {
+                    this.handleReferral(refCode, userId);
+                }
+                
+                this.save();
+                return { success: true, userId };
+            },
+            
+            // Login user
+            loginUser: function(email, password) {
+                const user = this.users[email];
+                if (!user || user.password !== password) {
+                    return { success: false, message: "Invalid credentials" };
+                }
+                
+                return { success: true, user: { ...user } };
+            },
+            
+            // Update user data
+            updateUser: function(email, updates) {
+                if (!this.users[email]) return false;
+                
+                this.users[email] = { ...this.users[email], ...updates };
+                this.save();
+                return true;
+            },
+            
+            // Mining functions
+            mineToken: function(userId) {
+                const userEmail = Object.keys(this.users).find(email => this.users[email].userId === userId);
+                if (!userEmail) return { success: false, message: "User not found" };
+                
+                const user = this.users[userEmail];
+                const now = Date.now();
+                
+                // Check if user can mine
+                if (user.mines >= 5) {
+                    return { success: false, message: "Daily mining limit reached" };
+                }
+                
+                if (now - user.lastMine < 2*60*60*1000 && user.lastMine !== 0) {
+                    return { success: false, message: "Mining cooldown active" };
+                }
+                
+                // Update user mining data
+                user.balance += 10;
+                user.mines += 1;
+                user.lastMine = now;
+                
+                // Add transaction record
+                if (!this.transactions[userId]) this.transactions[userId] = [];
+                this.transactions[userId].push({
+                    type: 'mine',
+                    amount: 10,
+                    timestamp: now,
+                    description: 'Mined 10 MDC'
+                });
+                
+                this.updateUser(userEmail, user);
+                return { success: true, balance: user.balance, mines: user.mines };
+            },
+            
+            // Handle referral registration
+            handleReferral: function(refCode, newUserId) {
+                // Find user with this refCode
+                const referrerEmail = Object.keys(this.users).find(
+                    email => this.users[email].refCode === refCode
+                );
+                
+                if (referrerEmail) {
+                    const referrer = this.users[referrerEmail];
+                    
+                    // Add referral bonus (50 MDC)
+                    referrer.balance += 50;
+                    referrer.referrals += 1;
+                    
+                    // Record referral transaction
+                    if (!this.transactions[referrer.userId]) this.transactions[referrer.userId] = [];
+                    this.transactions[referrer.userId].push({
+                        type: 'referral',
+                        amount: 50,
+                        timestamp: Date.now(),
+                        description: `Referral bonus for ${newUserId}`
+                    });
+                    
+                    // Set up referral tracking for 2% bonus
+                    if (!this.referralData[referrer.userId]) this.referralData[referrer.userId] = {};
+                    this.referralData[referrer.userId][newUserId] = {
+                        joined: Date.now(),
+                        bonusEnd: Date.now() + 7*24*60*60*1000 // 7 days from now
+                    };
+                    
+                    this.updateUser(referrerEmail, referrer);
+                }
+            },
+            
+            // Get user transactions
+            getUserTransactions: function(userId) {
+                return this.transactions[userId] || [];
+            },
+            
+            // Get user referrals
+            getUserReferrals: function(userId) {
+                return this.referralData[userId] || {};
+            },
+            
+            // Register wallet with mnemonic
+            registerWallet: function(userId, mnemonic) {
+                const userEmail = Object.keys(this.users).find(email => this.users[email].userId === userId);
+                if (!userEmail) return false;
+                
+                this.users[userEmail].walletRegistered = true;
+                this.users[userEmail].mnemonic = mnemonic;
+                
+                this.save();
+                return true;
+            },
+            
+            // Verify wallet mnemonic
+            verifyWallet: function(userId, mnemonic) {
+                const userEmail = Object.keys(this.users).find(email => this.users[email].userId === userId);
+                if (!userEmail) return false;
+                
+                return this.users[userEmail].mnemonic === mnemonic;
+            }
+        };
+        
+        // Initialize server
+        server.init();
+        
+        // User Data
+        let currentUser = null;
+        
+        // UI Elements
+        const loginScreen = document.getElementById('loginScreen');
+        const registerScreen = document.getElementById('registerScreen');
+        const appContainer = document.getElementById('appContainer');
+        const accessWalletBtn = document.getElementById('accessWalletBtn');
+        const mineBtn = document.getElementById('mineBtn');
+        const timerText = document.getElementById('timerText');
+        const refCodeEl = document.getElementById('refCode');
+        const refLinkInput = document.getElementById('refLink');
+        const refCountEl = document.getElementById('refCount');
+        const copyBtn = document.getElementById('copyBtn');
+        const historyList = document.getElementById('historyList');
+        const referralsList = document.getElementById('referralsList');
+        const tabs = document.querySelectorAll('.tabs button');
+        const tabContents = document.querySelectorAll('.tab-content');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const walletAccessModal = document.getElementById('walletAccessModal');
+        const walletModal = document.getElementById('walletModal');
+        const registerWalletModal = document.getElementById('registerWalletModal');
+        const withdrawModal = document.getElementById('withdrawModal');
+        const walletContent = document.getElementById('walletContent');
+        const wordsContainer = document.getElementById('wordsContainer');
+        const walletPassword = document.getElementById('walletPassword');
+        const loginWalletBtn = document.getElementById('loginWalletBtn');
+        const cancelWalletLoginBtn = document.getElementById('cancelWalletLoginBtn');
+        const registerWalletBtn = document.getElementById('registerWalletBtn');
+        const confirmWordsBtn = document.getElementById('confirmWordsBtn');
+        const copyWordsBtn = document.getElementById('copyWordsBtn');
+        const cancelRegisterBtn = document.getElementById('cancelRegisterBtn');
+        const withdrawBtn = document.getElementById('withdrawBtn');
+        const confirmWithdrawBtn = document.getElementById('confirmWithdrawBtn');
+        const cancelWithdrawBtn = document.getElementById('cancelWithdrawBtn');
+        const withdrawBalanceEl = document.getElementById('withdrawBalance');
+        const withdrawAmount = document.getElementById('withdrawAmount');
+        const withdrawAddress = document.getElementById('withdrawAddress');
+        const loginBtn = document.getElementById('loginBtn');
+        const registerBtn = document.getElementById('registerBtn');
+        const showRegister = document.getElementById('showRegister');
+        const showLogin = document.getElementById('showLogin');
+        const loginEmail = document.getElementById('loginEmail');
+        const loginPassword = document.getElementById('loginPassword');
+        const registerEmail = document.getElementById('registerEmail');
+        const registerPassword = document.getElementById('registerPassword');
+        const registerConfirmPassword = document.getElementById('registerConfirmPassword');
+        const registerRefCode = document.getElementById('registerRefCode');
+        
+        // Check if user is logged in
+        function checkAuth() {
+            const userSession = localStorage.getItem('userSession');
+            if (userSession) {
+                const session = JSON.parse(userSession);
+                if (session.loggedIn && session.expiry > Date.now()) {
+                    const userResult = server.loginUser(session.email, session.password);
+                    if (userResult.success) {
+                        currentUser = userResult.user;
+                        showApp();
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+        
+        // Initialize the app
+        function initApp() {
+            if (!checkAuth()) {
+                loginScreen.style.display = 'block';
+                registerScreen.style.display = 'none';
+                appContainer.style.display = 'none';
+            }
+        }
+        
+        // Show main app
+        function showApp() {
+            loginScreen.style.display = 'none';
+            registerScreen.style.display = 'none';
+            appContainer.style.display = 'block';
+            
+            // Update UI with user data
+            refCodeEl.textContent = currentUser.refCode;
+            refLinkInput.value = window.location.origin + window.location.pathname + '?ref=' + currentUser.refCode;
+            refCountEl.textContent = currentUser.referrals;
+            
+            // Load transaction history
+            loadTransactionHistory();
+            
+            // Load referrals
+            loadReferrals();
+            
+            // Initialize mining timer
+            updateMiningTimer();
+        }
+        
+        // Load transaction history
+        function loadTransactionHistory() {
+            const transactions = server.getUserTransactions(currentUser.userId);
+            historyList.innerHTML = '';
+            
+            if (transactions.length === 0) {
+                historyList.innerHTML = '<p>No transactions yet</p>';
+                return;
+            }
+            
+            transactions.sort((a, b) => b.timestamp - a.timestamp).forEach(tx => {
+                const div = document.createElement('div');
+                div.className = 'history-item';
+                
+                let typeClass = '';
+                if (tx.type === 'mine') typeClass = 'history-type-mine';
+                else if (tx.type === 'referral') typeClass = 'history-type-referral';
+                else if (tx.type === 'bonus') typeClass = 'history-type-bonus';
+                
+                div.innerHTML = `
+                    <div><strong class="${typeClass}">${tx.description}</strong></div>
+                    <div>Amount: ${tx.amount} MDC</div>
+                    <div>Date: ${new Date(tx.timestamp).toLocaleString()}</div>
+                `;
+                
+                historyList.appendChild(div);
+            });
+        }
+        
+        // Load referrals
+        function loadReferrals() {
+            const referrals = server.getUserReferrals(currentUser.userId);
+            referralsList.innerHTML = '';
+            
+            if (Object.keys(referrals).length === 0) {
+                referralsList.innerHTML = '<p>No referrals yet</p>';
+                return;
+            }
+            
+            for (const [refId, data] of Object.entries(referrals)) {
+                const div = document.createElement('div');
+                div.className = 'history-item';
+                
+                const joinedDate = new Date(data.joined).toLocaleDateString();
+                const bonusEndDate = new Date(data.bonusEnd).toLocaleDateString();
+                const isActive = Date.now() < data.bonusEnd;
+                
+                div.innerHTML = `
+                    <div><strong>Referred User:</strong> ${refId}</div>
+                    <div>Joined: ${joinedDate}</div>
+                    <div>Bonus active: ${isActive ? 'Yes (until ' + bonusEndDate + ')' : 'No'}</div>
+                `;
+                
+                referralsList.appendChild(div);
+            }
+        }
+        
+        // Mining Logic
+        const MINE_INTERVAL = 2*60*60*1000; // 2 hours
+        const MAX_DAILY_MINES = 5;
+        
+        function updateMiningTimer() {
+            const now = Date.now();
+            let remaining = currentUser.lastMine + MINE_INTERVAL - now;
+            
+            if (remaining <=0 || currentUser.mines >= MAX_DAILY_MINES) {
+                timerText.textContent = 'Ready';
+                mineBtn.disabled = false;
+            } else {
+                mineBtn.disabled = true;
+                let hrs = Math.floor(remaining / 3600000);
+                let mins = Math.floor((remaining % 3600000)/60000);
+                let secs = Math.floor((remaining % 60000)/1000);
+                timerText.textContent = `${hrs.toString().padStart(2,'0')}:${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`;
+                setTimeout(updateMiningTimer, 1000);
+            }
+        }
+        
+        // Generate mnemonic phrase
+        function generateMnemonic() {
+            const words = [
+                'abandon', 'ability', 'able', 'about', 'above', 'absent', 'absorb', 'abstract', 'absurd', 'abuse',
+                'access', 'accident', 'account', 'accuse', 'achieve', 'acid', 'acoustic', 'acquire', 'across', 'act',
+                'action', 'actor', 'actress', 'actual', 'adapt', 'add', 'addict', 'address', 'adjust', 'admit',
+                'adult', 'advance', 'advice', 'aerobic', 'affair', 'afford', 'afraid', 'again', 'age', 'agent',
+                'agree', 'ahead', 'aim', 'air', 'airport', 'aisle', 'alarm', 'album', 'alcohol', 'alert',
+                'alien', 'all', 'alley', 'allow', 'almost', 'alone', 'alpha', 'already', 'also', 'alter'
+            ];
+            
+            let mnemonic = [];
+            for (let i = 0; i < 24; i++) {
+                const randomIndex = Math.floor(Math.random() * words.length);
+                mnemonic.push(words[randomIndex]);
+            }
+            return mnemonic.join(' ');
+        }
+        
+        // Event Listeners
+        mineBtn.addEventListener('click', () => {
+            const result = server.mineToken(currentUser.userId);
+            if (result.success) {
+                // Update current user data
+                currentUser.balance = result.balance;
+                currentUser.mines = result.mines;
+                currentUser.lastMine = Date.now();
+                
+                // Reload transaction history
+                loadTransactionHistory();
+                
+                // Update timer
+                updateMiningTimer();
+                
+                alert('Mining successful! You earned 10 MDC.');
+            } else {
+                alert(result.message);
+            }
+        });
+        
+        accessWalletBtn.addEventListener('click', () => {
+            if (currentUser.walletRegistered) {
+                // Show wallet login modal
+                walletPassword.value = '';
+                walletAccessModal.style.display = 'flex';
+            } else {
+                // Show wallet registration
+                showWalletRegistration();
+            }
+        });
+        
+        loginWalletBtn.addEventListener('click', () => {
+            const mnemonic = walletPassword.value.trim();
+            if (server.verifyWallet(currentUser.userId, mnemonic)) {
+                walletAccessModal.style.display = 'none';
+                showWallet();
+            } else {
+                alert('Invalid wallet password. Please enter your 24-word phrase correctly.');
+            }
+        });
+        
+        cancelWalletLoginBtn.addEventListener('click', () => {
+            walletAccessModal.style.display = 'none';
+        });
+        
+        registerWalletBtn.addEventListener('click', showWalletRegistration);
+        
+        function showWalletRegistration() {
+            // Generate and display mnemonic
+            const mnemonic = generateMnemonic();
+            wordsContainer.innerHTML = '';
+            
+            const words = mnemonic.split(' ');
+            words.forEach((word, index) => {
+                const wordBox = document.createElement('div');
+                wordBox.className = 'word-box';
+                wordBox.textContent = `${index + 1}. ${word}`;
+                wordsContainer.appendChild(wordBox);
+            });
+            
+            registerWalletModal.style.display = 'flex';
+            
+            // Set up confirm button
+            confirmWordsBtn.onclick = () => {
+                if (server.registerWallet(currentUser.userId, mnemonic)) {
+                    currentUser.walletRegistered = true;
+                    currentUser.mnemonic = mnemonic;
+                    registerWalletModal.style.display = 'none';
+                    showWallet();
+                }
+            };
+            
+            // Set up copy button
+            copyWordsBtn.onclick = () => {
+                navigator.clipboard.writeText(mnemonic)
+                    .then(() => alert('Mnemonic copied to clipboard!'))
+                    .catch(err => console.error('Could not copy text: ', err));
+            };
+        }
+        
+        cancelRegisterBtn.addEventListener('click', () => {
+            registerWalletModal.style.display = 'none';
+        });
+        
+        function showWallet() {
+            walletBalanceEl.textContent = currentUser.balance;
+            withdrawBalanceEl.textContent = currentUser.balance;
+            walletModal.style.display = 'flex';
+        }
+        
+        withdrawBtn.addEventListener('click', () => {
+            walletModal.style.display = 'none';
+            withdrawModal.style.display = 'flex';
+        });
+        
+        confirmWithdrawBtn.addEventListener('click', () => {
+            const amount = parseInt(withdrawAmount.value);
+            const address = withdrawAddress.value.trim();
+            
+            if (!amount || amount <= 0) {
+                alert('Please enter a valid amount');
+                return;
+            }
+            
+            if (amount > currentUser.balance) {
+                alert('Insufficient balance');
+                return;
+            }
+            
+            if (!address) {
+                alert('Please enter a destination address');
+                return;
+            }
+            
+            // In a real app, this would be a server call
+            alert(`Withdrawal request for ${amount} MDC to ${address} has been submitted.`);
+            
+            // Record transaction
+            if (!server.transactions[currentUser.userId]) server.transactions[currentUser.userId] = [];
+            server.transactions[currentUser.userId].push({
+                type: 'withdrawal',
+                amount: -amount,
+                timestamp: Date.now(),
+                description: `Withdrawal to ${address}`
+            });
+            
+            // Update balance
+            currentUser.balance -= amount;
+            server.updateUser(currentUser.userId, { balance: currentUser.balance });
+            
+            withdrawModal.style.display = 'none';
+            walletModal.style.display = 'flex';
+            walletBalanceEl.textContent = currentUser.balance;
+        });
+        
+        cancelWithdrawBtn.addEventListener('click', () => {
+            withdrawModal.style.display = 'none';
+            walletModal.style.display = 'flex';
+        });
+        
+        copyBtn.addEventListener('click', () => {
+            refLinkInput.select();
+            refLinkInput.setSelectionRange(0, 99999);
+            navigator.clipboard.writeText(refLinkInput.value)
+                .then(() => alert('Referral link copied!'))
+                .catch(err => console.error('Could not copy text: ', err));
+        });
+        
+        // Tabs
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                tabs.forEach(t => t.style.background = '#00ffdd');
+                tab.style.background = '#00ccaa';
+                
+                tabContents.forEach(tc => tc.style.display = 'none');
+                document.getElementById(tab.dataset.tab).style.display = 'block';
+            });
+        });
+        
+        // Initialize first tab as active
+        if (tabs.length > 0) {
+            tabs[0].style.background = '#00ccaa';
+            tabContents[0].style.display = 'block';
+        }
+        
+        // Login functionality
+        loginBtn.addEventListener('click', () => {
+            const email = loginEmail.value.trim();
+            const password = loginPassword.value;
+            
+            if (!email || !password) {
+                alert('Please enter both email and password');
+                return;
+            }
+            
+            const result = server.loginUser(email, password);
+            if (result.success) {
+                currentUser = result.user;
+                
+                // Save session
+                const session = {
+                    loggedIn: true,
+                    email: email,
+                    password: password,
+                    expiry: Date.now() + 7*24*60*60*1000 // 7 days
+                };
+                localStorage.setItem('userSession', JSON.stringify(session));
+                
+                showApp();
+            } else {
+                alert(result.message);
+            }
+        });
+        
+        // Register functionality
+        registerBtn.addEventListener('click', () => {
+            const email = registerEmail.value.trim();
+            const password = registerPassword.value;
+            const confirmPassword = registerConfirmPassword.value;
+            const refCode = registerRefCode.value.trim() || null;
+            
+            if (!email || !password) {
+                alert('Please enter both email and password');
+                return;
+            }
+            
+            if (password !== confirmPassword) {
+                alert('Passwords do not match');
+                return;
+            }
+            
+            const result = server.registerUser(email, password, refCode);
+            if (result.success) {
+                alert('Registration successful! Please login.');
+                showLogin.click();
+            } else {
+                alert(result.message);
+            }
+        });
+        
+        showRegister.addEventListener('click', (e) => {
+            e.preventDefault();
+            loginScreen.style.display = 'none';
+            registerScreen.style.display = 'block';
+        });
+        
+        showLogin.addEventListener('click', (e) => {
+            e.preventDefault();
+            registerScreen.style.display = 'none';
+            loginScreen.style.display = 'block';
+        });
+        
+        logoutBtn.addEventListener('click', () => {
+            localStorage.removeItem('userSession');
+            alert('Logged out successfully!');
+            location.reload();
+        });
+        
+        // Check for referral parameter in URL
+        function checkForReferral() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const refCode = urlParams.get('ref');
+            if (refCode) {
+                registerRefCode.value = refCode;
+            }
+        }
+        
+        // Initialize the app
+        initApp();
+        checkForReferral();
+    </script>
+</body>
+</html>
