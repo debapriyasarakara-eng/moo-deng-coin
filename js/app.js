@@ -44,17 +44,14 @@ const MAX_MINES_PER_DAY = 5;
 const REWARD_PER_MINE = 10;
 const REFERRAL_BONUS = 5;
 
-// Function to open the sidebar
 window.openNav = () => {
     if (sideMenu) sideMenu.style.width = "250px";
 };
 
-// Function to close the sidebar
 const closeNav = () => {
     if (sideMenu) sideMenu.style.width = "0";
 };
 
-// Function to switch content pages
 const showPage = (pageName) => {
     const allPages = [miningContent, walletContent, historyContent, referralContent, whitepaperContent];
     allPages.forEach(page => {
@@ -64,7 +61,7 @@ const showPage = (pageName) => {
     let newTitle = "";
     let currentPage = null;
 
-    if (pageName === 'mining') {
+    if (pageName === 'mining' || pageName === 'home') {
         currentPage = miningContent;
         newTitle = "Moo Deng Coin Mining";
     } else if (pageName === 'wallet') {
@@ -82,9 +79,6 @@ const showPage = (pageName) => {
     } else if (pageName === 'whitepaper') {
         currentPage = whitepaperContent;
         newTitle = "Whitepaper";
-    } else if (pageName === 'home') {
-        currentPage = miningContent;
-        newTitle = "Moo Deng Coin Mining";
     }
 
     if (currentPage) {
@@ -96,7 +90,6 @@ const showPage = (pageName) => {
     closeNav();
 };
 
-// Load Wallet Data
 const loadWalletData = async () => {
     const user = auth.currentUser;
     if (user) {
@@ -111,7 +104,6 @@ const loadWalletData = async () => {
     }
 };
 
-// Load History Data
 const loadHistoryData = async () => {
     const user = auth.currentUser;
     if (user) {
@@ -133,7 +125,6 @@ const loadHistoryData = async () => {
     }
 };
 
-// Load Referral Data
 const loadReferralData = () => {
     const user = auth.currentUser;
     if (user && referralCodeDisplay) {
@@ -142,7 +133,6 @@ const loadReferralData = () => {
     }
 };
 
-// Copy Referral Code
 if (copyReferralBtn) {
     copyReferralBtn.addEventListener('click', () => {
         const code = referralCodeDisplay.textContent;
@@ -154,7 +144,6 @@ if (copyReferralBtn) {
     });
 }
 
-// Function to update timer display and progress ring
 function updateTimerDisplay(remainingTime) {
     const hours = Math.floor(remainingTime / (1000 * 60 * 60));
     const minutes = Math.floor((remainingTime % (1000 * 60 * 60)) / (1000 * 60));
@@ -172,7 +161,6 @@ function updateTimerDisplay(remainingTime) {
     }
 }
 
-// Function to start the mining cooldown timer
 async function startMiningCooldown(user) {
     if (!user) return;
     const userRef = doc(db, "users", user.uid);
@@ -181,7 +169,6 @@ async function startMiningCooldown(user) {
     const now = Date.now();
     let remainingTime = miningCooldown - (now - lastMineTime);
 
-    // Initial check for daily limit
     const todayMines = userSnap.exists() ? (userSnap.data().todayMines || 0) : 0;
     if (todayMines >= MAX_MINES_PER_DAY) {
         if (mineBtn) {
@@ -227,9 +214,7 @@ async function startMiningCooldown(user) {
     }
 }
 
-// Check if all elements are present before adding event listeners
 document.addEventListener('DOMContentLoaded', () => {
-    // Signup
     if (signupBtn) {
         signupBtn.addEventListener('click', () => {
             const email = emailInput.value;
@@ -253,7 +238,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Login
     if (loginBtn) {
         loginBtn.addEventListener('click', () => {
             const email = emailInput.value;
@@ -269,7 +253,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Logout
     if (logoutBtn) {
         logoutBtn.addEventListener('click', () => {
             signOut(auth).then(() => {
@@ -278,7 +261,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Add event listeners for the menu links
     if (closeBtn) closeBtn.addEventListener('click', closeNav);
     if (homeLink) homeLink.addEventListener('click', () => showPage('home'));
     if (miningLink) miningLink.addEventListener('click', () => showPage('mining'));
@@ -287,7 +269,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (referralLink) referralLink.addEventListener('click', () => showPage('referral'));
     if (whitepaperLink) whitepaperLink.addEventListener('click', () => showPage('whitepaper'));
 
-    // Mining simulation (updated)
     if (mineBtn) {
         mineBtn.addEventListener('click', async () => {
             const user = auth.currentUser;
@@ -333,7 +314,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     
-    // Create the mining animation elements
     const miningCoinContainer = document.getElementById('mining-coin-container');
     if (miningCoinContainer) {
         const miningCoin = document.createElement('div');
@@ -348,7 +328,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// Auth state listener
 onAuthStateChanged(auth, async (user) => {
     if (user) {
         if (authContainer) authContainer.classList.add('hidden');
@@ -381,7 +360,7 @@ onAuthStateChanged(auth, async (user) => {
         
         startMiningCooldown(user);
     } else {
-        if (authContainer) authContainer.classList.remove('hidden');
+        if (authContainer) authContainer.classList.add('hidden');
         if (miningContainer) miningContainer.classList.add('hidden');
         clearInterval(miningInterval);
         if (mineBtn) {
