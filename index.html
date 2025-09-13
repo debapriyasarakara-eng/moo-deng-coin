@@ -28,6 +28,14 @@
       margin: 5px 0;
       width: 100%;
     }
+    #copy-message {
+      color: green;
+      margin-top: 5px;
+    }
+    #mine-message {
+      color: blue;
+      margin-top: 5px;
+    }
   </style>
 </head>
 <body>
@@ -55,6 +63,9 @@
       <button onclick="copyRefLink()">Copy</button>
     </p>
     <p id="copy-message"></p>
+
+    <h3>Statistics</h3>
+    <p>Total Referrals: <span id="referrals">0</span></p>
 
     <button onclick="logout()">Logout</button>
   </div>
@@ -213,10 +224,12 @@
             const data = doc.data();
             const balance = data.balance !== undefined ? data.balance : 0;
             const refCode = data.refCode || "";
+            const referrals = data.referrals !== undefined ? data.referrals : 0;
 
             document.getElementById('balance').innerText = balance;
             document.getElementById('ref-code').innerText = refCode;
             document.getElementById('ref-link').innerText = window.location.origin + "/?ref=" + refCode;
+            document.getElementById('referrals').innerText = referrals;
           }
         }).catch((error) => {
           console.error("Error getting document:", error);
