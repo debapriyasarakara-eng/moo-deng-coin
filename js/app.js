@@ -42,19 +42,15 @@ let miningInterval;
 let miningCooldown = 2 * 60 * 60 * 1000;
 const MAX_MINES_PER_DAY = 5;
 const REWARD_PER_MINE = 10;
-const REFERRAL_BONUS = 5;
 
-// Function to open the sidebar
 window.openNav = () => {
     if (sideMenu) sideMenu.style.width = "250px";
 };
 
-// Function to close the sidebar
 const closeNav = () => {
     if (sideMenu) sideMenu.style.width = "0";
 };
 
-// Function to switch content pages
 const showPage = (pageName) => {
     const allPages = [miningContent, walletContent, historyContent, referralContent, whitepaperContent];
     allPages.forEach(page => {
@@ -64,7 +60,7 @@ const showPage = (pageName) => {
     let newTitle = "";
     let currentPage = null;
 
-    if (pageName === 'mining') {
+    if (pageName === 'mining' || pageName === 'home') {
         currentPage = miningContent;
         newTitle = "Moo Deng Coin Mining";
     } else if (pageName === 'wallet') {
@@ -82,9 +78,6 @@ const showPage = (pageName) => {
     } else if (pageName === 'whitepaper') {
         currentPage = whitepaperContent;
         newTitle = "Whitepaper";
-    } else if (pageName === 'home') {
-        currentPage = miningContent;
-        newTitle = "Moo Deng Coin Mining";
     }
 
     if (currentPage) {
@@ -96,44 +89,51 @@ const showPage = (pageName) => {
     closeNav();
 };
 
-// Load Wallet Data
 const loadWalletData = async () => {
     const user = auth.currentUser;
     if (user) {
         const userRef = doc(db, "users", user.uid);
-        const userSnap = await getDoc(userRef);
-        if (userSnap.exists()) {
-            const data = userSnap.data();
-            if (walletBalance) {
-                walletBalance.textContent = data.minedTokens || 0;
+        try {
+            const userSnap = await getDoc(userRef);
+            if (userSnap.exists()) {
+                const data = userSnap.data();
+                if (walletBalance) {
+                    walletBalance.textContent = data.minedTokens || 0;
+                }
             }
+        } catch (error) {
+            alert("Error loading wallet data: " + error.message);
+            console.error(error);
         }
     }
 };
 
-// Load History Data
 const loadHistoryData = async () => {
     const user = auth.currentUser;
     if (user) {
         const userRef = doc(db, "users", user.uid);
-        const userSnap = await getDoc(userRef);
-        if (userSnap.exists()) {
-            const data = userSnap.data();
-            const history = data.history || [];
-            if (historyList) {
-                historyList.innerHTML = '';
-                history.sort((a, b) => b.timestamp - a.timestamp);
-                history.forEach(item => {
-                    const li = document.createElement('li');
-                    li.textContent = `Mined ${item.amount} tokens on ${new Date(item.timestamp).toLocaleString()}`;
-                    historyList.appendChild(li);
-                });
+        try {
+            const userSnap = await getDoc(userRef);
+            if (userSnap.exists()) {
+                const data = userSnap.data();
+                const history = data.history || [];
+                if (historyList) {
+                    historyList.innerHTML = '';
+                    history.sort((a, b) => b.timestamp - a.timestamp);
+                    history.forEach(item => {
+                        const li = document.createElement('li');
+                        li.textContent = `Mined ${item.amount} tokens on ${new Date(item.timestamp).toLocaleString()}`;
+                        historyList.appendChild(li);
+                    });
+                }
             }
+        } catch (error) {
+            alert("Error loading history data: " + error.message);
+            console.error(error);
         }
     }
 };
 
-// Load Referral Data
 const loadReferralData = () => {
     const user = auth.currentUser;
     if (user && referralCodeDisplay) {
@@ -142,19 +142,17 @@ const loadReferralData = () => {
     }
 };
 
-// Copy Referral Code
 if (copyReferralBtn) {
     copyReferralBtn.addEventListener('click', () => {
         const code = referralCodeDisplay.textContent;
         navigator.clipboard.writeText(code).then(() => {
             alert("Referral code copied!");
         }).catch(err => {
-            console.error("Failed to copy text: ", err);
+            alert("Failed to copy text: " + err);
         });
     });
 }
 
-// Function to update timer display and progress ring
 function updateTimerDisplay(remainingTime) {
     const hours = Math.floor(remainingTime / (1000 * 60 * 60));
     const minutes = Math.floor((remainingTime % (1000 * 60 * 60)) / (1000 * 60));
@@ -172,64 +170,65 @@ function updateTimerDisplay(remainingTime) {
     }
 }
 
-// Function to start the mining cooldown timer
 async function startMiningCooldown(user) {
     if (!user) return;
     const userRef = doc(db, "users", user.uid);
-    const userSnap = await getDoc(userRef);
-    const lastMineTime = userSnap.exists() ? (userSnap.data().lastMineTime || 0) : 0;
-    const now = Date.now();
-    let remainingTime = miningCooldown - (now - lastMineTime);
+    try {
+        const userSnap = await getDoc(userRef);
+        const lastMineTime = userSnap.exists() ? (userSnap.data().lastMineTime || 0) : 0;
+        const now = Date.now();
+        let remainingTime = miningCooldown - (now - lastMineTime);
 
-    // Initial check for daily limit
-    const todayMines = userSnap.exists() ? (userSnap.data().todayMines || 0) : 0;
-    if (todayMines >= MAX_MINES_PER_DAY) {
-        if (mineBtn) {
-            mineBtn.disabled = true;
-            mineBtn.textContent = 'Daily Limit Reached';
-        }
-        if (mineStatus) mineStatus.textContent = `You have reached your daily mining limit (${todayMines}/${MAX_MINES_PER_DAY}).`;
-        if (document.querySelector('.mining-timer')) document.querySelector('.mining-timer').textContent = "LIMIT REACHED";
-        if (document.querySelector('.mining-progress-ring')) document.querySelector('.mining-progress-ring').style.setProperty('--progress', `100%`);
-        return;
-    }
-
-    if (remainingTime <= 0) {
-        if (mineBtn) {
-            mineBtn.disabled = false;
-            mineBtn.textContent = 'Start Mining';
-        }
-        if (mineStatus) mineStatus.textContent = `Ready to mine! You have mined ${todayMines} out of ${MAX_MINES_PER_DAY} times today.`;
-        if (document.querySelector('.mining-timer')) document.querySelector('.mining-timer').textContent = "READY!";
-        if (document.querySelector('.mining-progress-ring')) document.querySelector('.mining-progress-ring').style.setProperty('--progress', `100%`);
-        clearInterval(miningInterval);
-    } else {
-        if (mineBtn) {
-            mineBtn.disabled = true;
-            mineBtn.textContent = 'Mining Cooldown...';
-        }
-        updateTimerDisplay(remainingTime);
-        miningInterval = setInterval(() => {
-            remainingTime -= 1000;
-            if (remainingTime <= 0) {
-                clearInterval(miningInterval);
-                if (mineBtn) {
-                    mineBtn.disabled = false;
-                    mineBtn.textContent = 'Start Mining';
-                }
-                if (mineStatus) mineStatus.textContent = `Ready to mine! You have mined ${todayMines} out of ${MAX_MINES_PER_DAY} times today.`;
-                if (document.querySelector('.mining-timer')) document.querySelector('.mining-timer').textContent = "READY!";
-                if (document.querySelector('.mining-progress-ring')) document.querySelector('.mining-progress-ring').style.setProperty('--progress', `100%`);
-            } else {
-                updateTimerDisplay(remainingTime);
+        const todayMines = userSnap.exists() ? (userSnap.data().todayMines || 0) : 0;
+        if (todayMines >= MAX_MINES_PER_DAY) {
+            if (mineBtn) {
+                mineBtn.disabled = true;
+                mineBtn.textContent = 'Daily Limit Reached';
             }
-        }, 1000);
+            if (mineStatus) mineStatus.textContent = `You have reached your daily mining limit (${todayMines}/${MAX_MINES_PER_DAY}).`;
+            if (document.querySelector('.mining-timer')) document.querySelector('.mining-timer').textContent = "LIMIT REACHED";
+            if (document.querySelector('.mining-progress-ring')) document.querySelector('.mining-progress-ring').style.setProperty('--progress', `100%`);
+            return;
+        }
+
+        if (remainingTime <= 0) {
+            if (mineBtn) {
+                mineBtn.disabled = false;
+                mineBtn.textContent = 'Start Mining';
+            }
+            if (mineStatus) mineStatus.textContent = `Ready to mine! You have mined ${todayMines} out of ${MAX_MINES_PER_DAY} times today.`;
+            if (document.querySelector('.mining-timer')) document.querySelector('.mining-timer').textContent = "READY!";
+            if (document.querySelector('.mining-progress-ring')) document.querySelector('.mining-progress-ring').style.setProperty('--progress', `100%`);
+            clearInterval(miningInterval);
+        } else {
+            if (mineBtn) {
+                mineBtn.disabled = true;
+                mineBtn.textContent = 'Mining Cooldown...';
+            }
+            updateTimerDisplay(remainingTime);
+            miningInterval = setInterval(() => {
+                remainingTime -= 1000;
+                if (remainingTime <= 0) {
+                    clearInterval(miningInterval);
+                    if (mineBtn) {
+                        mineBtn.disabled = false;
+                        mineBtn.textContent = 'Start Mining';
+                    }
+                    if (mineStatus) mineStatus.textContent = `Ready to mine! You have mined ${todayMines} out of ${MAX_MINES_PER_DAY} times today.`;
+                    if (document.querySelector('.mining-timer')) document.querySelector('.mining-timer').textContent = "READY!";
+                    if (document.querySelector('.mining-progress-ring')) document.querySelector('.mining-progress-ring').style.setProperty('--progress', `100%`);
+                } else {
+                    updateTimerDisplay(remainingTime);
+                }
+            }, 1000);
+        }
+    } catch (error) {
+        alert("Error during cooldown check: " + error.message);
+        console.error(error);
     }
 }
 
-// Check if all elements are present before adding event listeners
 document.addEventListener('DOMContentLoaded', () => {
-    // Signup
     if (signupBtn) {
         signupBtn.addEventListener('click', () => {
             const email = emailInput.value;
@@ -237,48 +236,53 @@ document.addEventListener('DOMContentLoaded', () => {
             createUserWithEmailAndPassword(auth, email, password)
                 .then(async (userCredential) => {
                     const user = userCredential.user;
-                    await setDoc(doc(db, "users", user.uid), {
-                        email: email,
-                        minedTokens: 0,
-                        lastMineTime: 0,
-                        todayMines: 0,
-                        history: []
-                    });
-                    console.log("User signed up successfully!");
+                    try {
+                        await setDoc(doc(db, "users", user.uid), {
+                            email: email,
+                            minedTokens: 0,
+                            lastMineTime: 0,
+                            todayMines: 0,
+                            history: []
+                        });
+                        alert("Sign up successful!");
+                    } catch (error) {
+                        alert("Error creating user data: " + error.message);
+                        console.error(error);
+                    }
                 })
                 .catch(error => {
-                    console.error("Error signing up:", error.message);
                     alert("Error signing up: " + error.message);
+                    console.error(error);
                 });
         });
     }
 
-    // Login
     if (loginBtn) {
         loginBtn.addEventListener('click', () => {
             const email = emailInput.value;
             const password = passwordInput.value;
             signInWithEmailAndPassword(auth, email, password)
                 .then(() => {
-                    console.log("Logged in successfully!");
+                    alert("Login successful!");
                 })
                 .catch(error => {
-                    console.error("Error logging in:", error.message);
                     alert("Error logging in: " + error.message);
+                    console.error(error);
                 });
         });
     }
 
-    // Logout
     if (logoutBtn) {
         logoutBtn.addEventListener('click', () => {
             signOut(auth).then(() => {
-                console.log("Logged out successfully!");
+                alert("Logged out successfully!");
+            }).catch(error => {
+                alert("Error logging out: " + error.message);
+                console.error(error);
             });
         });
     }
 
-    // Add event listeners for the menu links
     if (closeBtn) closeBtn.addEventListener('click', closeNav);
     if (homeLink) homeLink.addEventListener('click', () => showPage('home'));
     if (miningLink) miningLink.addEventListener('click', () => showPage('mining'));
@@ -287,53 +291,56 @@ document.addEventListener('DOMContentLoaded', () => {
     if (referralLink) referralLink.addEventListener('click', () => showPage('referral'));
     if (whitepaperLink) whitepaperLink.addEventListener('click', () => showPage('whitepaper'));
 
-    // Mining simulation (updated)
     if (mineBtn) {
         mineBtn.addEventListener('click', async () => {
             const user = auth.currentUser;
             if (user) {
                 const userRef = doc(db, "users", user.uid);
-                const userSnap = await getDoc(userRef);
-                
-                let currentTokens = userSnap.exists() ? (userSnap.data().minedTokens || 0) : 0;
-                let lastMineTime = userSnap.exists() ? (userSnap.data().lastMineTime || 0) : 0;
-                let todayMines = userSnap.exists() ? (userSnap.data().todayMines || 0) : 0;
-                const history = userSnap.exists() ? (userSnap.data().history || []) : [];
-                const now = Date.now();
-
-                const lastMineDate = new Date(lastMineTime);
-                const currentDate = new Date(now);
-                if (lastMineDate.getDate() !== currentDate.getDate() || lastMineDate.getMonth() !== currentDate.getMonth() || lastMineDate.getFullYear() !== currentDate.getFullYear()) {
-                    todayMines = 0;
-                }
-
-                if (todayMines < MAX_MINES_PER_DAY && (now - lastMineTime >= miningCooldown || lastMineTime === 0)) {
-                    currentTokens += REWARD_PER_MINE;
-                    todayMines += 1;
+                try {
+                    const userSnap = await getDoc(userRef);
                     
-                    const newHistoryEntry = { amount: REWARD_PER_MINE, timestamp: now };
-                    history.push(newHistoryEntry);
-                    
-                    await updateDoc(userRef, { 
-                        minedTokens: currentTokens,
-                        lastMineTime: now,
-                        todayMines: todayMines,
-                        history: history
-                    });
-                    if (mineStatus) {
-                        mineStatus.textContent = `You mined ${REWARD_PER_MINE} tokens! Total: ${currentTokens}. Today's mines: ${todayMines}/${MAX_MINES_PER_DAY}`;
+                    let currentTokens = userSnap.exists() ? (userSnap.data().minedTokens || 0) : 0;
+                    let lastMineTime = userSnap.exists() ? (userSnap.data().lastMineTime || 0) : 0;
+                    let todayMines = userSnap.exists() ? (userSnap.data().todayMines || 0) : 0;
+                    const history = userSnap.exists() ? (userSnap.data().history || []) : [];
+                    const now = Date.now();
+
+                    const lastMineDate = new Date(lastMineTime);
+                    const currentDate = new Date(now);
+                    if (lastMineDate.getDate() !== currentDate.getDate() || lastMineDate.getMonth() !== currentDate.getMonth() || lastMineDate.getFullYear() !== currentDate.getFullYear()) {
+                        todayMines = 0;
                     }
-                    startMiningCooldown(user);
-                } else if (todayMines >= MAX_MINES_PER_DAY) {
-                    if (mineStatus) mineStatus.textContent = `You have reached your daily mining limit (${MAX_MINES_PER_DAY}/${MAX_MINES_PER_DAY}).`;
-                } else {
-                    if (mineStatus) mineStatus.textContent = `Please wait for the cooldown to finish.`;
+
+                    if (todayMines < MAX_MINES_PER_DAY && (now - lastMineTime >= miningCooldown || lastMineTime === 0)) {
+                        currentTokens += REWARD_PER_MINE;
+                        todayMines += 1;
+                        
+                        const newHistoryEntry = { amount: REWARD_PER_MINE, timestamp: now };
+                        history.push(newHistoryEntry);
+                        
+                        await updateDoc(userRef, { 
+                            minedTokens: currentTokens,
+                            lastMineTime: now,
+                            todayMines: todayMines,
+                            history: history
+                        });
+                        if (mineStatus) {
+                            mineStatus.textContent = `You mined ${REWARD_PER_MINE} tokens! Total: ${currentTokens}. Today's mines: ${todayMines}/${MAX_MINES_PER_DAY}`;
+                        }
+                        startMiningCooldown(user);
+                    } else if (todayMines >= MAX_MINES_PER_DAY) {
+                        if (mineStatus) mineStatus.textContent = `You have reached your daily mining limit (${MAX_MINES_PER_DAY}/${MAX_MINES_PER_DAY}).`;
+                    } else {
+                        if (mineStatus) mineStatus.textContent = `Please wait for the cooldown to finish.`;
+                    }
+                } catch (error) {
+                    alert("Error during mining process: " + error.message);
+                    console.error(error);
                 }
             }
         });
     }
     
-    // Create the mining animation elements
     const miningCoinContainer = document.getElementById('mining-coin-container');
     if (miningCoinContainer) {
         const miningCoin = document.createElement('div');
@@ -348,7 +355,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// Auth state listener
 onAuthStateChanged(auth, async (user) => {
     if (user) {
         if (authContainer) authContainer.classList.add('hidden');
@@ -360,26 +366,31 @@ onAuthStateChanged(auth, async (user) => {
         }
 
         const userRef = doc(db, "users", user.uid);
-        const userSnap = await getDoc(userRef);
-        if (!userSnap.exists()) {
-             await setDoc(userRef, {
-                email: user.email,
-                minedTokens: 0,
-                lastMineTime: 0,
-                todayMines: 0,
-                history: []
-            });
-        }
-        
-        const now = Date.now();
-        const lastMineDate = new Date(userSnap.data().lastMineTime || 0);
-        const currentDate = new Date(now);
+        try {
+            const userSnap = await getDoc(userRef);
+            if (!userSnap.exists()) {
+                 await setDoc(userRef, {
+                    email: user.email,
+                    minedTokens: 0,
+                    lastMineTime: 0,
+                    todayMines: 0,
+                    history: []
+                });
+            }
+            
+            const now = Date.now();
+            const lastMineDate = new Date(userSnap.data().lastMineTime || 0);
+            const currentDate = new Date(now);
 
-        if (lastMineDate.getDate() !== currentDate.getDate() || lastMineDate.getMonth() !== currentDate.getMonth() || lastMineDate.getFullYear() !== currentDate.getFullYear()) {
-            await updateDoc(userRef, { todayMines: 0 });
+            if (lastMineDate.getDate() !== currentDate.getDate() || lastMineDate.getMonth() !== currentDate.getMonth() || lastMineDate.getFullYear() !== currentDate.getFullYear()) {
+                await updateDoc(userRef, { todayMines: 0 });
+            }
+            
+            startMiningCooldown(user);
+        } catch (error) {
+            alert("Error during user state check: " + error.message);
+            console.error(error);
         }
-        
-        startMiningCooldown(user);
     } else {
         if (authContainer) authContainer.classList.remove('hidden');
         if (miningContainer) miningContainer.classList.add('hidden');
