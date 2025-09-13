@@ -10,6 +10,20 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
 
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        padding: 20px;
+      }
+      #wallet-section {
+        margin-top: 20px;
+      }
+      button {
+        padding: 10px 20px;
+        margin-top: 10px;
+        cursor: pointer;
+      }
+    </style>
 </head>
 <body>
 
@@ -23,16 +37,17 @@
         <button onclick="signup()">Sign Up</button>
     </div>
 
-    <!-- Wallet Display -->
+    <!-- Wallet Section -->
     <div id="wallet-section" style="display:none;">
         <h2>Wallet</h2>
-        <p>Balance: <span id="balance">0</span> tokens</p>
+        <p>Balance: <span id="balance">Loading...</span> tokens</p>
+        <button onclick="mineToken()">Mine Token</button>
+        <p id="mine-message"></p>
         <button onclick="logout()">Logout</button>
     </div>
 
-    <!-- Firebase Configuration & Logic -->
     <script>
-      // Firebase Config
+      // Firebase Configuration
       const firebaseConfig = {
         apiKey: "AIzaSyBRitTsyqXfk6XNh3t1j0boebQa1LNQkKs",
         authDomain: "moo-deng-coin.firebaseapp.com",
@@ -48,57 +63,104 @@
       const auth = firebase.auth();
       const db = firebase.firestore();
 
-      // Login function
+      // Login Function
       function login() {
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
         auth.signInWithEmailAndPassword(email, password)
-          .then((userCredential) => {
-            console.log('Logged in');
+          .then(() => {
+            console.log('Logged in successfully');
           })
           .catch((error) => {
             alert(error.message);
           });
       }
 
-      // Signup function
+      // Signup Function
       function signup() {
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
         auth.createUserWithEmailAndPassword(email, password)
           .then((userCredential) => {
             const user = userCredential.user;
-            // Create initial wallet document
             db.collection('users').doc(user.uid).set({
               balance: 0,
               mines: 0,
               referrals: 0
+            }).then(() => {
+              console.log("User profile created");
             });
-            console.log('Signed up');
           })
           .catch((error) => {
             alert(error.message);
           });
       }
 
-      // Logout function
+      // Logout Function
       function logout() {
         auth.signOut();
       }
 
-      // Track auth state
+      // Mine Token Function
+      function mineToken() {
+        const user = auth.currentUser;
+        if (!user) return;
+
+        const userId = user.uid;
+        const userRef = db.collection('users').doc(userId);
+
+        userRef.get().then((doc) => {
+          if (doc.exists) {
+            const data = doc.data();
+            const mines = data.mines || 0;
+            let balance = data.balance || 0;
+
+            if (mines >= 5) {
+              document.getElementById('mine-message').innerText = "You have reached the daily mining limit!";
+              return;
+            }
+
+            balance += 10; // প্রতিবার মাইন করলে ১০ টোকেন যোগ হবে
+            const newMines = mines + 1;
+
+            userRef.update({
+              balance: balance,
+              mines: newMines
+            }).then(() => {
+              document.getElementById('balance').innerText = balance;
+              document.getElementById('mine-message').innerText = "Successfully mined 10 tokens!";
+            }).catch((error) => {
+              console.error("Error updating document:", error);
+            });
+
+          } else {
+            console.log("No such document!");
+          }
+        });
+      }
+
+      // Auth State Changed
       auth.onAuthStateChanged((user) => {
         if (user) {
           document.getElementById('login-form').style.display = 'none';
           document.getElementById('wallet-section').style.display = 'block';
 
-          // Load wallet data
           const userId = user.uid;
-          db.collection('users').doc(userId).get().then((doc) => {
+          console.log("User ID:", userId);
+
+          const userRef = db.collection('users').doc(userId);
+          userRef.get().then((doc) => {
             if (doc.exists) {
               const data = doc.data();
-              document.getElementById('balance').innerText = data.balance;
+              console.log("User Data:", data);
+
+              const balance = data.balance !== undefined ? data.balance : 0;
+              document.getElementById('balance').innerText = balance;
+            } else {
+              console.log("No such document!");
             }
+          }).catch((error) => {
+            console.error("Error getting document:", error);
           });
 
         } else {
