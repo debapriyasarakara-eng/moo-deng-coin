@@ -437,13 +437,13 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 onAuthStateChanged(auth, async (user) => {
-    if (user) {
-        if (authContainer) authContainer.classList.add('hidden');
-        if (mainContent) mainContent.classList.remove('hidden');
-        if (userEmail) userEmail.textContent = `Logged in as: ${user.email}`;
-        
-        const userRef = doc(db, "users", user.uid);
-        try {
+    try {
+        if (user) {
+            if (authContainer) authContainer.classList.add('hidden');
+            if (mainContent) mainContent.classList.remove('hidden');
+            if (userEmail) userEmail.textContent = `Logged in as: ${user.email}`;
+            
+            const userRef = doc(db, "users", user.uid);
             const userSnap = await getDoc(userRef);
             if (!userSnap.exists()) {
                  await setDoc(userRef, {
@@ -467,18 +467,18 @@ onAuthStateChanged(auth, async (user) => {
             
             startMiningCooldown(user);
             showPage('mining');
-        } catch (error) {
-            alert("Error during user state check: " + error.message);
-            console.error(error);
+        } else {
+            if (authContainer) authContainer.classList.remove('hidden');
+            if (mainContent) mainContent.classList.add('hidden');
+            clearInterval(miningInterval);
+            if (mineBtn) {
+                mineBtn.disabled = false;
+                mineBtn.textContent = 'Start Mining';
+            }
+            showPage('home'); // Ensure auth page is shown on logout
         }
-    } else {
-        if (authContainer) authContainer.classList.remove('hidden');
-        if (mainContent) mainContent.classList.add('hidden');
-        clearInterval(miningInterval);
-        if (mineBtn) {
-            mineBtn.disabled = false;
-            mineBtn.textContent = 'Start Mining';
-        }
-        showPage('home'); // Ensure auth page is shown on logout
+    } catch (error) {
+        alert("An error occurred: " + error.message);
+        console.error(error);
     }
 });
