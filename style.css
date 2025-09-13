@@ -1,42 +1,250 @@
+/* General Styles */
 body {
-    font-family: Arial, sans-serif;
     background-color: #121212;
-    color: #fff;
-    text-align: center;
+    color: #f0f0f0;
+    font-family: 'Poppins', sans-serif;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
     padding: 20px;
+    box-sizing: border-box;
 }
 
+/* Container */
 .container {
+    background-color: #1c1c1c;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    text-align: center;
+    width: 100%;
     max-width: 400px;
-    margin: 50px auto;
-    background-color: #1e1e1e;
-    padding: 20px;
-    border-radius: 10px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-input {
-    width: 80%;
-    padding: 10px;
+.container:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.7);
+}
+
+h1 {
+    font-size: 2.5rem;
+    color: #4CAF50;
+    margin-bottom: 10px;
+    font-weight: 700;
+}
+
+p {
+    font-size: 1rem;
+    color: #b0b0b0;
+}
+
+/* Form Elements */
+input[type="email"],
+input[type="password"] {
+    width: calc(100% - 20px);
+    padding: 12px;
     margin: 10px 0;
-    border: none;
-    border-radius: 5px;
+    border: 1px solid #333;
+    border-radius: 8px;
+    background-color: #2a2a2a;
+    color: #f0f0f0;
+    font-size: 1rem;
+    transition: border-color 0.3s;
+}
+
+input[type="email"]:focus,
+input[type="password"]:focus {
+    border-color: #4CAF50;
+    outline: none;
 }
 
 button {
-    padding: 10px 20px;
-    margin: 10px 5px;
+    background-color: #4CAF50;
+    color: white;
+    padding: 12px 20px;
+    margin: 8px 0;
     border: none;
-    border-radius: 5px;
-    background-color: #00ffc8;
-    color: #000;
-    font-weight: bold;
+    border-radius: 8px;
     cursor: pointer;
+    width: 100%;
+    font-size: 1.1rem;
+    font-weight: 700;
+    transition: background-color 0.3s, transform 0.2s;
 }
 
 button:hover {
-    background-color: #00e0b8;
+    background-color: #45a049;
+    transform: translateY(-2px);
+}
+
+button:disabled {
+    background-color: #555;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Mining Content */
+#mining-container {
+    text-align: center;
+    width: 100%;
 }
 
 .hidden {
-    display: none;
+    display: none !important;
 }
+
+/* Sidebar styles */
+.side-menu {
+    height: 100%;
+    width: 0;
+    position: fixed;
+    z-index: 10;
+    top: 0;
+    left: 0;
+    background-color: #111;
+    overflow-x: hidden;
+    transition: 0.5s;
+    padding-top: 60px;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.5);
+}
+
+.side-menu a {
+    padding: 8px 8px 8px 32px;
+    text-decoration: none;
+    font-size: 18px;
+    color: #818181;
+    display: block;
+    transition: 0.3s;
+}
+
+.side-menu a:hover {
+    color: #f1f1f1;
+    background-color: #252525;
+}
+
+.side-menu .close-btn {
+    position: absolute;
+    top: 0;
+    right: 25px;
+    font-size: 36px;
+    margin-left: 50px;
+}
+
+.menu-btn {
+    font-size: 30px;
+    cursor: pointer;
+    color: #f0f0f0;
+    position: fixed;
+    top: 15px;
+    left: 20px;
+    z-index: 5;
+}
+
+.user-info {
+    padding: 20px 0;
+    text-align: center;
+    border-bottom: 1px solid #333;
+    margin-bottom: 15px;
+}
+
+.profile-pic {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: 3px solid #4CAF50;
+    margin-bottom: 10px;
+}
+
+.content-page {
+    padding: 20px;
+    margin-top: 60px;
+    text-align: center;
+    transition: all 0.5s ease-in-out;
+}
+
+.content-page h2 {
+    font-size: 2rem;
+    color: #4CAF50;
+    margin-bottom: 15px;
+}
+
+.content-page p {
+    font-size: 1.2rem;
+}
+
+#wallet-balance {
+    font-size: 3rem;
+    font-weight: bold;
+    color: #f0f0f0;
+}
+
+/* Mining animation */
+#mining-coin-container {
+    width: 200px;
+    height: 200px;
+    margin: 20px auto;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.mining-coin {
+    width: 100%;
+    height: 100%;
+    background: url('https://i.imgur.com/1000771553.jpg') no-repeat center center;
+    background-size: contain;
+    animation: rotate 10s infinite linear;
+}
+
+.mining-timer {
+    position: absolute;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #f0f0f0;
+}
+
+.mining-progress-ring {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    box-sizing: border-box;
+    position: absolute;
+    background: conic-gradient(#4CAF50 var(--progress, 0%), transparent var(--progress, 0%));
+}
+
+@keyframes rotate {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* History List */
+#history-list {
+    list-style-type: none;
+    padding: 0;
+}
+
+#history-list li {
+    background-color: #2a2a2a;
+    padding: 10px;
+    margin-bottom: 8px;
+    border-radius: 8px;
+    color: #f0f0f0;
+}
+
+/* Referral Section */
+#referral-content p {
+    word-break: break-all;
+    background-color: #2a2a2a;
+    padding: 10px;
+    border-radius: 8px;
+}
+
