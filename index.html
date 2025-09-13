@@ -1,57 +1,80 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Moo Deng Coin</title>
-  <style>
-    /* ================== Basic Reset & Body ================== */
-    * { margin:0; padding:0; box-sizing:border-box; font-family: 'Arial', sans-serif; }
-    body { background:#0d0d0d; color:#fff; display:flex; justify-content:center; align-items:flex-start; min-height:100vh; padding:20px; }
-    a { color:#00ffdd; text-decoration:none; }
-    button { cursor:pointer; background:#00ffdd; border:none; padding:10px 20px; color:#000; font-weight:bold; border-radius:5px; transition:0.3s; }
-    button:hover { background:#00ccaa; }
-
-    /* ================== Container ================== */
-    .container { max-width:450px; width:100%; background:#111; padding:20px; border-radius:10px; box-shadow:0 0 20px rgba(0,255,221,0.3); }
-    h1,h2,h3 { margin-bottom:10px; }
-    .wallet, .referral, .tabs, .tab-content { margin-top:20px; }
-    .wallet span, .referral span { font-weight:bold; color:#00ffdd; }
-
-    /* ================== Mining Circle ================== */
-    .mining-container { position:relative; width:200px; height:200px; margin:20px auto; }
-    .circle { width:100%; height:100%; border-radius:50%; border:5px solid #00ffdd; display:flex; justify-content:center; align-items:center; font-size:20px; font-weight:bold; position:relative; }
-    .circle::after { content:''; position:absolute; width:100%; height:100%; border-radius:50%; border:5px solid rgba(0,255,221,0.3); animation: rotateCircle linear infinite; }
-    @keyframes rotateCircle { from{transform:rotate(0deg);} to{transform:rotate(360deg);} }
-
-    /* ================== Tabs ================== */
-    .tabs { display:flex; justify-content:space-around; }
-    .tabs button { flex:1; margin:0 5px; }
-    .tab-content { display:none; margin-top:20px; background:#111; padding:15px; border-radius:10px; }
-
-    /* ================== Input / Copy ================== */
-    .referral-link { display:flex; justify-content:space-between; align-items:center; margin-top:10px; }
-    input.copy-input { width:70%; padding:5px; border-radius:5px; border:none; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Moo Deng Coin</title>
+<style>
+* {margin:0; padding:0; box-sizing:border-box; font-family: Arial, sans-serif;}
+body {background:#0d0d0d; color:#fff; display:flex; justify-content:center; align-items:flex-start; min-height:100vh; padding:20px;}
+a {color:#00ffdd; text-decoration:none;}
+button {cursor:pointer; background:#00ffdd; border:none; padding:10px 20px; color:#000; font-weight:bold; border-radius:5px; transition:0.3s;}
+button:hover {background:#00ccaa;}
+.container {max-width:450px; width:100%; background:#111; padding:20px; border-radius:10px; box-shadow:0 0 20px rgba(0,255,221,0.3);}
+h1,h2,h3 {margin-bottom:10px;}
+.wallet, .referral, .tabs, .tab-content {margin-top:20px;}
+.wallet span, .referral span {font-weight:bold; color:#00ffdd;}
+.mining-container {position:relative; width:200px; height:200px; margin:20px auto;}
+.circle {width:100%; height:100%; border-radius:50%; border:5px solid #00ffdd; display:flex; justify-content:center; align-items:center; font-size:20px; font-weight:bold; position:relative;}
+.circle::after {content:''; position:absolute; width:100%; height:100%; border-radius:50%; border:5px solid rgba(0,255,221,0.3); animation: rotateCircle linear infinite;}
+@keyframes rotateCircle {from{transform:rotate(0deg);} to{transform:rotate(360deg);}}
+.tabs {display:flex; justify-content:space-around;}
+.tabs button {flex:1; margin:0 5px;}
+.tab-content {display:none; margin-top:20px; background:#111; padding:15px; border-radius:10px;}
+.referral-link {display:flex; justify-content:space-between; align-items:center; margin-top:10px;}
+input.copy-input {width:70%; padding:5px; border-radius:5px; border:none;}
+.logout-warning {margin-top:15px; color:#ff5555; font-weight:bold; text-align:center;}
+.profile-pic {width:50px; height:50px; border-radius:50%; background:#333; display:flex; justify-content:center; align-items:center; font-size:20px; margin-right:10px; cursor:pointer;}
+.header-flex {display:flex; align-items:center; justify-content:space-between;}
+.logout-btn {margin-left:10px;}
+.copy-btn {padding:5px 10px; font-size:14px; border-radius:5px; background:#00ffdd; border:none; cursor:pointer;}
+</style>
 </head>
 <body>
+<div class="container" id="authContainer">
 
-<div class="container">
+  <!-- Authentication Forms -->
+  <div id="signupForm">
+    <h2>Sign Up</h2>
+    <input type="text" id="signupName" placeholder="Name" style="width:100%; padding:8px; margin-bottom:10px;">
+    <input type="email" id="signupEmail" placeholder="Email" style="width:100%; padding:8px; margin-bottom:10px;">
+    <input type="password" id="signupPass" placeholder="Password" style="width:100%; padding:8px; margin-bottom:10px;">
+    <button id="signupBtn">Sign Up</button>
+    <p style="margin-top:10px;">Already have an account? <a href="#" id="gotoLogin">Login</a></p>
+  </div>
 
-  <!-- Header -->
-  <h1>Moo Deng Coin</h1>
+  <div id="loginForm" style="display:none;">
+    <h2>Login</h2>
+    <input type="email" id="loginEmail" placeholder="Email" style="width:100%; padding:8px; margin-bottom:10px;">
+    <input type="password" id="loginPass" placeholder="Password" style="width:100%; padding:8px; margin-bottom:10px;">
+    <button id="loginBtn">Login</button>
+    <p style="margin-top:10px;">Don't have an account? <a href="#" id="gotoSignup">Sign Up</a></p>
+  </div>
+
+</div>
+
+<div class="container" id="mainContainer" style="display:none;">
+
+  <!-- Header with Profile and Logout -->
+  <div class="header-flex">
+    <div class="profile-pic" id="profilePic">👤</div>
+    <h1>Moo Deng Coin</h1>
+    <button class="logout-btn" id="logoutBtn">Logout</button>
+  </div>
 
   <!-- Wallet -->
   <div class="wallet">
     <h2>Wallet</h2>
-    <p>Balance: <span id="balance">0</span> tokens</p>
+    <p>MDC Balance: <span id="balance">0</span></p>
+    <button id="registerWalletBtn">Register Wallet</button>
     <button id="mineBtn">Mine Token</button>
+    <p class="logout-warning">⭐ Keep this tab open! If you close it, mining will stop. You can minimize it safely.</p>
   </div>
 
   <!-- Mining Circle -->
   <div class="mining-container">
     <div class="circle">
-      <span id="timerText">02:00:00</span>
+      <span id="timerText">00:00:00</span>
     </div>
   </div>
 
@@ -61,9 +84,10 @@
     <p>Your Referral Code: <span id="refCode"></span></p>
     <div class="referral-link">
       <input class="copy-input" id="refLink" readonly>
-      <button id="copyBtn">Copy</button>
+      <button class="copy-btn" id="copyBtn">Copy</button>
     </div>
     <p>Referred Users: <span id="refCount">0</span></p>
+    <p>Bonus: 2% from referrals for 7 days</p>
   </div>
 
   <!-- Tabs -->
@@ -80,113 +104,146 @@
   <div class="tab-content" id="whitelistTab">
     <h3>White List</h3>
     <p>Update your whitelist here later.</p>
+    <button style="background:#ff5555; color:#fff;">Withdrawal Coming Soon</button>
   </div>
 
 </div>
 
 <script type="module">
-  // ================== Firebase Initialization ==================
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-app.js";
-  import { getFirestore, doc, setDoc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-firestore.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-app.js";
+import { getFirestore, doc, setDoc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-firestore.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyBRitTsyqXfk6XNh3t1j0boebQa1LNQkKs",
-    authDomain: "moo-deng-coin.firebaseapp.com",
-    projectId: "moo-deng-coin",
-    storageBucket: "moo-deng-coin.appspot.com",
-    messagingSenderId: "629636349388",
-    appId: "1:629636349388:web:a9a7924aaea9354a09f169",
-    measurementId: "G-T7FVX8DW2Z"
-  };
+const firebaseConfig = {
+  apiKey: "AIzaSyBRitTsyqXfk6XNh3t1j0boebQa1LNQkKs",
+  authDomain: "moo-deng-coin.firebaseapp.com",
+  projectId: "moo-deng-coin",
+  storageBucket: "moo-deng-coin.appspot.com",
+  messagingSenderId: "629636349388",
+  appId: "1:629636349388:web:a9a7924aaea9354a09f169",
+  measurementId: "G-T7FVX8DW2Z"
+};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
+// Elements
+const signupForm = document.getElementById('signupForm');
+const loginForm = document.getElementById('loginForm');
+const gotoLogin = document.getElementById('gotoLogin');
+const gotoSignup = document.getElementById('gotoSignup');
+const signupBtn = document.getElementById('signupBtn');
+const loginBtn = document.getElementById('loginBtn');
+const authContainer = document.getElementById('authContainer');
+const mainContainer = document.getElementById('mainContainer');
 
-  // ================== User Data ==================
-  let userId = localStorage.getItem('userId') || 'user_' + Math.random().toString(36).substring(2,10);
-  localStorage.setItem('userId', userId);
+const balanceEl = document.getElementById('balance');
+const mineBtn = document.getElementById('mineBtn');
+const timerText = document.getElementById('timerText');
+const refCodeEl = document.getElementById('refCode');
+const refLinkInput = document.getElementById('refLink');
+const copyBtn = document.getElementById('copyBtn');
+const historyList = document.getElementById('historyList');
+const tabs = document.querySelectorAll('.tabs button');
+const tabContents = document.querySelectorAll('.tab-content');
+const logoutBtn = document.getElementById('logoutBtn');
 
-  let userData = {
-    balance: 0,
-    mines: 0,
-    lastMine: 0,
-    referrals: 0,
-    refCode: localStorage.getItem('refCode') || userId
-  };
+// Navigation
+gotoLogin.addEventListener('click', ()=>{signupForm.style.display='none'; loginForm.style.display='block';});
+gotoSignup.addEventListener('click', ()=>{loginForm.style.display='none'; signupForm.style.display='block';});
 
-  // ================== UI Elements ==================
-  const balanceEl = document.getElementById('balance');
-  const mineBtn = document.getElementById('mineBtn');
-  const timerText = document.getElementById('timerText');
-  const refCodeEl = document.getElementById('refCode');
-  const refLinkInput = document.getElementById('refLink');
-  const copyBtn = document.getElementById('copyBtn');
-  const historyList = document.getElementById('historyList');
-  const tabs = document.querySelectorAll('.tabs button');
-  const tabContents = document.querySelectorAll('.tab-content');
+// Local Storage for demo
+let userId = localStorage.getItem('userId') || 'user_'+Math.random().toString(36).substring(2,10);
+localStorage.setItem('userId', userId);
 
-  // ================== Initialize UI ==================
+let userData = {
+  balance: 0,
+  mines: 0,
+  lastMine: 0,
+  referrals: 0,
+  refCode: localStorage.getItem('refCode') || userId,
+  history:[]
+};
+
+// Display main UI
+function showMainUI(){
+  authContainer.style.display='none';
+  mainContainer.style.display='block';
   refCodeEl.textContent = userData.refCode;
-  refLinkInput.value = window.location.href + '?ref=' + userData.refCode;
+  refLinkInput.value = window.location.href+'?ref='+userData.refCode;
   balanceEl.textContent = userData.balance;
+}
+signupBtn.addEventListener('click', ()=>{
+  const name = document.getElementById('signupName').value.trim();
+  const email = document.getElementById('signupEmail').value.trim();
+  const pass = document.getElementById('signupPass').value.trim();
+  if(!name || !email || !pass){alert('Fill all fields'); return;}
+  userData.name = name;
+  localStorage.setItem('userName', name);
+  showMainUI();
+});
+loginBtn.addEventListener('click', ()=>{
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass = document.getElementById('loginPass').value.trim();
+  if(!email || !pass){alert('Fill all fields'); return;}
+  userData.name = localStorage.getItem('userName') || 'User';
+  showMainUI();
+});
 
-  // ================== Copy Referral ==================
-  copyBtn.addEventListener('click', () => {
-    refLinkInput.select();
-    refLinkInput.setSelectionRange(0, 99999);
-    document.execCommand('copy');
-    alert('Referral link copied!');
+// Copy Referral
+copyBtn.addEventListener('click', ()=>{
+  refLinkInput.select();
+  refLinkInput.setSelectionRange(0,99999);
+  document.execCommand('copy');
+  alert('Referral link copied!');
+});
+
+// Tabs
+tabs.forEach(tab=>{
+  tab.addEventListener('click', ()=>{
+    tabContents.forEach(tc=>tc.style.display='none');
+    document.getElementById(tab.dataset.tab).style.display='block';
   });
+});
 
-  // ================== Tabs ==================
-  tabs.forEach(tab => {
-    tab.addEventListener('click', () => {
-      tabContents.forEach(tc => tc.style.display = 'none');
-      document.getElementById(tab.dataset.tab).style.display = 'block';
-    });
-  });
+// Logout
+logoutBtn.addEventListener('click', ()=>{
+  localStorage.removeItem('userId');
+  location.reload();
+});
 
-  // ================== Mining Logic ==================
-  const MINE_INTERVAL = 2*60*60*1000; // 2 hours in ms
-  const MAX_DAILY_MINES = 5;
+// Mining Logic
+const MINE_INTERVAL = 2*60*60*1000; // 2 hours
+const MAX_DAILY_MINES = 5;
 
-  function updateMiningTimer() {
-    const now = Date.now();
-    let remaining = userData.lastMine + MINE_INTERVAL - now;
-    if (remaining <=0 || userData.mines >= MAX_DAILY_MINES) {
-      timerText.textContent = 'Ready';
-      mineBtn.disabled = false;
-    } else {
-      mineBtn.disabled = true;
-      let hrs = Math.floor(remaining / 3600000);
-      let mins = Math.floor((remaining % 3600000)/60000);
-      let secs = Math.floor((remaining % 60000)/1000);
-      timerText.textContent = `${hrs.toString().padStart(2,'0')}:${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`;
-      requestAnimationFrame(updateMiningTimer);
-    }
+function updateMiningTimer(){
+  const now = Date.now();
+  let remaining = userData.lastMine + MINE_INTERVAL - now;
+  if(remaining<=0 || userData.mines>=MAX_DAILY_MINES){
+    timerText.textContent='Ready';
+    mineBtn.disabled=false;
+  }else{
+    mineBtn.disabled=true;
+    let hrs=Math.floor(remaining/3600000);
+    let mins=Math.floor((remaining%3600000)/60000);
+    let secs=Math.floor((remaining%60000)/1000);
+    timerText.textContent=`${hrs.toString().padStart(2,'0')}:${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`;
+    requestAnimationFrame(updateMiningTimer);
   }
+}
 
-  mineBtn.addEventListener('click', () => {
-    if (userData.mines >= MAX_DAILY_MINES) {
-      alert('Daily mining limit reached!');
-      return;
-    }
-    const now = Date.now();
-    userData.balance += 10; // mined tokens
-    userData.mines += 1;
-    userData.lastMine = now;
-    balanceEl.textContent = userData.balance;
-
-    // Update history
-    const li = document.createElement('li');
-    li.textContent = `Mined 10 tokens at ${new Date(now).toLocaleTimeString()}`;
-    historyList.prepend(li);
-
-    updateMiningTimer();
-  });
-
+mineBtn.addEventListener('click', ()=>{
+  if(userData.mines>=MAX_DAILY_MINES){alert('Daily mining limit reached!'); return;}
+  const now = Date.now();
+  userData.balance += 10;
+  userData.mines +=1;
+  userData.lastMine=now;
+  balanceEl.textContent=userData.balance;
+  const li=document.createElement('li');
+  li.textContent=`Mined 10 tokens at ${new Date(now).toLocaleTimeString()}`;
+  historyList.prepend(li);
   updateMiningTimer();
+});
 
+updateMiningTimer();
 </script>
 </body>
 </html>
