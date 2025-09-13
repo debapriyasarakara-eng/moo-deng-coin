@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Moo Deng Coin</title>
 <style>
+/* আপনার আগের মতো CSS */
 * {margin:0; padding:0; box-sizing:border-box; font-family: Arial, sans-serif;}
 body {background:#0d0d0d; color:#fff; display:flex; justify-content:center; align-items:flex-start; min-height:100vh; padding:20px;}
 a {color:#00ffdd; text-decoration:none;}
@@ -59,9 +60,9 @@ input.copy-input {width:70%; padding:5px; border-radius:5px; border:none;}
 
 <div class="container" id="mainContainer" style="display:none;">
 
-  <!-- Header with Profile and Logout -->
+  <!-- Header -->
   <div class="header-flex">
-    <div class="profile-pic" id="profilePic">👤</div>
+    <div class="profile-pic" id="profilePic">🪙</div>
     <h1>Moo Deng Coin</h1>
     <button class="logout-btn" id="logoutBtn">Logout</button>
   </div>
@@ -98,16 +99,16 @@ input.copy-input {width:70%; padding:5px; border-radius:5px; border:none;}
   <!-- Tabs -->
   <div class="tabs">
     <button data-tab="historyTab">History</button>
-    <button data-tab="whitelistTab">white paper</button>
+    <button data-tab="whitelistTab">White List</button>
   </div>
 
-  <!-- Tab Contents -->
+  <!-- Tabs Content -->
   <div class="tab-content" id="historyTab">
     <h3>Mining History</h3>
     <ul id="historyList"></ul>
   </div>
   <div class="tab-content" id="whitelistTab">
-    <h3>White paper</h3>
+    <h3>White List</h3>
     <p>Update your whitelist here later.</p>
     <button style="background:#ff5555; color:#fff;">Withdrawal Coming Soon</button>
   </div>
@@ -116,12 +117,12 @@ input.copy-input {width:70%; padding:5px; border-radius:5px; border:none;}
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-app.js";
-import { 
+import {
   getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword,
   signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-auth.js";
-import { 
-  getFirestore, doc, getDoc, setDoc, updateDoc, arrayUnion 
+import {
+  getFirestore, doc, getDoc, setDoc, updateDoc, arrayUnion, runTransaction
 } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-firestore.js";
 
 // Firebase Config
@@ -135,7 +136,6 @@ const firebaseConfig = {
   measurementId: "G-T7FVX8DW2Z"
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
@@ -170,12 +170,12 @@ const historyList = document.getElementById('historyList');
 const tabs = document.querySelectorAll('.tabs button');
 const tabContents = document.querySelectorAll('.tab-content');
 
+let userDocRef = null;
+let miningTimer = null;
+
 // Referral code from URL
 let urlParams = new URLSearchParams(window.location.search);
 let refCodeFromURL = urlParams.get('ref') || null;
-
-let userDocRef = null;
-let miningTimer = null;
 
 let userData = {
   balance: 0,
@@ -190,7 +190,7 @@ let userData = {
 const MINE_INTERVAL = 2 * 60 * 60 * 1000; // 2 hours
 const MAX_DAILY_MINES = 5;
 
-// Show referral UI update
+// Referral UI update
 function updateReferralUI(uid) {
   userDocRef = doc(db, "users", uid);
   getDoc(userDocRef).then((docSnap) => {
@@ -210,7 +210,7 @@ copyBtn.addEventListener('click', () => {
   alert('Referral link copied!');
 });
 
-// UI Tabs logic
+// Tabs logic
 tabs.forEach(tab => {
   tab.addEventListener('click', () => {
     tabContents.forEach(tc => tc.style.display = 'none');
@@ -218,7 +218,30 @@ tabs.forEach(tab => {
   });
 });
 
-// Signup function
+// Transaction for referral bonus
+async function applyReferralBonus(referralUid) {
+  const refUserRef = doc(db, "users", referralUid);
+  try {
+    await runTransaction(db, async (transaction) => {
+      const refUserDoc = await transaction.get(refUserRef);
+      if (!refUserDoc.exists()) throw "Refer user does not exist!";
+
+      const currentData = refUserDoc.data();
+      const newBalance = (currentData.balance || 0) + 50;
+      const newReferralCount = (currentData.referrals || 0) + 1;
+
+      transaction.update(refUserRef, {
+        balance: newBalance,
+        referrals: newReferralCount
+      });
+    });
+    console.log("Referral bonus successfully applied.");
+  } catch (error) {
+    console.error("Failed to apply referral bonus: ", error);
+  }
+}
+
+// Signup with ref bonus
 signupBtn.addEventListener('click', async () => {
   const name = signupName.value.trim();
   const email = signupEmail.value.trim();
@@ -232,7 +255,6 @@ signupBtn.addEventListener('click', async () => {
     let user = userCredential.user;
     userDocRef = doc(db, "users", user.uid);
 
-    // Save referral info during signup
     await setDoc(userDocRef, {
       name,
       email,
@@ -246,16 +268,8 @@ signupBtn.addEventListener('click', async () => {
       signupTime: Date.now()
     });
 
-    // Add referral bonus to referrer + count update
     if (refCodeFromURL) {
-      const refUserRef = doc(db, "users", refCodeFromURL);
-      const refUserSnap = await getDoc(refUserRef);
-      if (refUserSnap.exists()) {
-        await updateDoc(refUserRef, {
-          balance: (refUserSnap.data().balance || 0) + 50,
-          referrals: (refUserSnap.data().referrals || 0) + 1
-        });
-      }
+      await applyReferralBonus(refCodeFromURL);
     }
 
     await loadUserData(user.uid);
@@ -283,7 +297,7 @@ loginBtn.addEventListener('click', async () => {
   }
 });
 
-// Google Sign-In with popup button disable to avoid double popup error
+// Google sign-in with referral bonus
 googleSignInBtn.addEventListener('click', async () => {
   googleSignInBtn.disabled = true;
   const provider = new GoogleAuthProvider();
@@ -305,17 +319,8 @@ googleSignInBtn.addEventListener('click', async () => {
         referredBy: refCodeFromURL || null,
         signupTime: Date.now()
       });
-
-      // Add referral bonus to referrer + count update
       if (refCodeFromURL) {
-        const refUserRef = doc(db, "users", refCodeFromURL);
-        const refUserSnap = await getDoc(refUserRef);
-        if (refUserSnap.exists()) {
-          await updateDoc(refUserRef, {
-            balance: (refUserSnap.data().balance || 0) + 50,
-            referrals: (refUserSnap.data().referrals || 0) + 1
-          });
-        }
+        await applyReferralBonus(refCodeFromURL);
       }
     }
     await loadUserData(user.uid);
@@ -343,7 +348,6 @@ onAuthStateChanged(auth, async (user) => {
   }
 });
 
-// Load user data from Firestore
 async function loadUserData(uid) {
   userDocRef = doc(db, "users", uid);
   const docSnap = await getDoc(userDocRef);
@@ -366,7 +370,7 @@ async function loadUserData(uid) {
   }
 }
 
-// Update mining timer UI
+// Update mining timer
 function updateMiningTimer() {
   const now = Date.now();
   let remaining = userData.lastMine + MINE_INTERVAL - now;
@@ -404,7 +408,6 @@ function renderHistory() {
   });
 }
 
-// Mining function with referral bonus logic
 mineBtn.addEventListener('click', async () => {
   if (userData.mines >= MAX_DAILY_MINES) {
     alert('Daily mining limit reached!');
@@ -425,7 +428,6 @@ mineBtn.addEventListener('click', async () => {
     history: arrayUnion(newHistoryItem)
   });
 
-  // Referral bonus: 2% for 7 days
   if (userData.referredBy) {
     const refUserRef = doc(db, "users", userData.referredBy);
     const refUserSnap = await getDoc(refUserRef);
@@ -440,7 +442,6 @@ mineBtn.addEventListener('click', async () => {
     }
   }
 
-  // Update UI
   balanceEl.textContent = userData.balance;
   userData.history.push(newHistoryItem);
   renderHistory();
