@@ -1,335 +1,192 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Moo Deng Coin - Secure Firebase Version</title>
-<style>
-  *{ margin:0; padding:0; box-sizing:border-box; font-family:'Arial', sans-serif;}
-  body{ background:#0d0d0d; color:#fff; display:flex; justify-content:center; align-items:flex-start; min-height:100vh; padding:20px;}
-  a{ color:#00ffdd; text-decoration:none;}
-  button{ cursor:pointer; background:#00ffdd; border:none; padding:10px 20px; color:#000; font-weight:bold; border-radius:5px; transition:0.3s;}
-  button:hover{ background:#00ccaa;}
-  .container{ max-width:450px; width:100%; background:#111; padding:20px; border-radius:10px; box-shadow:0 0 20px rgba(0,255,221,0.3);}
-  h1,h2,h3{ margin-bottom:10px;}
-  .hide{ display:none;}
-  #timerText{font-weight:bold; font-size:1.5em; color:#0ff;}
-  .warning{color:#ff5555; font-weight:bold; margin-top:10px;}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Moo Deng Coin</title>
+  <style>
+    /* ================== Basic Reset & Body ================== */
+    * { margin:0; padding:0; box-sizing:border-box; font-family: 'Arial', sans-serif; }
+    body { background:#0d0d0d; color:#fff; display:flex; justify-content:center; align-items:flex-start; min-height:100vh; padding:20px; }
+    a { color:#00ffdd; text-decoration:none; }
+    button { cursor:pointer; background:#00ffdd; border:none; padding:10px 20px; color:#000; font-weight:bold; border-radius:5px; transition:0.3s; }
+    button:hover { background:#00ccaa; }
 
-<!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/10.6.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.6.0/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.6.0/firebase-firestore.js"></script>
+    /* ================== Container ================== */
+    .container { max-width:450px; width:100%; background:#111; padding:20px; border-radius:10px; box-shadow:0 0 20px rgba(0,255,221,0.3); }
+    h1,h2,h3 { margin-bottom:10px; }
+    .wallet, .referral, .tabs, .tab-content { margin-top:20px; }
+    .wallet span, .referral span { font-weight:bold; color:#00ffdd; }
 
+    /* ================== Mining Circle ================== */
+    .mining-container { position:relative; width:200px; height:200px; margin:20px auto; }
+    .circle { width:100%; height:100%; border-radius:50%; border:5px solid #00ffdd; display:flex; justify-content:center; align-items:center; font-size:20px; font-weight:bold; position:relative; }
+    .circle::after { content:''; position:absolute; width:100%; height:100%; border-radius:50%; border:5px solid rgba(0,255,221,0.3); animation: rotateCircle linear infinite; }
+    @keyframes rotateCircle { from{transform:rotate(0deg);} to{transform:rotate(360deg);} }
+
+    /* ================== Tabs ================== */
+    .tabs { display:flex; justify-content:space-around; }
+    .tabs button { flex:1; margin:0 5px; }
+    .tab-content { display:none; margin-top:20px; background:#111; padding:15px; border-radius:10px; }
+
+    /* ================== Input / Copy ================== */
+    .referral-link { display:flex; justify-content:space-between; align-items:center; margin-top:10px; }
+    input.copy-input { width:70%; padding:5px; border-radius:5px; border:none; }
+  </style>
 </head>
 <body>
 
-<!-- Login Screen -->
-<div id="loginScreen" class="container">
-  <h1>Moo Deng Coin Login</h1>
-  <input type="email" id="loginEmail" placeholder="Email Address" />
-  <input type="password" id="loginPassword" placeholder="Password" />
-  <button id="loginBtn">Login</button>
-  <p>Don't have an account? <a href="#" id="showRegister">Register</a></p>
-</div>
+<div class="container">
 
-<!-- Register Screen -->
-<div id="registerScreen" class="container hide">
-  <h1>Register Account</h1>
-  <input type="email" id="registerEmail" placeholder="Email Address" />
-  <input type="password" id="registerPassword" placeholder="Password" />
-  <input type="password" id="registerConfirmPassword" placeholder="Confirm Password" />
-  <button id="registerBtn">Register</button>
-  <p>Already have an account? <a href="#" id="showLogin">Login</a></p>
-</div>
+  <!-- Header -->
+  <h1>Moo Deng Coin</h1>
 
-<!-- Main App Container -->
-<div id="appContainer" class="container hide">
-  <h1>Welcome, <span id="userEmail"></span></h1>
-
-  <div class="mining-container">
-    <div id="timerText">Ready to mine</div>
+  <!-- Wallet -->
+  <div class="wallet">
+    <h2>Wallet</h2>
+    <p>Balance: <span id="balance">0</span> tokens</p>
     <button id="mineBtn">Mine Token</button>
-    <p class="warning" id="miningWarning"></p>
   </div>
 
-  <button id="logoutBtn" style="margin-top:20px;">Logout</button>
+  <!-- Mining Circle -->
+  <div class="mining-container">
+    <div class="circle">
+      <span id="timerText">02:00:00</span>
+    </div>
+  </div>
+
+  <!-- Referral -->
+  <div class="referral">
+    <h3>Your Referral</h3>
+    <p>Your Referral Code: <span id="refCode"></span></p>
+    <div class="referral-link">
+      <input class="copy-input" id="refLink" readonly>
+      <button id="copyBtn">Copy</button>
+    </div>
+    <p>Referred Users: <span id="refCount">0</span></p>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button data-tab="historyTab">History</button>
+    <button data-tab="whitelistTab">White List</button>
+  </div>
+
+  <!-- Tab Contents -->
+  <div class="tab-content" id="historyTab">
+    <h3>Mining History</h3>
+    <ul id="historyList"></ul>
+  </div>
+  <div class="tab-content" id="whitelistTab">
+    <h3>White List</h3>
+    <p>Update your whitelist here later.</p>
+  </div>
+
 </div>
 
-<script>
-  // Firebase config (আপনার Firebase প্রজেক্ট থেকে বিকল্প নিন)
+<script type="module">
+  // ================== Firebase Initialization ==================
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-app.js";
+  import { getFirestore, doc, setDoc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-firestore.js";
+
   const firebaseConfig = {
     apiKey: "AIzaSyBRitTsyqXfk6XNh3t1j0boebQa1LNQkKs",
     authDomain: "moo-deng-coin.firebaseapp.com",
     projectId: "moo-deng-coin",
-    storageBucket: "moo-deng-coin.firebasestorage.app",
+    storageBucket: "moo-deng-coin.appspot.com",
     messagingSenderId: "629636349388",
     appId: "1:629636349388:web:a9a7924aaea9354a09f169",
     measurementId: "G-T7FVX8DW2Z"
   };
 
-  // Initialize Firebase
-  firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
-  const db = firebase.firestore();
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
 
-  // DOM elements
-  const loginScreen = document.getElementById('loginScreen');
-  const registerScreen = document.getElementById('registerScreen');
-  const appContainer = document.getElementById('appContainer');
-  const loginBtn = document.getElementById('loginBtn');
-  const registerBtn = document.getElementById('registerBtn');
-  const logoutBtn = document.getElementById('logoutBtn');
-  const showRegister = document.getElementById('showRegister');
-  const showLogin = document.getElementById('showLogin');
-  const userEmail = document.getElementById('userEmail');
+  // ================== User Data ==================
+  let userId = localStorage.getItem('userId') || 'user_' + Math.random().toString(36).substring(2,10);
+  localStorage.setItem('userId', userId);
+
+  let userData = {
+    balance: 0,
+    mines: 0,
+    lastMine: 0,
+    referrals: 0,
+    refCode: localStorage.getItem('refCode') || userId
+  };
+
+  // ================== UI Elements ==================
+  const balanceEl = document.getElementById('balance');
   const mineBtn = document.getElementById('mineBtn');
   const timerText = document.getElementById('timerText');
-  const miningWarning = document.getElementById('miningWarning');
+  const refCodeEl = document.getElementById('refCode');
+  const refLinkInput = document.getElementById('refLink');
+  const copyBtn = document.getElementById('copyBtn');
+  const historyList = document.getElementById('historyList');
+  const tabs = document.querySelectorAll('.tabs button');
+  const tabContents = document.querySelectorAll('.tab-content');
 
-  // Constants
-  const MINE_INTERVAL = 2 * 60 * 60 * 1000; // 2 hours
+  // ================== Initialize UI ==================
+  refCodeEl.textContent = userData.refCode;
+  refLinkInput.value = window.location.href + '?ref=' + userData.refCode;
+  balanceEl.textContent = userData.balance;
+
+  // ================== Copy Referral ==================
+  copyBtn.addEventListener('click', () => {
+    refLinkInput.select();
+    refLinkInput.setSelectionRange(0, 99999);
+    document.execCommand('copy');
+    alert('Referral link copied!');
+  });
+
+  // ================== Tabs ==================
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabContents.forEach(tc => tc.style.display = 'none');
+      document.getElementById(tab.dataset.tab).style.display = 'block';
+    });
+  });
+
+  // ================== Mining Logic ==================
+  const MINE_INTERVAL = 2*60*60*1000; // 2 hours in ms
   const MAX_DAILY_MINES = 5;
 
-  // Variables
-  let currentUser = null;
-  let miningIntervalId = null;
-
-  // Show register form
-  showRegister.addEventListener('click', (e) => {
-    e.preventDefault();
-    loginScreen.classList.add('hide');
-    registerScreen.classList.remove('hide');
-  });
-
-  // Show login form
-  showLogin.addEventListener('click', (e) => {
-    e.preventDefault();
-    registerScreen.classList.add('hide');
-    loginScreen.classList.remove('hide');
-  });
-
-  // Register user with detailed error popup
-  registerBtn.addEventListener('click', async () => {
-    const email = document.getElementById('registerEmail').value.trim();
-    const password = document.getElementById('registerPassword').value;
-    const confirmPassword = document.getElementById('registerConfirmPassword').value;
-
-    if (!email || !password || !confirmPassword) {
-      alert('All fields are required!');
-      return;
-    }
-    if (password !== confirmPassword) {
-      alert('Passwords do not match!');
-      return;
-    }
-    if (password.length < 6) {
-      alert('Password should be at least 6 characters!');
-      return;
-    }
-
-    try {
-      const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-      const userId = userCredential.user.uid;
-
-      // Init user data in Firestore
-      await db.collection('users').doc(userId).set({
-        email,
-        userId,
-        balance: 0,
-        mines: 0,
-        lastMine: 0,
-        createdAt: Date.now(),
-      });
-
-      alert('Registration successful! Please login.');
-      registerScreen.classList.add('hide');
-      loginScreen.classList.remove('hide');
-    } catch (error) {
-      alert(`Registration failed: ${error.message}`);
-      console.error('Registration error:', error);
-    }
-  });
-
-  // Login user with detailed error popup
-  loginBtn.addEventListener('click', async () => {
-    const email = document.getElementById('loginEmail').value.trim();
-    const password = document.getElementById('loginPassword').value;
-
-    if (!email || !password) {
-      alert('Please enter both email and password!');
-      return;
-    }
-
-    try {
-      const userCredential = await auth.signInWithEmailAndPassword(email, password);
-      currentUser = userCredential.user;
-      await loadUserData(currentUser.uid);
-      showApp();
-    } catch (error) {
-      alert(`Login failed: ${error.message}`);
-      console.error('Login error:', error);
-    }
-  });
-
-  // Logout user
-  logoutBtn.addEventListener('click', async () => {
-    try {
-      await auth.signOut();
-      currentUser = null;
-      appContainer.classList.add('hide');
-      loginScreen.classList.remove('hide');
-      stopMining();
-    } catch (error) {
-      alert(`Logout error: ${error.message}`);
-      console.error('Logout error:', error);
-    }
-  });
-
-  // Load user Firestore data with error popup
-  async function loadUserData(userId) {
-    try {
-      const doc = await db.collection('users').doc(userId).get();
-      if (doc.exists) {
-        currentUser = { uid: userId, ...doc.data() };
-        userEmail.textContent = currentUser.email;
-      } else {
-        throw new Error('User data not found.');
-      }
-    } catch (error) {
-      alert(`Failed to load user data: ${error.message}`);
-      console.error('Load user data error:', error);
-    }
-  }
-
-  // Show App UI
-  function showApp() {
-    loginScreen.classList.add('hide');
-    registerScreen.classList.add('hide');
-    appContainer.classList.remove('hide');
-    miningWarning.textContent = '';
-    updateMiningTimer();
-  }
-
-  // Update mining timer
   function updateMiningTimer() {
-    if (!currentUser) return;
-
     const now = Date.now();
-    let remaining = currentUser.lastMine + MINE_INTERVAL - now;
-
-    if (currentUser.mines >= MAX_DAILY_MINES) {
-      timerText.textContent = 'Daily limit reached';
-      mineBtn.disabled = true;
-      miningWarning.textContent = 'You have reached your daily mining limit.';
-      stopMining();
-      return;
-    }
-
-    if (remaining <= 0) {
-      timerText.textContent = 'Ready to mine';
+    let remaining = userData.lastMine + MINE_INTERVAL - now;
+    if (remaining <=0 || userData.mines >= MAX_DAILY_MINES) {
+      timerText.textContent = 'Ready';
       mineBtn.disabled = false;
-      miningWarning.textContent = '';
     } else {
       mineBtn.disabled = true;
-      miningWarning.textContent = 'Mining cooldown active. Please wait.';
       let hrs = Math.floor(remaining / 3600000);
-      let mins = Math.floor((remaining % 3600000) / 60000);
-      let secs = Math.floor((remaining % 60000) / 1000);
+      let mins = Math.floor((remaining % 3600000)/60000);
+      let secs = Math.floor((remaining % 60000)/1000);
       timerText.textContent = `${hrs.toString().padStart(2,'0')}:${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`;
-
-      setTimeout(updateMiningTimer, 1000);
+      requestAnimationFrame(updateMiningTimer);
     }
   }
 
-  // Start mining interval (simulate)
-  function startMiningCycle() {
-    miningIntervalId = setInterval(async () => {
-      if (!currentUser) {
-        stopMining();
-        return;
-      }
-
-      if (currentUser.mines >= MAX_DAILY_MINES) {
-        stopMining();
-        return;
-      }
-
-      const now = Date.now();
-      if (now - currentUser.lastMine < MINE_INTERVAL) return;
-
-      await mineToken();
-    }, 1000*10); // check every 10 seconds
-  }
-
-  // Stop mining interval
-  function stopMining() {
-    if (miningIntervalId) {
-      clearInterval(miningIntervalId);
-      miningIntervalId = null;
-    }
-  }
-
-  // Mine token function (simulate mining tokens) with error popup
-  async function mineToken() {
-    const now = Date.now();
-
-    if (currentUser.mines >= MAX_DAILY_MINES) return;
-    if (now - currentUser.lastMine < MINE_INTERVAL && currentUser.lastMine !== 0) return;
-
-    try {
-      currentUser.mines += 1;
-      currentUser.lastMine = now;
-      currentUser.balance = (currentUser.balance || 0) + 10;
-
-      await db.collection('users').doc(currentUser.uid).update({
-        mines: currentUser.mines,
-        lastMine: currentUser.lastMine,
-        balance: currentUser.balance
-      });
-
-      alert('Mining successful! You earned 10 MDC.');
-      updateMiningTimer();
-    } catch (error) {
-      alert(`Error during mining: ${error.message}`);
-      console.error('Mining error:', error);
-    }
-  }
-
-  // Button click mining
   mineBtn.addEventListener('click', () => {
-    if (!currentUser) {
-      alert('You must log in first!');
+    if (userData.mines >= MAX_DAILY_MINES) {
+      alert('Daily mining limit reached!');
       return;
     }
-    mineToken();
+    const now = Date.now();
+    userData.balance += 10; // mined tokens
+    userData.mines += 1;
+    userData.lastMine = now;
+    balanceEl.textContent = userData.balance;
+
+    // Update history
+    const li = document.createElement('li');
+    li.textContent = `Mined 10 tokens at ${new Date(now).toLocaleTimeString()}`;
+    historyList.prepend(li);
+
+    updateMiningTimer();
   });
 
-  // Listen for Firebase Auth state change
-  auth.onAuthStateChanged(async user => {
-    if (user) {
-      await loadUserData(user.uid);
-      showApp();
-      startMiningCycle();
-    } else {
-      stopMining();
-      appContainer.classList.add('hide');
-      loginScreen.classList.remove('hide');
-    }
-  });
+  updateMiningTimer();
 
-  // Detect tab close event - stop mining
-  window.addEventListener('beforeunload', (e) => {
-    stopMining();
-  });
-
-  // Optional: Global uncaught error handler to catch unexpected errors
-  window.onerror = function(message, source, lineno, colno, error) {
-    alert(`Unexpected error: ${message} at ${source}:${lineno}:${colno}`);
-    console.error('Global error:', error);
-  }
 </script>
-
 </body>
 </html>
