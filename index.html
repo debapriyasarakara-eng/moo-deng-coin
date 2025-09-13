@@ -51,7 +51,10 @@
 
     <h3>Your Referral</h3>
     <p>Your Referral Code: <span id="ref-code">Loading...</span></p>
-    <p>Share this link: <span id="ref-link">Loading...</span></p>
+    <p>Share this link: <span id="ref-link">Loading...</span>
+      <button onclick="copyRefLink()">Copy</button>
+    </p>
+    <p id="copy-message"></p>
 
     <button onclick="logout()">Logout</button>
   </div>
@@ -181,6 +184,19 @@
         } else {
           console.log("No such document!");
         }
+      });
+    }
+
+    // Copy referral link function
+    function copyRefLink() {
+      const refLink = document.getElementById('ref-link').innerText;
+      navigator.clipboard.writeText(refLink).then(() => {
+        document.getElementById('copy-message').innerText = "Referral link copied!";
+        setTimeout(() => {
+          document.getElementById('copy-message').innerText = "";
+        }, 2000);
+      }).catch((err) => {
+        console.error("Failed to copy: ", err);
       });
     }
 
