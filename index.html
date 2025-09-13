@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Moo Deng Coin</title>
+    <title>Moo Deng Coin - Firebase Version</title>
     <style>
         * { margin:0; padding:0; box-sizing:border-box; font-family: 'Arial', sans-serif; }
         body { background:#0d0d0d; color:#fff; display:flex; justify-content:center; align-items:flex-start; min-height:100vh; padding:20px; }
@@ -53,6 +53,15 @@
         .wallet-access { text-align: center; margin-top: 20px; }
         .wallet-input { width: 100%; padding: 10px; margin: 10px 0; border-radius: 5px; border: none; }
     </style>
+    
+    <!-- Firebase App (the core Firebase SDK) -->
+    <script src="https://www.gstatic.com/firebasejs/10.6.0/firebase-app.js"></script>
+    <!-- Firebase Analytics -->
+    <script src="https://www.gstatic.com/firebasejs/10.6.0/firebase-analytics.js"></script>
+    <!-- Firebase Firestore -->
+    <script src="https://www.gstatic.com/firebasejs/10.6.0/firebase-firestore.js"></script>
+    <!-- Firebase Auth -->
+    <script src="https://www.gstatic.com/firebasejs/10.6.0/firebase-auth.js"></script>
 </head>
 <body>
     <!-- Login Screen (initially shown) -->
@@ -210,188 +219,23 @@
     </div>
 
     <script>
-        // Server simulation (in a real app, this would be actual server calls)
-        const server = {
-            users: {},
-            miningData: {},
-            referralData: {},
-            transactions: {},
-            
-            // Initialize with demo data if needed
-            init: function() {
-                // Load from localStorage or initialize empty
-                const savedData = localStorage.getItem('mooDengServerData');
-                if (savedData) {
-                    const parsed = JSON.parse(savedData);
-                    this.users = parsed.users || {};
-                    this.miningData = parsed.miningData || {};
-                    this.referralData = parsed.referralData || {};
-                    this.transactions = parsed.transactions || {};
-                }
-            },
-            
-            // Save server data to localStorage (simulating database)
-            save: function() {
-                const dataToSave = {
-                    users: this.users,
-                    miningData: this.miningData,
-                    referralData: this.referralData,
-                    transactions: this.transactions
-                };
-                localStorage.setItem('mooDengServerData', JSON.stringify(dataToSave));
-            },
-            
-            // User management
-            registerUser: function(email, password, refCode = null) {
-                if (this.users[email]) {
-                    return { success: false, message: "User already exists" };
-                }
-                
-                const userId = 'user_' + Math.random().toString(36).substring(2,10);
-                this.users[email] = {
-                    userId,
-                    password,
-                    balance: 0,
-                    mines: 0,
-                    lastMine: 0,
-                    referrals: 0,
-                    refCode: userId,
-                    walletRegistered: false,
-                    mnemonic: '',
-                    createdAt: Date.now()
-                };
-                
-                // Handle referral if provided
-                if (refCode) {
-                    this.handleReferral(refCode, userId);
-                }
-                
-                this.save();
-                return { success: true, userId };
-            },
-            
-            // Login user
-            loginUser: function(email, password) {
-                const user = this.users[email];
-                if (!user || user.password !== password) {
-                    return { success: false, message: "Invalid credentials" };
-                }
-                
-                return { success: true, user: { ...user } };
-            },
-            
-            // Update user data
-            updateUser: function(email, updates) {
-                if (!this.users[email]) return false;
-                
-                this.users[email] = { ...this.users[email], ...updates };
-                this.save();
-                return true;
-            },
-            
-            // Mining functions
-            mineToken: function(userId) {
-                const userEmail = Object.keys(this.users).find(email => this.users[email].userId === userId);
-                if (!userEmail) return { success: false, message: "User not found" };
-                
-                const user = this.users[userEmail];
-                const now = Date.now();
-                
-                // Check if user can mine
-                if (user.mines >= 5) {
-                    return { success: false, message: "Daily mining limit reached" };
-                }
-                
-                if (now - user.lastMine < 2*60*60*1000 && user.lastMine !== 0) {
-                    return { success: false, message: "Mining cooldown active" };
-                }
-                
-                // Update user mining data
-                user.balance += 10;
-                user.mines += 1;
-                user.lastMine = now;
-                
-                // Add transaction record
-                if (!this.transactions[userId]) this.transactions[userId] = [];
-                this.transactions[userId].push({
-                    type: 'mine',
-                    amount: 10,
-                    timestamp: now,
-                    description: 'Mined 10 MDC'
-                });
-                
-                this.updateUser(userEmail, user);
-                return { success: true, balance: user.balance, mines: user.mines };
-            },
-            
-            // Handle referral registration
-            handleReferral: function(refCode, newUserId) {
-                // Find user with this refCode
-                const referrerEmail = Object.keys(this.users).find(
-                    email => this.users[email].refCode === refCode
-                );
-                
-                if (referrerEmail) {
-                    const referrer = this.users[referrerEmail];
-                    
-                    // Add referral bonus (50 MDC)
-                    referrer.balance += 50;
-                    referrer.referrals += 1;
-                    
-                    // Record referral transaction
-                    if (!this.transactions[referrer.userId]) this.transactions[referrer.userId] = [];
-                    this.transactions[referrer.userId].push({
-                        type: 'referral',
-                        amount: 50,
-                        timestamp: Date.now(),
-                        description: `Referral bonus for ${newUserId}`
-                    });
-                    
-                    // Set up referral tracking for 2% bonus
-                    if (!this.referralData[referrer.userId]) this.referralData[referrer.userId] = {};
-                    this.referralData[referrer.userId][newUserId] = {
-                        joined: Date.now(),
-                        bonusEnd: Date.now() + 7*24*60*60*1000 // 7 days from now
-                    };
-                    
-                    this.updateUser(referrerEmail, referrer);
-                }
-            },
-            
-            // Get user transactions
-            getUserTransactions: function(userId) {
-                return this.transactions[userId] || [];
-            },
-            
-            // Get user referrals
-            getUserReferrals: function(userId) {
-                return this.referralData[userId] || {};
-            },
-            
-            // Register wallet with mnemonic
-            registerWallet: function(userId, mnemonic) {
-                const userEmail = Object.keys(this.users).find(email => this.users[email].userId === userId);
-                if (!userEmail) return false;
-                
-                this.users[userEmail].walletRegistered = true;
-                this.users[userEmail].mnemonic = mnemonic;
-                
-                this.save();
-                return true;
-            },
-            
-            // Verify wallet mnemonic
-            verifyWallet: function(userId, mnemonic) {
-                const userEmail = Object.keys(this.users).find(email => this.users[email].userId === userId);
-                if (!userEmail) return false;
-                
-                return this.users[userEmail].mnemonic === mnemonic;
-            }
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBRitTsyqXfk6XNh3t1j0boebQa1LNQkKs",
+            authDomain: "moo-deng-coin.firebaseapp.com",
+            projectId: "moo-deng-coin",
+            storageBucket: "moo-deng-coin.firebasestorage.app",
+            messagingSenderId: "629636349388",
+            appId: "1:629636349388:web:a9a7924aaea9354a09f169",
+            measurementId: "G-T7FVX8DW2Z"
         };
-        
-        // Initialize server
-        server.init();
-        
+
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const analytics = firebase.analytics();
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+
         // User Data
         let currentUser = null;
         
@@ -447,12 +291,10 @@
             if (userSession) {
                 const session = JSON.parse(userSession);
                 if (session.loggedIn && session.expiry > Date.now()) {
-                    const userResult = server.loginUser(session.email, session.password);
-                    if (userResult.success) {
-                        currentUser = userResult.user;
-                        showApp();
-                        return true;
-                    }
+                    // In a real app, we would verify with Firebase Auth
+                    currentUser = session.user;
+                    showApp();
+                    return true;
                 }
             }
             return false;
@@ -488,60 +330,76 @@
             updateMiningTimer();
         }
         
-        // Load transaction history
-        function loadTransactionHistory() {
-            const transactions = server.getUserTransactions(currentUser.userId);
-            historyList.innerHTML = '';
-            
-            if (transactions.length === 0) {
-                historyList.innerHTML = '<p>No transactions yet</p>';
-                return;
+        // Load transaction history from Firestore
+        async function loadTransactionHistory() {
+            try {
+                const transactionsRef = db.collection('transactions').where('userId', '==', currentUser.userId);
+                const snapshot = await transactionsRef.orderBy('timestamp', 'desc').get();
+                
+                historyList.innerHTML = '';
+                
+                if (snapshot.empty) {
+                    historyList.innerHTML = '<p>No transactions yet</p>';
+                    return;
+                }
+                
+                snapshot.forEach(doc => {
+                    const tx = doc.data();
+                    const div = document.createElement('div');
+                    div.className = 'history-item';
+                    
+                    let typeClass = '';
+                    if (tx.type === 'mine') typeClass = 'history-type-mine';
+                    else if (tx.type === 'referral') typeClass = 'history-type-referral';
+                    else if (tx.type === 'bonus') typeClass = 'history-type-bonus';
+                    
+                    div.innerHTML = `
+                        <div><strong class="${typeClass}">${tx.description}</strong></div>
+                        <div>Amount: ${tx.amount} MDC</div>
+                        <div>Date: ${new Date(tx.timestamp).toLocaleString()}</div>
+                    `;
+                    
+                    historyList.appendChild(div);
+                });
+            } catch (error) {
+                console.error("Error loading transactions:", error);
+                historyList.innerHTML = '<p>Error loading transactions</p>';
             }
-            
-            transactions.sort((a, b) => b.timestamp - a.timestamp).forEach(tx => {
-                const div = document.createElement('div');
-                div.className = 'history-item';
-                
-                let typeClass = '';
-                if (tx.type === 'mine') typeClass = 'history-type-mine';
-                else if (tx.type === 'referral') typeClass = 'history-type-referral';
-                else if (tx.type === 'bonus') typeClass = 'history-type-bonus';
-                
-                div.innerHTML = `
-                    <div><strong class="${typeClass}">${tx.description}</strong></div>
-                    <div>Amount: ${tx.amount} MDC</div>
-                    <div>Date: ${new Date(tx.timestamp).toLocaleString()}</div>
-                `;
-                
-                historyList.appendChild(div);
-            });
         }
         
-        // Load referrals
-        function loadReferrals() {
-            const referrals = server.getUserReferrals(currentUser.userId);
-            referralsList.innerHTML = '';
-            
-            if (Object.keys(referrals).length === 0) {
-                referralsList.innerHTML = '<p>No referrals yet</p>';
-                return;
-            }
-            
-            for (const [refId, data] of Object.entries(referrals)) {
-                const div = document.createElement('div');
-                div.className = 'history-item';
+        // Load referrals from Firestore
+        async function loadReferrals() {
+            try {
+                const referralsRef = db.collection('referrals').where('referrerId', '==', currentUser.userId);
+                const snapshot = await referralsRef.get();
                 
-                const joinedDate = new Date(data.joined).toLocaleDateString();
-                const bonusEndDate = new Date(data.bonusEnd).toLocaleDateString();
-                const isActive = Date.now() < data.bonusEnd;
+                referralsList.innerHTML = '';
                 
-                div.innerHTML = `
-                    <div><strong>Referred User:</strong> ${refId}</div>
-                    <div>Joined: ${joinedDate}</div>
-                    <div>Bonus active: ${isActive ? 'Yes (until ' + bonusEndDate + ')' : 'No'}</div>
-                `;
+                if (snapshot.empty) {
+                    referralsList.innerHTML = '<p>No referrals yet</p>';
+                    return;
+                }
                 
-                referralsList.appendChild(div);
+                snapshot.forEach(doc => {
+                    const refData = doc.data();
+                    const div = document.createElement('div');
+                    div.className = 'history-item';
+                    
+                    const joinedDate = new Date(refData.joined).toLocaleDateString();
+                    const bonusEndDate = new Date(refData.bonusEnd).toLocaleDateString();
+                    const isActive = Date.now() < refData.bonusEnd;
+                    
+                    div.innerHTML = `
+                        <div><strong>Referred User:</strong> ${refData.refereeId}</div>
+                        <div>Joined: ${joinedDate}</div>
+                        <div>Bonus active: ${isActive ? 'Yes (until ' + bonusEndDate + ')' : 'No'}</div>
+                    `;
+                    
+                    referralsList.appendChild(div);
+                });
+            } catch (error) {
+                console.error("Error loading referrals:", error);
+                referralsList.innerHTML = '<p>Error loading referrals</p>';
             }
         }
         
@@ -586,13 +444,40 @@
         }
         
         // Event Listeners
-        mineBtn.addEventListener('click', () => {
-            const result = server.mineToken(currentUser.userId);
-            if (result.success) {
-                // Update current user data
-                currentUser.balance = result.balance;
-                currentUser.mines = result.mines;
-                currentUser.lastMine = Date.now();
+        mineBtn.addEventListener('click', async () => {
+            try {
+                // Check if user can mine
+                const now = Date.now();
+                if (currentUser.mines >= MAX_DAILY_MINES) {
+                    alert('Daily mining limit reached!');
+                    return;
+                }
+                
+                if (now - currentUser.lastMine < MINE_INTERVAL && currentUser.lastMine !== 0) {
+                    alert('Mining cooldown active. Please wait.');
+                    return;
+                }
+                
+                // Update user data
+                currentUser.balance += 10;
+                currentUser.mines += 1;
+                currentUser.lastMine = now;
+                
+                // Update user in Firestore
+                await db.collection('users').doc(currentUser.userId).update({
+                    balance: currentUser.balance,
+                    mines: currentUser.mines,
+                    lastMine: currentUser.lastMine
+                });
+                
+                // Add transaction record
+                await db.collection('transactions').add({
+                    userId: currentUser.userId,
+                    type: 'mine',
+                    amount: 10,
+                    timestamp: now,
+                    description: 'Mined 10 MDC'
+                });
                 
                 // Reload transaction history
                 loadTransactionHistory();
@@ -601,8 +486,9 @@
                 updateMiningTimer();
                 
                 alert('Mining successful! You earned 10 MDC.');
-            } else {
-                alert(result.message);
+            } catch (error) {
+                console.error("Mining error:", error);
+                alert('Error during mining. Please try again.');
             }
         });
         
@@ -617,13 +503,21 @@
             }
         });
         
-        loginWalletBtn.addEventListener('click', () => {
+        loginWalletBtn.addEventListener('click', async () => {
             const mnemonic = walletPassword.value.trim();
-            if (server.verifyWallet(currentUser.userId, mnemonic)) {
-                walletAccessModal.style.display = 'none';
-                showWallet();
-            } else {
-                alert('Invalid wallet password. Please enter your 24-word phrase correctly.');
+            
+            try {
+                // Verify mnemonic from Firestore
+                const userDoc = await db.collection('users').doc(currentUser.userId).get();
+                if (userDoc.exists && userDoc.data().mnemonic === mnemonic) {
+                    walletAccessModal.style.display = 'none';
+                    showWallet();
+                } else {
+                    alert('Invalid wallet password. Please enter your 24-word phrase correctly.');
+                }
+            } catch (error) {
+                console.error("Wallet login error:", error);
+                alert('Error verifying wallet. Please try again.');
             }
         });
         
@@ -633,7 +527,7 @@
         
         registerWalletBtn.addEventListener('click', showWalletRegistration);
         
-        function showWalletRegistration() {
+        async function showWalletRegistration() {
             // Generate and display mnemonic
             const mnemonic = generateMnemonic();
             wordsContainer.innerHTML = '';
@@ -649,12 +543,21 @@
             registerWalletModal.style.display = 'flex';
             
             // Set up confirm button
-            confirmWordsBtn.onclick = () => {
-                if (server.registerWallet(currentUser.userId, mnemonic)) {
+            confirmWordsBtn.onclick = async () => {
+                try {
+                    // Register wallet in Firestore
+                    await db.collection('users').doc(currentUser.userId).update({
+                        walletRegistered: true,
+                        mnemonic: mnemonic
+                    });
+                    
                     currentUser.walletRegistered = true;
                     currentUser.mnemonic = mnemonic;
                     registerWalletModal.style.display = 'none';
                     showWallet();
+                } catch (error) {
+                    console.error("Wallet registration error:", error);
+                    alert('Error registering wallet. Please try again.');
                 }
             };
             
@@ -681,7 +584,7 @@
             withdrawModal.style.display = 'flex';
         });
         
-        confirmWithdrawBtn.addEventListener('click', () => {
+        confirmWithdrawBtn.addEventListener('click', async () => {
             const amount = parseInt(withdrawAmount.value);
             const address = withdrawAddress.value.trim();
             
@@ -700,25 +603,33 @@
                 return;
             }
             
-            // In a real app, this would be a server call
-            alert(`Withdrawal request for ${amount} MDC to ${address} has been submitted.`);
-            
-            // Record transaction
-            if (!server.transactions[currentUser.userId]) server.transactions[currentUser.userId] = [];
-            server.transactions[currentUser.userId].push({
-                type: 'withdrawal',
-                amount: -amount,
-                timestamp: Date.now(),
-                description: `Withdrawal to ${address}`
-            });
-            
-            // Update balance
-            currentUser.balance -= amount;
-            server.updateUser(currentUser.userId, { balance: currentUser.balance });
-            
-            withdrawModal.style.display = 'none';
-            walletModal.style.display = 'flex';
-            walletBalanceEl.textContent = currentUser.balance;
+            try {
+                // Update user balance in Firestore
+                await db.collection('users').doc(currentUser.userId).update({
+                    balance: currentUser.balance - amount
+                });
+                
+                // Record transaction
+                await db.collection('transactions').add({
+                    userId: currentUser.userId,
+                    type: 'withdrawal',
+                    amount: -amount,
+                    timestamp: Date.now(),
+                    description: `Withdrawal to ${address}`
+                });
+                
+                // Update local user data
+                currentUser.balance -= amount;
+                
+                alert(`Withdrawal request for ${amount} MDC to ${address} has been submitted.`);
+                
+                withdrawModal.style.display = 'none';
+                walletModal.style.display = 'flex';
+                walletBalanceEl.textContent = currentUser.balance;
+            } catch (error) {
+                console.error("Withdrawal error:", error);
+                alert('Error processing withdrawal. Please try again.');
+            }
         });
         
         cancelWithdrawBtn.addEventListener('click', () => {
@@ -752,7 +663,7 @@
         }
         
         // Login functionality
-        loginBtn.addEventListener('click', () => {
+        loginBtn.addEventListener('click', async () => {
             const email = loginEmail.value.trim();
             const password = loginPassword.value;
             
@@ -761,27 +672,47 @@
                 return;
             }
             
-            const result = server.loginUser(email, password);
-            if (result.success) {
-                currentUser = result.user;
+            try {
+                // In a real app, we would use Firebase Auth
+                // For demo purposes, we'll use a simple simulation
+                const userDoc = await db.collection('users').where('email', '==', email).get();
+                
+                if (userDoc.empty) {
+                    alert('User not found');
+                    return;
+                }
+                
+                let userData = null;
+                userDoc.forEach(doc => {
+                    userData = { userId: doc.id, ...doc.data() };
+                });
+                
+                if (userData.password !== password) {
+                    alert('Invalid password');
+                    return;
+                }
+                
+                currentUser = userData;
                 
                 // Save session
                 const session = {
                     loggedIn: true,
                     email: email,
                     password: password,
-                    expiry: Date.now() + 7*24*60*60*1000 // 7 days
+                    expiry: Date.now() + 7*24*60*60*1000, // 7 days
+                    user: currentUser
                 };
                 localStorage.setItem('userSession', JSON.stringify(session));
                 
                 showApp();
-            } else {
-                alert(result.message);
+            } catch (error) {
+                console.error("Login error:", error);
+                alert('Error during login. Please try again.');
             }
         });
         
         // Register functionality
-        registerBtn.addEventListener('click', () => {
+        registerBtn.addEventListener('click', async () => {
             const email = registerEmail.value.trim();
             const password = registerPassword.value;
             const confirmPassword = registerConfirmPassword.value;
@@ -797,12 +728,44 @@
                 return;
             }
             
-            const result = server.registerUser(email, password, refCode);
-            if (result.success) {
+            try {
+                // Check if user already exists
+                const userDoc = await db.collection('users').where('email', '==', email).get();
+                if (!userDoc.empty) {
+                    alert('User already exists with this email');
+                    return;
+                }
+                
+                // Create new user
+                const userId = 'user_' + Math.random().toString(36).substring(2,10);
+                const userData = {
+                    email,
+                    password,
+                    userId,
+                    balance: 0,
+                    mines: 0,
+                    lastMine: 0,
+                    referrals: 0,
+                    refCode: userId,
+                    walletRegistered: false,
+                    mnemonic: '',
+                    createdAt: Date.now()
+                };
+                
+                // Save to Firestore
+                await db.collection('users').doc(userId).set(userData);
+                
+                // Handle referral if provided
+                if (refCode) {
+                    // In a real app, we would implement referral handling
+                    console.log("Referral code used:", refCode);
+                }
+                
                 alert('Registration successful! Please login.');
                 showLogin.click();
-            } else {
-                alert(result.message);
+            } catch (error) {
+                console.error("Registration error:", error);
+                alert('Error during registration. Please try again.');
             }
         });
         
