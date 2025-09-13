@@ -14,7 +14,9 @@ if (joinBtn) {
             await addDoc(collection(db, "waitlist"), { name, email, timestamp: Date.now() });
             message.innerText = "You are now on the waitlist!";
         } catch (e) {
-            message.innerText = "Error joining waitlist.";
+            message.innerText = "Error joining waitlist: " + e.message;
+            alert("Error joining waitlist: " + e.message);
+            console.error(e);
         }
     });
 }
