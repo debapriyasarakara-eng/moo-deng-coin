@@ -1,98 +1,112 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Moo Deng Coin</title>
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Firebase JS SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+
 </head>
 <body>
 
-    <div id="auth-container" class="container">
-        <h1>Moo Deng Coin</h1>
-        <p>Join the community and start mining today!</p>
-        <input type="email" id="email" placeholder="Email" required>
-        <input type="password" id="password" placeholder="Password" required>
-        <button id="signup-btn">Sign Up</button>
-        <button id="login-btn">Login</button>
+    <h1>Moo Deng Coin</h1>
+
+    <!-- Login Form -->
+    <div id="login-form">
+        <input type="email" id="email" placeholder="Email" /><br/>
+        <input type="password" id="password" placeholder="Password" /><br/>
+        <button onclick="login()">Login</button>
+        <button onclick="signup()">Sign Up</button>
     </div>
 
-    <div id="main-content" class="hidden">
-        <div id="side-menu" class="side-menu">
-            <a href="javascript:void(0)" class="close-btn">&times;</a>
-            <div class="user-info">
-                <img src="https://i.imgur.com/your-profile-pic.png" alt="Profile Picture" class="profile-pic">
-                <h3 id="user-display-name"></h3>
-                <p id="user-email"></p>
-            </div>
-            <a id="home-link" href="#"><i class="fas fa-home"></i>Home</a>
-            <a id="mining-link" href="#"><i class="fas fa-hammer"></i>Mining</a>
-            <a id="wallet-link" href="#"><i class="fas fa-wallet"></i>Wallet</a>
-            <a id="history-link" href="#"><i class="fas fa-history"></i>History</a>
-            <a id="referral-link" href="#"><i class="fas fa-user-friends"></i>Referrals</a>
-            <a id="whitepaper-link" href="#"><i class="fas fa-file-alt"></i>Whitepaper</a>
-            <a id="logout-btn" href="#"><i class="fas fa-sign-out-alt"></i>Logout</a>
-        </div>
-        
-        <span class="menu-btn" onclick="openNav()">&#9776;</span>
-
-        <h1 id="page-title"></h1>
-        
-        <div id="mining-content" class="content-page">
-            <div id="mining-coin-container"></div>
-            <p id="mine-status"></p>
-            <button id="mine-btn">Start Mining</button>
-        </div>
-
-        <div id="wallet-content" class="hidden content-page">
-            <h2>Your Wallet Balance</h2>
-            <p id="wallet-balance">0</p>
-            <p>Tokens</p>
-        </div>
-
-        <div id="history-content" class="hidden content-page">
-            <h2>Mining History</h2>
-            <ul id="history-list">
-                </ul>
-        </div>
-        
-        <div id="referral-content" class="hidden content-page">
-            <h2>Your Referral Code</h2>
-            <p id="referral-code-display"></p>
-            <button id="copy-referral-btn">Copy Code</button>
-            <h3>Share Your Link</h3>
-            <p id="referral-link-display"></p>
-            <p>New registrations through your link will give you 1 token immediately!</p>
-            <p>You will also earn 2% of their mined tokens for one week.</p>
-            <ul id="referral-history-list"></ul>
-        </div>
-
-        <div id="whitepaper-content" class="hidden content-page">
-            <h2>Whitepaper</h2>
-            <p>Welcome to the official Whitepaper of Moo Deng Coin.</p>
-            <h3>1. Introduction to Moo Deng Coin</h3>
-            <p>Moo Deng Coin is a community-driven digital currency designed to be mined through a simple, engaging mobile interface...</p>
-            <h3>2. Technology & Security</h3>
-            <p>The coin operates on a decentralized blockchain system, ensuring secure and transparent transactions. We utilize robust encryption methods...</p>
-            <h3>3. Tokenomics</h3>
-            <p>There is a limited supply of Moo Deng Coins. The distribution is as follows:</p>
-            <ul>
-                <li>⚡ 50% for Community Mining</li>
-                <li>⚡ 30% for Development & Project Growth</li>
-                <li>⚡ 10% for Marketing & Partnerships</li>
-                <li>⚡ 10% for Future Airdrops & Rewards</li>
-            </ul>
-        </div>
-
-        <button id="logout-btn-main" class="hidden">Logout</button>
+    <!-- Wallet Display -->
+    <div id="wallet-section" style="display:none;">
+        <h2>Wallet</h2>
+        <p>Balance: <span id="balance">0</span> tokens</p>
+        <button onclick="logout()">Logout</button>
     </div>
 
-    <script type="module" src="js/firebase-config.js"></script>
-    <script type="module" src="js/app.js"></script>
+    <!-- Firebase Configuration & Logic -->
+    <script>
+      // Firebase Config
+      const firebaseConfig = {
+        apiKey: "AIzaSyBRitTsyqXfk6XNh3t1j0boebQa1LNQkKs",
+        authDomain: "moo-deng-coin.firebaseapp.com",
+        projectId: "moo-deng-coin",
+        storageBucket: "moo-deng-coin.firebasestorage.app",
+        messagingSenderId: "629636349388",
+        appId: "1:629636349388:web:a9a7924aaea9354a09f169",
+        measurementId: "G-T7FVX8DW2Z"
+      };
+
+      // Initialize Firebase
+      firebase.initializeApp(firebaseConfig);
+      const auth = firebase.auth();
+      const db = firebase.firestore();
+
+      // Login function
+      function login() {
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        auth.signInWithEmailAndPassword(email, password)
+          .then((userCredential) => {
+            console.log('Logged in');
+          })
+          .catch((error) => {
+            alert(error.message);
+          });
+      }
+
+      // Signup function
+      function signup() {
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        auth.createUserWithEmailAndPassword(email, password)
+          .then((userCredential) => {
+            const user = userCredential.user;
+            // Create initial wallet document
+            db.collection('users').doc(user.uid).set({
+              balance: 0,
+              mines: 0,
+              referrals: 0
+            });
+            console.log('Signed up');
+          })
+          .catch((error) => {
+            alert(error.message);
+          });
+      }
+
+      // Logout function
+      function logout() {
+        auth.signOut();
+      }
+
+      // Track auth state
+      auth.onAuthStateChanged((user) => {
+        if (user) {
+          document.getElementById('login-form').style.display = 'none';
+          document.getElementById('wallet-section').style.display = 'block';
+
+          // Load wallet data
+          const userId = user.uid;
+          db.collection('users').doc(userId).get().then((doc) => {
+            if (doc.exists) {
+              const data = doc.data();
+              document.getElementById('balance').innerText = data.balance;
+            }
+          });
+
+        } else {
+          document.getElementById('login-form').style.display = 'block';
+          document.getElementById('wallet-section').style.display = 'none';
+        }
+      });
+    </script>
 
 </body>
 </html>
