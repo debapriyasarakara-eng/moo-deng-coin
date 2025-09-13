@@ -1,20 +1,19 @@
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-import { getFirestore, doc, setDoc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
+import { getFirestore, doc, setDoc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
 import { app } from "./firebase-config.js";
 
 const auth = getAuth(app);
 const db = getFirestore(app);
 
 const authContainer = document.getElementById('auth-container');
-const miningContainer = document.getElementById('mining-container');
+const mainContent = document.getElementById('main-content');
 const emailInput = document.getElementById('email');
 const passwordInput = document.getElementById('password');
 const signupBtn = document.getElementById('signup-btn');
 const loginBtn = document.getElementById('login-btn');
-const logoutBtn = document.getElementById('logout-btn');
-const mineBtn = document.getElementById('mine-btn');
-const mineStatus = document.getElementById('mine-status');
+const logoutBtn = document.getElementById('logout-btn-main'); // Changed to match new HTML
 const userEmail = document.getElementById('user-email');
+const pageTitle = document.getElementById('page-title');
 
 const sideMenu = document.getElementById('side-menu');
 const closeBtn = document.querySelector('.close-btn');
@@ -24,24 +23,27 @@ const walletLink = document.getElementById('wallet-link');
 const historyLink = document.getElementById('history-link');
 const referralLink = document.getElementById('referral-link');
 const whitepaperLink = document.getElementById('whitepaper-link');
-
-const pageTitle = document.getElementById('page-title');
 const miningContent = document.getElementById('mining-content');
 const walletContent = document.getElementById('wallet-content');
 const historyContent = document.getElementById('history-content');
 const referralContent = document.getElementById('referral-content');
 const whitepaperContent = document.getElementById('whitepaper-content');
-
+const mineBtn = document.getElementById('mine-btn');
+const mineStatus = document.getElementById('mine-status');
 const walletBalance = document.getElementById('wallet-balance');
 const historyList = document.getElementById('history-list');
-const referralCodeDisplay = document.getElementById('referral-code');
+const referralCodeDisplay = document.getElementById('referral-code-display');
 const copyReferralBtn = document.getElementById('copy-referral-btn');
+const referralLinkDisplay = document.getElementById('referral-link-display');
 const userDisplayName = document.getElementById('user-display-name');
 
 let miningInterval;
-let miningCooldown = 2 * 60 * 60 * 1000;
+const MINING_COOLDOWN = 2 * 60 * 60 * 1000; // 2 hours in milliseconds
 const MAX_MINES_PER_DAY = 5;
 const REWARD_PER_MINE = 10;
+const REFERRAL_REWARD = 1;
+const REFERRAL_PERCENTAGE = 0.02; // 2%
+const REFERRAL_WEEK_MS = 7 * 24 * 60 * 60 * 1000; // 1 week
 
 window.openNav = () => {
     if (sideMenu) sideMenu.style.width = "250px";
@@ -57,34 +59,40 @@ const showPage = (pageName) => {
         if (page) page.classList.add('hidden');
     });
 
-    let newTitle = "";
-    let currentPage = null;
+    let newTitle = "Welcome to Moo Deng Coin Mining";
+    let currentPage = miningContent;
 
-    if (pageName === 'mining' || pageName === 'home') {
-        currentPage = miningContent;
-        newTitle = "Moo Deng Coin Mining";
-    } else if (pageName === 'wallet') {
-        currentPage = walletContent;
-        newTitle = "Your Wallet";
-        loadWalletData();
-    } else if (pageName === 'history') {
-        currentPage = historyContent;
-        newTitle = "Transaction History";
-        loadHistoryData();
-    } else if (pageName === 'referral') {
-        currentPage = referralContent;
-        newTitle = "Refer and Earn";
-        loadReferralData();
-    } else if (pageName === 'whitepaper') {
-        currentPage = whitepaperContent;
-        newTitle = "Whitepaper";
+    switch(pageName) {
+        case 'home':
+        case 'mining':
+            currentPage = miningContent;
+            break;
+        case 'wallet':
+            currentPage = walletContent;
+            newTitle = "Your Wallet";
+            loadWalletData();
+            break;
+        case 'history':
+            currentPage = historyContent;
+            newTitle = "Transaction History";
+            loadHistoryData();
+            break;
+        case 'referral':
+            currentPage = referralContent;
+            newTitle = "Refer and Earn";
+            loadReferralData();
+            break;
+        case 'whitepaper':
+            currentPage = whitepaperContent;
+            newTitle = "Whitepaper";
+            break;
     }
 
     if (currentPage) {
         currentPage.classList.remove('hidden');
     }
     if (pageTitle) {
-        pageTitle.textContent = `Welcome to ${newTitle}`;
+        pageTitle.textContent = newTitle;
     }
     closeNav();
 };
@@ -122,7 +130,7 @@ const loadHistoryData = async () => {
                     history.sort((a, b) => b.timestamp - a.timestamp);
                     history.forEach(item => {
                         const li = document.createElement('li');
-                        li.textContent = `Mined ${item.amount} tokens on ${new Date(item.timestamp).toLocaleString()}`;
+                        li.textContent = `${item.type}: ${item.amount} tokens on ${new Date(item.timestamp).toLocaleString()}`;
                         historyList.appendChild(li);
                     });
                 }
@@ -136,9 +144,10 @@ const loadHistoryData = async () => {
 
 const loadReferralData = () => {
     const user = auth.currentUser;
-    if (user && referralCodeDisplay) {
+    if (user && referralCodeDisplay && referralLinkDisplay) {
         const referralCode = user.uid.substring(0, 8).toUpperCase();
         referralCodeDisplay.textContent = referralCode;
+        referralLinkDisplay.textContent = `https://debapriyasarakara-eng.github.io/moo-deng-coin/index.html?ref=${referralCode}`;
     }
 };
 
@@ -153,6 +162,47 @@ if (copyReferralBtn) {
     });
 }
 
+const checkReferral = async (newUser) => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const referrerCode = urlParams.get('ref');
+
+    if (referrerCode) {
+        const usersRef = doc(db, 'users', referrerCode);
+        try {
+            const referrerSnap = await getDoc(usersRef);
+            if (referrerSnap.exists()) {
+                const referrerData = referrerSnap.data();
+                const referrerTokens = referrerData.minedTokens || 0;
+                const referrerHistory = referrerData.history || [];
+
+                const newReferrerHistory = {
+                    type: "Referral Bonus",
+                    amount: REFERRAL_REWARD,
+                    timestamp: Date.now()
+                };
+
+                const updatedHistory = [...referrerHistory, newReferrerHistory];
+                const updatedTokens = referrerTokens + REFERRAL_REWARD;
+
+                await updateDoc(usersRef, {
+                    minedTokens: updatedTokens,
+                    history: updatedHistory
+                });
+
+                await updateDoc(doc(db, "users", newUser.uid), {
+                    referrerId: referrerCode,
+                    referralStart: Date.now()
+                });
+
+                alert(`You were referred! Referrer (${referrerCode}) received a bonus.`);
+            }
+        } catch (error) {
+            alert("Error checking referral: " + error.message);
+            console.error(error);
+        }
+    }
+};
+
 function updateTimerDisplay(remainingTime) {
     const hours = Math.floor(remainingTime / (1000 * 60 * 60));
     const minutes = Math.floor((remainingTime % (1000 * 60 * 60)) / (1000 * 60));
@@ -163,7 +213,7 @@ function updateTimerDisplay(remainingTime) {
         miningTimerDisplay.textContent = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
     }
 
-    const progress = (miningCooldown - remainingTime) / miningCooldown * 100;
+    const progress = (MINING_COOLDOWN - remainingTime) / MINING_COOLDOWN * 100;
     const miningProgressRing = document.querySelector('.mining-progress-ring');
     if (miningProgressRing) {
         miningProgressRing.style.setProperty('--progress', `${progress}%`);
@@ -177,7 +227,7 @@ async function startMiningCooldown(user) {
         const userSnap = await getDoc(userRef);
         const lastMineTime = userSnap.exists() ? (userSnap.data().lastMineTime || 0) : 0;
         const now = Date.now();
-        let remainingTime = miningCooldown - (now - lastMineTime);
+        let remainingTime = MINING_COOLDOWN - (now - lastMineTime);
 
         const todayMines = userSnap.exists() ? (userSnap.data().todayMines || 0) : 0;
         if (todayMines >= MAX_MINES_PER_DAY) {
@@ -242,9 +292,12 @@ document.addEventListener('DOMContentLoaded', () => {
                             minedTokens: 0,
                             lastMineTime: 0,
                             todayMines: 0,
-                            history: []
+                            history: [],
+                            referralStart: null,
+                            referrerId: null
                         });
-                        alert("Sign up successful!");
+                        alert("Sign up successful! Please log in.");
+                        checkReferral(user);
                     } catch (error) {
                         alert("Error creating user data: " + error.message);
                         console.error(error);
@@ -271,7 +324,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
         });
     }
-
+    
+    // Updated Logout button listener
     if (logoutBtn) {
         logoutBtn.addEventListener('click', () => {
             signOut(auth).then(() => {
@@ -303,6 +357,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     let lastMineTime = userSnap.exists() ? (userSnap.data().lastMineTime || 0) : 0;
                     let todayMines = userSnap.exists() ? (userSnap.data().todayMines || 0) : 0;
                     const history = userSnap.exists() ? (userSnap.data().history || []) : [];
+                    const referrerId = userSnap.exists() ? userSnap.data().referrerId : null;
+                    const referralStart = userSnap.exists() ? userSnap.data().referralStart : null;
                     const now = Date.now();
 
                     const lastMineDate = new Date(lastMineTime);
@@ -311,13 +367,38 @@ document.addEventListener('DOMContentLoaded', () => {
                         todayMines = 0;
                     }
 
-                    if (todayMines < MAX_MINES_PER_DAY && (now - lastMineTime >= miningCooldown || lastMineTime === 0)) {
+                    if (todayMines < MAX_MINES_PER_DAY && (now - lastMineTime >= MINING_COOLDOWN || lastMineTime === 0)) {
                         currentTokens += REWARD_PER_MINE;
                         todayMines += 1;
                         
-                        const newHistoryEntry = { amount: REWARD_PER_MINE, timestamp: now };
+                        const newHistoryEntry = { type: "Mine", amount: REWARD_PER_MINE, timestamp: now };
                         history.push(newHistoryEntry);
                         
+                        // Check for referral bonus
+                        if (referrerId && referralStart && (now - referralStart <= REFERRAL_WEEK_MS)) {
+                            const referrerRef = doc(db, "users", referrerId);
+                            const referrerSnap = await getDoc(referrerRef);
+                            if (referrerSnap.exists()) {
+                                const referrerData = referrerSnap.data();
+                                const referrerTokens = referrerData.minedTokens || 0;
+                                const referrerHistory = referrerData.history || [];
+                                const bonusAmount = REWARD_PER_MINE * REFERRAL_PERCENTAGE;
+                                const updatedReferrerTokens = referrerTokens + bonusAmount;
+                                
+                                const newReferrerHistoryEntry = {
+                                    type: "Referral Bonus (2%)",
+                                    amount: bonusAmount,
+                                    timestamp: now
+                                };
+                                const updatedReferrerHistory = [...referrerHistory, newReferrerHistoryEntry];
+
+                                await updateDoc(referrerRef, {
+                                    minedTokens: updatedReferrerTokens,
+                                    history: updatedReferrerHistory
+                                });
+                            }
+                        }
+
                         await updateDoc(userRef, { 
                             minedTokens: currentTokens,
                             lastMineTime: now,
@@ -340,7 +421,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
-    
+
     const miningCoinContainer = document.getElementById('mining-coin-container');
     if (miningCoinContainer) {
         const miningCoin = document.createElement('div');
@@ -358,13 +439,9 @@ document.addEventListener('DOMContentLoaded', () => {
 onAuthStateChanged(auth, async (user) => {
     if (user) {
         if (authContainer) authContainer.classList.add('hidden');
-        if (miningContainer) miningContainer.classList.remove('hidden');
+        if (mainContent) mainContent.classList.remove('hidden');
         if (userEmail) userEmail.textContent = `Logged in as: ${user.email}`;
         
-        if (userDisplayName) {
-            userDisplayName.textContent = user.displayName || user.email;
-        }
-
         const userRef = doc(db, "users", user.uid);
         try {
             const userSnap = await getDoc(userRef);
@@ -374,7 +451,9 @@ onAuthStateChanged(auth, async (user) => {
                     minedTokens: 0,
                     lastMineTime: 0,
                     todayMines: 0,
-                    history: []
+                    history: [],
+                    referralStart: null,
+                    referrerId: null
                 });
             }
             
@@ -387,17 +466,19 @@ onAuthStateChanged(auth, async (user) => {
             }
             
             startMiningCooldown(user);
+            showPage('mining');
         } catch (error) {
             alert("Error during user state check: " + error.message);
             console.error(error);
         }
     } else {
         if (authContainer) authContainer.classList.remove('hidden');
-        if (miningContainer) miningContainer.classList.add('hidden');
+        if (mainContent) mainContent.classList.add('hidden');
         clearInterval(miningInterval);
         if (mineBtn) {
             mineBtn.disabled = false;
             mineBtn.textContent = 'Start Mining';
         }
+        showPage('home'); // Ensure auth page is shown on logout
     }
 });
