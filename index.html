@@ -5,63 +5,23 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Moo Deng Coin</title>
 <style>
-  body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin:0; padding:0; background:#0b0b0b; color:#fff; }
-  a { color:#00ffea; text-decoration:none; }
-  header { display:flex; justify-content:space-between; align-items:center; padding:10px 20px; background:#111; position:sticky; top:0; z-index:10; }
-  header h1 { margin:0; font-size:1.5rem; color:#00ffea; }
-  header .profile { display:flex; align-items:center; gap:10px; }
-  header .profile img { width:35px; height:35px; border-radius:50%; object-fit:cover; border:2px solid #00ffea; }
-  main { padding:20px; text-align:center; }
-  .wallet { margin:20px 0; font-size:1.2rem; }
-  button { padding:10px 20px; font-size:1rem; cursor:pointer; background:#00ffea; color:#000; border:none; border-radius:5px; margin:10px 0; }
-  button:disabled { background:#555; cursor:not-allowed; }
-  .referral { margin-top:20px; font-size:1rem; }
-  input { padding:8px; font-size:1rem; margin:5px 0; width:80%; max-width:300px; border-radius:5px; border:none; }
-  .login-box { background:#111; padding:20px; border-radius:10px; display:inline-block; }
-  .mining-circle { margin:30px auto; width:150px; height:150px; border-radius:50%; border:6px solid #00ffea; display:flex; align-items:center; justify-content:center; position:relative; font-size:1.1rem; font-weight:bold; color:#00ffea; }
-  .mining-circle::after { content:''; position:absolute; width:100%; height:100%; border-radius:50%; border:6px solid rgba(0,255,234,0.3); animation:spin 7200s linear infinite; }
-  @keyframes spin { 0% { transform:rotate(0deg);} 100% { transform:rotate(360deg);} }
-  @media(max-width:500px){ header h1{font-size:1.2rem;} .mining-circle{width:120px; height:120px; font-size:0.9rem;} }
+    body { font-family: Arial, sans-serif; margin:0; padding:0; background:#f2f2f2; }
+    header { background:#333; color:#fff; padding:10px; text-align:center; }
+    .container { max-width:600px; margin:20px auto; background:#fff; padding:20px; border-radius:8px; box-shadow:0 0 10px rgba(0,0,0,0.1); }
+    button { padding:10px 20px; margin:5px; border:none; border-radius:5px; cursor:pointer; }
+    .mine-btn { background:#28a745; color:#fff; }
+    .disabled { background:#ccc; cursor:not-allowed; }
+    .tabs { display:flex; justify-content:space-around; margin-bottom:15px; }
+    .tab-content { display:none; }
+    .tab-content.active { display:block; }
+    input[type=text] { width:100%; padding:8px; margin:5px 0; }
+    .referral-box { display:flex; align-items:center; justify-content:space-between; }
 </style>
-</head>
-<body>
-
-<header>
-  <h1>Moo Deng Coin</h1>
-  <div class="profile" id="profile-section" style="display:none;">
-    <span id="user-name"></span>
-    <img src="https://via.placeholder.com/35" alt="Profile">
-    <button id="logout-btn">Logout</button>
-  </div>
-</header>
-
-<main>
-  <div id="login-form" class="login-box">
-    <h2>Login / Signup</h2>
-    <input type="text" id="name" placeholder="Your Name" required><br>
-    <input type="email" id="email" placeholder="Email" required><br>
-    <input type="password" id="password" placeholder="Password" required><br>
-    <button id="signup-btn">Sign Up</button>
-    <button id="login-btn">Login</button>
-  </div>
-
-  <div id="wallet-section" style="display:none;">
-    <div class="wallet">Balance: <span id="balance">0</span> tokens</div>
-    <div class="mining-circle"><div id="mine-timer">2:00:00</div></div>
-    <button id="mine-btn">Mine Token</button>
-    <div class="referral">
-      <h3>Your Referral</h3>
-      <div>Your Referral Code: <span id="ref-code"></span></div>
-      <div>Share this link: <span id="ref-link"></span></div>
-    </div>
-  </div>
-</main>
-
+<!-- Firebase -->
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-analytics.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import { getFirestore, doc, setDoc, getDoc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.6.1/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.6.1/firebase-auth.js";
+import { getFirestore, doc, setDoc, getDoc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/10.6.1/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBRitTsyqXfk6XNh3t1j0boebQa1LNQkKs",
@@ -74,110 +34,239 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
-const auth = getAuth();
-const db = getFirestore();
+const auth = getAuth(app);
+const db = getFirestore(app);
 
-let dailyLimit = 5;
-let countdown = 7200;
+// DOM Elements
+const loginDiv = document.getElementById('loginDiv');
+const mainDiv = document.getElementById('mainDiv');
+const emailInput = document.getElementById('email');
+const passwordInput = document.getElementById('password');
+const nameInput = document.getElementById('name');
+const loginBtn = document.getElementById('loginBtn');
+const signupBtn = document.getElementById('signupBtn');
+const logoutBtn = document.getElementById('logoutBtn');
 
-// Utility functions
-function generateReferralCode(length=8){
-  const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
-  let code = '';
-  for(let i=0;i<length;i++){ code += chars.charAt(Math.floor(Math.random()*chars.length)); }
-  return code;
+const balanceSpan = document.getElementById('balance');
+const mineBtn = document.getElementById('mineBtn');
+const countdownSpan = document.getElementById('countdown');
+
+const referralCodeSpan = document.getElementById('referralCode');
+const referralLinkInput = document.getElementById('referralLink');
+const copyReferralBtn = document.getElementById('copyReferralBtn');
+const referralCountSpan = document.getElementById('referralCount');
+
+const profileName = document.getElementById('profileName');
+const profilePic = document.getElementById('profilePic');
+const whitelistArea = document.getElementById('whitelistArea');
+
+// Utility
+function generateReferralCode() {
+  return Math.random().toString(36).substring(2,10);
 }
 
-function updateTimerDisplay(seconds){
-  const h=Math.floor(seconds/3600);
-  const m=Math.floor((seconds%3600)/60);
-  const s=seconds%60;
-  document.getElementById('mine-timer').innerText = `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
-}
-
-// Show wallet
-async function showWallet(user){
-  document.getElementById('login-form').style.display = 'none';
-  document.getElementById('wallet-section').style.display = 'block';
-  document.getElementById('profile-section').style.display = 'flex';
-  const uid = user.uid;
-  const userDoc = await getDoc(doc(db,'users',uid));
-  if(userDoc.exists()){
-    const data = userDoc.data();
-    document.getElementById('balance').innerText = data.balance || 0;
-    document.getElementById('ref-code').innerText = data.referralCode;
-    document.getElementById('ref-link').innerText = `${location.href}?ref=${data.referralCode}`;
-    document.getElementById('user-name').innerText = data.name || "User";
-    if(data.mines >= dailyLimit){ document.getElementById('mine-btn').disabled = true; }
-  }
-}
-
-// Signup
-async function signup(){
-  const name = document.getElementById('name').value.trim();
-  const email = document.getElementById('email').value.trim();
-  const password = document.getElementById('password').value.trim();
-  if(!name || !email || !password){ alert('All fields required'); return; }
+// Auth Functions
+signupBtn.onclick = async ()=>{
+  const email = emailInput.value;
+  const password = passwordInput.value;
+  const name = nameInput.value || email.split('@')[0];
+  if(!email || !password) return alert("Enter email and password");
   try{
-    const userCredential = await createUserWithEmailAndPassword(auth,email,password);
-    const uid = userCredential.user.uid;
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
     const refCode = generateReferralCode();
-    await setDoc(doc(db,'users',uid),{
+    await setDoc(doc(db,"users",user.uid),{
       name:name,
       balance:0,
       mines:0,
-      referralCode:refCode,
-      referrals:0
+      referralCode: refCode,
+      referrals:0,
+      lastMine:0
     });
-    showWallet(userCredential.user);
-  }catch(err){ alert(err.message); }
-}
+  }catch(e){ alert(e.message);}
+};
 
-// Login
-async function login(){
-  const email = document.getElementById('email').value.trim();
-  const password = document.getElementById('password').value.trim();
-  if(!email || !password){ alert('Email and password required'); return; }
+loginBtn.onclick = async ()=>{
+  const email = emailInput.value;
+  const password = passwordInput.value;
+  if(!email || !password) return alert("Enter email and password");
   try{
-    const userCredential = await signInWithEmailAndPassword(auth,email,password);
-    showWallet(userCredential.user);
-  }catch(err){ alert(err.message); }
-}
+    await signInWithEmailAndPassword(auth,email,password);
+  }catch(e){ alert(e.message);}
+};
 
-// Logout
-async function logout(){
-  await signOut(auth);
-  document.getElementById('login-form').style.display='block';
-  document.getElementById('wallet-section').style.display='none';
-  document.getElementById('profile-section').style.display='none';
-}
+logoutBtn.onclick = ()=> signOut(auth);
 
-// Mining
-async function mineToken(){
-  const user = auth.currentUser;
-  if(!user) return alert('Login required');
-  const uid = user.uid;
-  const userRef = doc(db,'users',uid);
-  const userDoc = await getDoc(userRef);
-  const data = userDoc.data();
-  if(data.mines >= dailyLimit){ alert('Daily limit reached'); return; }
-  await updateDoc(userRef,{ balance: increment(10), mines: increment(1) });
-  document.getElementById('balance').innerText = data.balance + 10;
-  alert('Successfully mined 10 tokens!');
-  if(data.mines+1 >= dailyLimit){ document.getElementById('mine-btn').disabled=true; }
-}
-
-// Attach events after DOM loaded
-document.addEventListener('DOMContentLoaded',()=>{
-  document.getElementById('signup-btn').addEventListener('click',signup);
-  document.getElementById('login-btn').addEventListener('click',login);
-  document.getElementById('logout-btn').addEventListener('click',logout);
-  document.getElementById('mine-btn').addEventListener('click',mineToken);
-
-  setInterval(()=>{ if(countdown>0){ countdown--; updateTimerDisplay(countdown); } },1000);
+// Tabs
+document.querySelectorAll('.tabBtn').forEach(btn=>{
+  btn.onclick = ()=>{
+    document.querySelectorAll('.tab-content').forEach(tc=>tc.classList.remove('active'));
+    document.getElementById(btn.dataset.tab).classList.add('active');
+  }
 });
 
+// Mining Logic
+let mineInterval;
+
+async function updateUI(user){
+  const docRef = doc(db,"users",user.uid);
+  const docSnap = await getDoc(docRef);
+  if(!docSnap.exists()) return;
+  const data = docSnap.data();
+  balanceSpan.textContent = data.balance;
+  referralCodeSpan.textContent = data.referralCode;
+  referralLinkInput.value = window.location.origin+"?ref="+data.referralCode;
+  referralCountSpan.textContent = data.referrals;
+  profileName.textContent = data.name;
+
+  // profile pic localStorage
+  const pic = localStorage.getItem("profilePic_"+user.uid);
+  profilePic.src = pic || "https://via.placeholder.com/50";
+
+  // Mining cooldown
+  const now = Date.now();
+  let lastMine = data.lastMine || 0;
+  let minesToday = data.mines || 0;
+  const cooldown = 2*60*60*1000; // 2 hours
+  const dailyLimit = 5;
+  if(minesToday >= dailyLimit){
+    mineBtn.disabled = true;
+    mineBtn.classList.add("disabled");
+    countdownSpan.textContent = "Daily limit reached";
+  }else if(now - lastMine < cooldown){
+    mineBtn.disabled = true;
+    mineBtn.classList.add("disabled");
+    let remaining = cooldown - (now - lastMine);
+    startCountdown(remaining);
+  }else{
+    mineBtn.disabled = false;
+    mineBtn.classList.remove("disabled");
+    countdownSpan.textContent = "";
+  }
+}
+
+function startCountdown(ms){
+  clearInterval(mineInterval);
+  mineInterval = setInterval(()=>{
+    if(ms<=0){ clearInterval(mineInterval); countdownSpan.textContent=""; mineBtn.disabled=false; mineBtn.classList.remove("disabled"); return;}
+    let h = Math.floor(ms/3600000);
+    let m = Math.floor((ms%3600000)/60000);
+    let s = Math.floor((ms%60000)/1000);
+    countdownSpan.textContent = `${h}h ${m}m ${s}s`;
+    ms-=1000;
+  },1000);
+}
+
+mineBtn.onclick = async ()=>{
+  const user = auth.currentUser;
+  if(!user) return;
+  const docRef = doc(db,"users",user.uid);
+  const docSnap = await getDoc(docRef);
+  const data = docSnap.data();
+  const now = Date.now();
+  const cooldown = 2*60*60*1000;
+  if(now - data.lastMine < cooldown){
+    alert("Mining cooldown active");
+    return;
+  }
+  await updateDoc(docRef,{
+    balance: increment(10),
+    mines: increment(1),
+    lastMine: now
+  });
+  updateUI(user);
+};
+
+// Copy Referral
+copyReferralBtn.onclick = ()=>{
+  referralLinkInput.select();
+  referralLinkInput.setSelectionRange(0,99999);
+  document.execCommand("copy");
+  alert("Referral link copied!");
+};
+
+// Observe auth state
+onAuthStateChanged(auth,user=>{
+  if(user){
+    loginDiv.style.display="none";
+    mainDiv.style.display="block";
+    updateUI(user);
+  }else{
+    loginDiv.style.display="block";
+    mainDiv.style.display="none";
+  }
+});
+
+// Profile Pic Upload (localStorage)
+profilePic.onclick = ()=>{
+  const fileInput = document.createElement("input");
+  fileInput.type="file";
+  fileInput.accept="image/*";
+  fileInput.onchange = e=>{
+    const reader = new FileReader();
+    reader.onload = ()=>{
+      profilePic.src = reader.result;
+      const user = auth.currentUser;
+      if(user) localStorage.setItem("profilePic_"+user.uid, reader.result);
+    }
+    reader.readAsDataURL(e.target.files[0]);
+  };
+  fileInput.click();
+};
+
 </script>
+</head>
+<body>
+<header><h1>Moo Deng Coin</h1></header>
+
+<div class="container" id="loginDiv">
+  <h2>Login / Signup</h2>
+  <input type="text" placeholder="Name" id="name">
+  <input type="text" placeholder="Email" id="email">
+  <input type="password" placeholder="Password" id="password">
+  <button id="signupBtn">Sign Up</button>
+  <button id="loginBtn">Login</button>
+</div>
+
+<div class="container" id="mainDiv" style="display:none;">
+  <div class="tabs">
+    <button class="tabBtn" data-tab="walletTab">Wallet</button>
+    <button class="tabBtn" data-tab="mineTab">Mine</button>
+    <button class="tabBtn" data-tab="referralTab">Referral</button>
+    <button class="tabBtn" data-tab="profileTab">Profile</button>
+  </div>
+
+  <div class="tab-content" id="walletTab">
+    <h2>Wallet</h2>
+    <p>Balance: <span id="balance">0</span> tokens</p>
+  </div>
+
+  <div class="tab-content" id="mineTab">
+    <h2>Mine Tokens</h2>
+    <button id="mineBtn" class="mine-btn">Mine Token</button>
+    <p id="countdown"></p>
+  </div>
+
+  <div class="tab-content" id="referralTab">
+    <h2>Your Referral</h2>
+    <div class="referral-box">
+      <span>Your Referral Code: <span id="referralCode"></span></span>
+    </div>
+    <input type="text" id="referralLink" readonly>
+    <button id="copyReferralBtn">Copy Link</button>
+    <p>Referrals: <span id="referralCount">0</span></p>
+  </div>
+
+  <div class="tab-content" id="profileTab">
+    <h2>Profile</h2>
+    <img id="profilePic" src="https://via.placeholder.com/50" style="width:50px;height:50px;border-radius:50%;cursor:pointer;">
+    <p>Name: <span id="profileName"></span></p>
+    <h3>Whitelist</h3>
+    <textarea id="whitelistArea" rows="5" style="width:100%;"></textarea>
+  </div>
+
+  <button id="logoutBtn">Logout</button>
+</div>
+
 </body>
 </html>
