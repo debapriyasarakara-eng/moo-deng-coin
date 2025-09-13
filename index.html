@@ -1,246 +1,165 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Moo Deng Coin</title>
-
-  <!-- Firebase JS SDK -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
-
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      padding: 20px;
-    }
-    #wallet-section {
-      margin-top: 20px;
-    }
-    button {
-      padding: 10px 20px;
-      margin-top: 10px;
-      cursor: pointer;
-    }
-    input {
-      padding: 10px;
-      margin: 5px 0;
-      width: 100%;
-    }
-    #copy-message {
-      color: green;
-      margin-top: 5px;
-    }
-    #mine-message {
-      color: blue;
-      margin-top: 5px;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Moo Deng Coin</title>
+<style>
+body { font-family: Arial, sans-serif; background: #f5f5f5; margin: 0; padding: 0; }
+header { background: #2c3e50; color: white; padding: 20px; text-align: center; }
+.container { max-width: 500px; margin: 30px auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1);}
+button { padding: 10px 15px; margin: 5px; cursor: pointer; border: none; border-radius: 5px; background: #27ae60; color: white; font-weight: bold; }
+input { padding: 10px; width: 95%; margin: 5px 0; border-radius: 5px; border: 1px solid #ccc; }
+h2, h3 { margin-top: 0; }
+.referral-section { background: #ecf0f1; padding: 10px; border-radius: 5px; margin-top: 15px; }
+</style>
 </head>
 <body>
 
-  <h1>Moo Deng Coin</h1>
+<header>
+<h1>Moo Deng Coin</h1>
+</header>
 
-  <!-- Login Form -->
-  <div id="login-form">
-    <input type="email" id="email" placeholder="Email" /><br/>
-    <input type="password" id="password" placeholder="Password" /><br/>
-    <button onclick="login()">Login</button>
-    <button onclick="signup()">Sign Up</button>
-  </div>
+<div class="container" id="auth-container">
+<h2>Login / Signup</h2>
+<input type="email" id="email" placeholder="Email">
+<input type="password" id="password" placeholder="Password">
+<button id="login-btn">Login</button>
+<button id="signup-btn">Signup</button>
+<p id="auth-msg" style="color:red;"></p>
+</div>
 
-  <!-- Wallet Section -->
-  <div id="wallet-section" style="display:none;">
-    <h2>Wallet</h2>
-    <p>Balance: <span id="balance">Loading...</span> tokens</p>
-    <button onclick="mineToken()">Mine Token</button>
-    <p id="mine-message"></p>
+<div class="container" id="wallet-container" style="display:none;">
+<h2>Wallet</h2>
+<p>Balance: <span id="balance">0</span> tokens</p>
+<button id="mine-btn">Mine Token</button>
+<p id="mine-msg" style="color:green;"></p>
 
-    <h3>Your Referral</h3>
-    <p>Your Referral Code: <span id="ref-code">Loading...</span></p>
-    <p>Share this link: <span id="ref-link">Loading...</span>
-      <button onclick="copyRefLink()">Copy</button>
-    </p>
-    <p id="copy-message"></p>
+<div class="referral-section">
+<h3>Your Referral</h3>
+<p>Your Referral Code: <span id="ref-code"></span></p>
+<p>Share this link: <span id="ref-link"></span></p>
+</div>
 
-    <h3>Statistics</h3>
-    <p>Total Referrals: <span id="referrals">0</span></p>
+<button id="logout-btn" style="background:#c0392b;">Logout</button>
+</div>
 
-    <button onclick="logout()">Logout</button>
-  </div>
+<!-- Firebase -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
+import { getFirestore, doc, setDoc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
 
-  <script>
-    // Firebase Configuration
-    const firebaseConfig = {
-      apiKey: "AIzaSyBRitTsyqXfk6XNh3t1j0boebQa1LNQkKs",
-      authDomain: "moo-deng-coin.firebaseapp.com",
-      projectId: "moo-deng-coin",
-      storageBucket: "moo-deng-coin.firebasestorage.app",
-      messagingSenderId: "629636349388",
-      appId: "1:629636349388:web:a9a7924aaea9354a09f169",
-      measurementId: "G-T7FVX8DW2Z"
-    };
+// Firebase Config
+const firebaseConfig = {
+  apiKey: "AIzaSyBRitTsyqXfk6XNh3t1j0boebQa1LNQkKs",
+  authDomain: "moo-deng-coin.firebaseapp.com",
+  projectId: "moo-deng-coin",
+  storageBucket: "moo-deng-coin.appspot.com",
+  messagingSenderId: "629636349388",
+  appId: "1:629636349388:web:a9a7924aaea9354a09f169"
+};
 
-    // Initialize Firebase
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.firestore();
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
 
-    // Generate random referral code
-    function generateRefCode() {
-      return Math.random().toString(36).substring(2, 10);
-    }
+// DOM Elements
+const authContainer = document.getElementById('auth-container');
+const walletContainer = document.getElementById('wallet-container');
+const emailInput = document.getElementById('email');
+const passwordInput = document.getElementById('password');
+const loginBtn = document.getElementById('login-btn');
+const signupBtn = document.getElementById('signup-btn');
+const logoutBtn = document.getElementById('logout-btn');
+const balanceEl = document.getElementById('balance');
+const mineBtn = document.getElementById('mine-btn');
+const mineMsg = document.getElementById('mine-msg');
+const refCodeEl = document.getElementById('ref-code');
+const refLinkEl = document.getElementById('ref-link');
+const authMsg = document.getElementById('auth-msg');
 
-    // Get referral code from URL
-    function getReferralCode() {
-      const params = new URLSearchParams(window.location.search);
-      return params.get('ref');
-    }
+// Helper: Generate Referral Code
+function generateRefCode() {
+  return Math.random().toString(36).substring(2,10);
+}
 
-    // Login function
-    function login() {
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
-      auth.signInWithEmailAndPassword(email, password)
-        .then(() => {
-          console.log('Logged in successfully');
-        })
-        .catch((error) => {
-          alert(error.message);
-        });
-    }
-
-    // Signup function with referral integration
-    function signup() {
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
-      auth.createUserWithEmailAndPassword(email, password)
-        .then((userCredential) => {
-          const user = userCredential.user;
-          const refCode = generateRefCode();
-          const referredBy = getReferralCode();
-
-          db.collection('users').doc(user.uid).set({
-            balance: 0,
-            mines: 0,
-            referrals: 0,
-            refCode: refCode,
-            referredBy: referredBy || "",
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-          }).then(() => {
-            console.log("User profile created");
-
-            if (referredBy) {
-              const referrerQuery = db.collection('users').where('refCode', '==', referredBy);
-              referrerQuery.get().then((querySnapshot) => {
-                querySnapshot.forEach((doc) => {
-                  const referrerId = doc.id;
-                  const referrerRef = db.collection('users').doc(referrerId);
-                  referrerRef.update({
-                    balance: firebase.firestore.FieldValue.increment(20),
-                    referrals: firebase.firestore.FieldValue.increment(1)
-                  }).then(() => {
-                    console.log("Referral bonus added!");
-                  }).catch((error) => {
-                    console.error("Error updating referrer:", error);
-                  });
-                });
-              });
-            }
-          });
-        })
-        .catch((error) => {
-          alert(error.message);
-        });
-    }
-
-    // Logout function
-    function logout() {
-      auth.signOut();
-    }
-
-    // Mine token function
-    function mineToken() {
-      const user = auth.currentUser;
-      if (!user) return;
-
-      const userId = user.uid;
-      const userRef = db.collection('users').doc(userId);
-
-      userRef.get().then((doc) => {
-        if (doc.exists) {
-          const data = doc.data();
-          const mines = data.mines || 0;
-          let balance = data.balance || 0;
-
-          if (mines >= 5) {
-            document.getElementById('mine-message').innerText = "You have reached the daily mining limit!";
-            return;
-          }
-
-          balance += 10;
-          const newMines = mines + 1;
-
-          userRef.update({
-            balance: balance,
-            mines: newMines
-          }).then(() => {
-            document.getElementById('balance').innerText = balance;
-            document.getElementById('mine-message').innerText = "Successfully mined 10 tokens!";
-          }).catch((error) => {
-            console.error("Error updating document:", error);
-          });
-
-        } else {
-          console.log("No such document!");
-        }
-      });
-    }
-
-    // Copy referral link function
-    function copyRefLink() {
-      const refLink = document.getElementById('ref-link').innerText;
-      navigator.clipboard.writeText(refLink).then(() => {
-        document.getElementById('copy-message').innerText = "Referral link copied!";
-        setTimeout(() => {
-          document.getElementById('copy-message').innerText = "";
-        }, 2000);
-      }).catch((err) => {
-        console.error("Failed to copy: ", err);
-      });
-    }
-
-    // Auth state change listener
-    auth.onAuthStateChanged((user) => {
-      if (user) {
-        document.getElementById('login-form').style.display = 'none';
-        document.getElementById('wallet-section').style.display = 'block';
-
-        const userId = user.uid;
-        const userRef = db.collection('users').doc(userId);
-        userRef.get().then((doc) => {
-          if (doc.exists) {
-            const data = doc.data();
-            const balance = data.balance !== undefined ? data.balance : 0;
-            const refCode = data.refCode || "";
-            const referrals = data.referrals !== undefined ? data.referrals : 0;
-
-            document.getElementById('balance').innerText = balance;
-            document.getElementById('ref-code').innerText = refCode;
-            document.getElementById('ref-link').innerText = window.location.origin + "/?ref=" + refCode;
-            document.getElementById('referrals').innerText = referrals;
-          }
-        }).catch((error) => {
-          console.error("Error getting document:", error);
-        });
-
-      } else {
-        document.getElementById('login-form').style.display = 'block';
-        document.getElementById('wallet-section').style.display = 'none';
-      }
+// Signup
+signupBtn.addEventListener('click', async ()=>{
+  const email = emailInput.value;
+  const password = passwordInput.value;
+  if(!email || !password){ authMsg.textContent = "Please enter email & password"; return;}
+  try{
+    const userCredential = await createUserWithEmailAndPassword(auth,email,password);
+    const user = userCredential.user;
+    const refCode = generateRefCode();
+    await setDoc(doc(db,'users',user.uid),{
+      balance:0,
+      mines:0,
+      referrals:0,
+      refCode: refCode
     });
+  } catch(err){ authMsg.textContent = err.message; }
+});
 
-  </script>
+// Login
+loginBtn.addEventListener('click', async ()=>{
+  const email = emailInput.value;
+  const password = passwordInput.value;
+  if(!email || !password){ authMsg.textContent = "Please enter email & password"; return;}
+  try{
+    await signInWithEmailAndPassword(auth,email,password);
+  } catch(err){ authMsg.textContent = err.message; }
+});
+
+// Logout
+logoutBtn.addEventListener('click', ()=>{
+  signOut(auth);
+});
+
+// Auth State
+onAuthStateChanged(auth, async (user)=>{
+  if(user){
+    authContainer.style.display = 'none';
+    walletContainer.style.display = 'block';
+    const docRef = doc(db,'users',user.uid);
+    const docSnap = await getDoc(docRef);
+    if(docSnap.exists()){
+      const data = docSnap.data();
+      balanceEl.textContent = data.balance;
+      refCodeEl.textContent = data.refCode;
+      refLinkEl.textContent = window.location.href + "?ref=" + data.refCode;
+    }
+  } else{
+    authContainer.style.display = 'block';
+    walletContainer.style.display = 'none';
+    authMsg.textContent = '';
+    emailInput.value = '';
+    passwordInput.value = '';
+  }
+});
+
+// Mining
+mineBtn.addEventListener('click', async ()=>{
+  const user = auth.currentUser;
+  if(!user) return;
+  const docRef = doc(db,'users',user.uid);
+  const docSnap = await getDoc(docRef);
+  if(docSnap.exists()){
+    const data = docSnap.data();
+    const minedTokens = 10;
+    const newBalance = data.balance + minedTokens;
+    const newMines = data.mines + 1;
+    await updateDoc(docRef,{
+      balance: newBalance,
+      mines: newMines
+    });
+    balanceEl.textContent = newBalance;
+    mineMsg.textContent = `Successfully mined ${minedTokens} tokens!`;
+    setTimeout(()=>{mineMsg.textContent='';},3000);
+  }
+});
+</script>
+
 </body>
 </html>
