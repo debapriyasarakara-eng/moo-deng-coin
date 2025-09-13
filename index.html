@@ -110,22 +110,22 @@
     loginScreen.classList.remove('hide');
   });
 
-  // Register user
+  // Register user with detailed error popup
   registerBtn.addEventListener('click', async () => {
     const email = document.getElementById('registerEmail').value.trim();
     const password = document.getElementById('registerPassword').value;
     const confirmPassword = document.getElementById('registerConfirmPassword').value;
 
     if (!email || !password || !confirmPassword) {
-      alert('All fields are required');
+      alert('All fields are required!');
       return;
     }
     if (password !== confirmPassword) {
-      alert('Passwords do not match');
+      alert('Passwords do not match!');
       return;
     }
-    if(password.length < 6){
-      alert('Password should be at least 6 characters');
+    if (password.length < 6) {
+      alert('Password should be at least 6 characters!');
       return;
     }
 
@@ -143,21 +143,22 @@
         createdAt: Date.now(),
       });
 
-      alert('Registration success! Please login.');
+      alert('Registration successful! Please login.');
       registerScreen.classList.add('hide');
       loginScreen.classList.remove('hide');
-    } catch (e) {
-      alert(e.message);
+    } catch (error) {
+      alert(`Registration failed: ${error.message}`);
+      console.error('Registration error:', error);
     }
   });
 
-  // Login user
+  // Login user with detailed error popup
   loginBtn.addEventListener('click', async () => {
     const email = document.getElementById('loginEmail').value.trim();
     const password = document.getElementById('loginPassword').value;
 
     if (!email || !password) {
-      alert('Please enter both email and password');
+      alert('Please enter both email and password!');
       return;
     }
 
@@ -166,28 +167,39 @@
       currentUser = userCredential.user;
       await loadUserData(currentUser.uid);
       showApp();
-    } catch (e) {
-      alert(e.message);
+    } catch (error) {
+      alert(`Login failed: ${error.message}`);
+      console.error('Login error:', error);
     }
   });
 
   // Logout user
   logoutBtn.addEventListener('click', async () => {
-    await auth.signOut();
-    currentUser = null;
-    appContainer.classList.add('hide');
-    loginScreen.classList.remove('hide');
-    stopMining();
+    try {
+      await auth.signOut();
+      currentUser = null;
+      appContainer.classList.add('hide');
+      loginScreen.classList.remove('hide');
+      stopMining();
+    } catch (error) {
+      alert(`Logout error: ${error.message}`);
+      console.error('Logout error:', error);
+    }
   });
 
-  // Load user Firestore data
+  // Load user Firestore data with error popup
   async function loadUserData(userId) {
-    const doc = await db.collection('users').doc(userId).get();
-    if (doc.exists) {
-      currentUser = { uid: userId, ...doc.data() };
-      userEmail.textContent = currentUser.email;
-    } else {
-      throw new Error('User data not found.');
+    try {
+      const doc = await db.collection('users').doc(userId).get();
+      if (doc.exists) {
+        currentUser = { uid: userId, ...doc.data() };
+        userEmail.textContent = currentUser.email;
+      } else {
+        throw new Error('User data not found.');
+      }
+    } catch (error) {
+      alert(`Failed to load user data: ${error.message}`);
+      console.error('Load user data error:', error);
     }
   }
 
@@ -259,7 +271,7 @@
     }
   }
 
-  // Mine token function (simulate mining tokens)
+  // Mine token function (simulate mining tokens) with error popup
   async function mineToken() {
     const now = Date.now();
 
@@ -267,12 +279,10 @@
     if (now - currentUser.lastMine < MINE_INTERVAL && currentUser.lastMine !== 0) return;
 
     try {
-      // Update user data
       currentUser.mines += 1;
       currentUser.lastMine = now;
       currentUser.balance = (currentUser.balance || 0) + 10;
 
-      // Save changes on Firestore
       await db.collection('users').doc(currentUser.uid).update({
         mines: currentUser.mines,
         lastMine: currentUser.lastMine,
@@ -281,15 +291,16 @@
 
       alert('Mining successful! You earned 10 MDC.');
       updateMiningTimer();
-    } catch (e) {
-      alert('Error during mining: ' + e.message);
+    } catch (error) {
+      alert(`Error during mining: ${error.message}`);
+      console.error('Mining error:', error);
     }
   }
 
   // Button click mining
   mineBtn.addEventListener('click', () => {
     if (!currentUser) {
-      alert('You must log in first');
+      alert('You must log in first!');
       return;
     }
     mineToken();
@@ -312,6 +323,12 @@
   window.addEventListener('beforeunload', (e) => {
     stopMining();
   });
+
+  // Optional: Global uncaught error handler to catch unexpected errors
+  window.onerror = function(message, source, lineno, colno, error) {
+    alert(`Unexpected error: ${message} at ${source}:${lineno}:${colno}`);
+    console.error('Global error:', error);
+  }
 </script>
 
 </body>
