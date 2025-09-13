@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="bn">
+<html lang="en">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -35,25 +35,25 @@ input.copy-input {width:70%; padding:5px; border-radius:5px; border:none;}
 <div class="container" id="authContainer">
 
   <!-- Authentication -->
-  <h2>সাইন ইন / সাইন আপ করুন</h2>
+  <h2>Sign In / Sign Up</h2>
 
   <!-- Google Sign-In -->
-  <button id="googleSignInBtn">Google দিয়ে লগইন করুন</button>
+  <button id="googleSignInBtn">Sign in with Google</button>
 
   <hr style="margin:20px 0;">
 
   <!-- Email Signup -->
-  <input type="text" id="signupName" placeholder="নাম" style="width:100%; padding:8px; margin-bottom:10px;">
-  <input type="email" id="signupEmail" placeholder="ইমেইল" style="width:100%; padding:8px; margin-bottom:10px;">
-  <input type="password" id="signupPass" placeholder="পাসওয়ার্ড" style="width:100%; padding:8px; margin-bottom:10px;">
-  <button id="signupBtn">সাইন আপ করুন</button>
+  <input type="text" id="signupName" placeholder="Name" style="width:100%; padding:8px; margin-bottom:10px;">
+  <input type="email" id="signupEmail" placeholder="Email" style="width:100%; padding:8px; margin-bottom:10px;">
+  <input type="password" id="signupPass" placeholder="Password" style="width:100%; padding:8px; margin-bottom:10px;">
+  <button id="signupBtn">Sign Up</button>
 
   <hr style="margin:20px 0;">
 
   <!-- Email Login -->
-  <input type="email" id="loginEmail" placeholder="ইমেইল" style="width:100%; padding:8px; margin-bottom:10px;">
-  <input type="password" id="loginPass" placeholder="পাসওয়ার্ড" style="width:100%; padding:8px; margin-bottom:10px;">
-  <button id="loginBtn">লগইন করুন</button>
+  <input type="email" id="loginEmail" placeholder="Email" style="width:100%; padding:8px; margin-bottom:10px;">
+  <input type="password" id="loginPass" placeholder="Password" style="width:100%; padding:8px; margin-bottom:10px;">
+  <button id="loginBtn">Login</button>
 
 </div>
 
@@ -63,7 +63,7 @@ input.copy-input {width:70%; padding:5px; border-radius:5px; border:none;}
   <div class="header-flex">
     <div class="profile-pic" id="profilePic">👤</div>
     <h1>Moo Deng Coin</h1>
-    <button class="logout-btn" id="logoutBtn">লগআউট</button>
+    <button class="logout-btn" id="logoutBtn">Logout</button>
   </div>
 
   <!-- Wallet -->
@@ -72,7 +72,7 @@ input.copy-input {width:70%; padding:5px; border-radius:5px; border:none;}
     <p>MDC Balance: <span id="balance">0</span></p>
     <button id="mineBtn">Mine Token</button>
     <p class="logout-warning">
-      ⭐ Keep this tab open! If you close it, mining will stop. You can minimize it safely.
+      ⭐ Keep this tab open! Closing will stop mining. You can safely minimize.
     </p>
   </div>
 
@@ -170,6 +170,10 @@ const historyList = document.getElementById('historyList');
 const tabs = document.querySelectorAll('.tabs button');
 const tabContents = document.querySelectorAll('.tab-content');
 
+// Referral code from URL
+let urlParams = new URLSearchParams(window.location.search);
+let refCodeFromURL = urlParams.get('ref') || null;
+
 let userDocRef = null;
 let miningTimer = null;
 
@@ -178,18 +182,28 @@ let userData = {
   mines: 0,
   lastMine: 0,
   referrals: 0,
-  history: []
+  history: [],
+  referredBy: null,
+  signupTime: 0
 };
 
-const MINE_INTERVAL = 2 * 60 * 60 * 1000; // 2 ঘন্টা
+const MINE_INTERVAL = 2 * 60 * 60 * 1000; // 2 hours
 const MAX_DAILY_MINES = 5;
 
-// Show referral code & link
+// Show referral UI update
 function updateReferralUI(uid) {
-  refCodeEl.textContent = uid;
-  refLinkInput.value = window.location.href + '?ref=' + uid;
+  userDocRef = doc(db, "users", uid);
+  getDoc(userDocRef).then((docSnap) => {
+    if (docSnap.exists()) {
+      const data = docSnap.data();
+      refCodeEl.textContent = data.refCode || uid;
+      refLinkInput.value = window.location.href.split('?')[0] + '?ref=' + (data.refCode || uid);
+      document.getElementById('refCount').textContent = data.referrals || 0;
+    }
+  });
 }
 
+// Copy referral link
 copyBtn.addEventListener('click', () => {
   refLinkInput.select();
   document.execCommand('copy');
@@ -210,15 +224,15 @@ signupBtn.addEventListener('click', async () => {
   const email = signupEmail.value.trim();
   const pass = signupPass.value.trim();
   if (!name || !email || !pass) {
-    alert('সব ফিল্ড পূরণ করুন');
+    alert('Please fill all fields');
     return;
   }
-
   try {
     let userCredential = await createUserWithEmailAndPassword(auth, email, pass);
     let user = userCredential.user;
-    // Save user data in Firestore
     userDocRef = doc(db, "users", user.uid);
+
+    // Save referral info during signup
     await setDoc(userDocRef, {
       name,
       email,
@@ -227,8 +241,23 @@ signupBtn.addEventListener('click', async () => {
       lastMine: 0,
       referrals: 0,
       history: [],
-      refCode: user.uid
+      refCode: user.uid,
+      referredBy: refCodeFromURL || null,
+      signupTime: Date.now()
     });
+
+    // Add referral bonus to referrer + count update
+    if (refCodeFromURL) {
+      const refUserRef = doc(db, "users", refCodeFromURL);
+      const refUserSnap = await getDoc(refUserRef);
+      if (refUserSnap.exists()) {
+        await updateDoc(refUserRef, {
+          balance: (refUserSnap.data().balance || 0) + 50,
+          referrals: (refUserSnap.data().referrals || 0) + 1
+        });
+      }
+    }
+
     await loadUserData(user.uid);
     afterLoginUI();
   } catch (error) {
@@ -241,7 +270,7 @@ loginBtn.addEventListener('click', async () => {
   const email = loginEmail.value.trim();
   const pass = loginPass.value.trim();
   if (!email || !pass) {
-    alert('সব ফিল্ড পূরণ করুন');
+    alert('Please fill all fields');
     return;
   }
   try {
@@ -254,17 +283,16 @@ loginBtn.addEventListener('click', async () => {
   }
 });
 
-// Google Sign-In
+// Google Sign-In with popup button disable to avoid double popup error
 googleSignInBtn.addEventListener('click', async () => {
+  googleSignInBtn.disabled = true;
   const provider = new GoogleAuthProvider();
   try {
     let result = await signInWithPopup(auth, provider);
     let user = result.user;
-
     userDocRef = doc(db, "users", user.uid);
     const docSnap = await getDoc(userDocRef);
     if (!docSnap.exists()) {
-      // নতুন ইউজার হলে Firestore এ ইনিশিয়াল ডাটা দিন
       await setDoc(userDocRef, {
         name: user.displayName || "",
         email: user.email,
@@ -273,13 +301,29 @@ googleSignInBtn.addEventListener('click', async () => {
         lastMine: 0,
         referrals: 0,
         history: [],
-        refCode: user.uid
+        refCode: user.uid,
+        referredBy: refCodeFromURL || null,
+        signupTime: Date.now()
       });
+
+      // Add referral bonus to referrer + count update
+      if (refCodeFromURL) {
+        const refUserRef = doc(db, "users", refCodeFromURL);
+        const refUserSnap = await getDoc(refUserRef);
+        if (refUserSnap.exists()) {
+          await updateDoc(refUserRef, {
+            balance: (refUserSnap.data().balance || 0) + 50,
+            referrals: (refUserSnap.data().referrals || 0) + 1
+          });
+        }
+      }
     }
     await loadUserData(user.uid);
     afterLoginUI();
   } catch (error) {
     alert('Google Sign-In Error: ' + error.message);
+  } finally {
+    googleSignInBtn.disabled = false;
   }
 });
 
@@ -289,7 +333,7 @@ logoutBtn.addEventListener('click', async () => {
   resetUI();
 });
 
-// আর login হলে ডাটা লোড এবং UI আপডেট করা
+// Auth state observer
 onAuthStateChanged(auth, async (user) => {
   if (user) {
     await loadUserData(user.uid);
@@ -299,7 +343,7 @@ onAuthStateChanged(auth, async (user) => {
   }
 });
 
-// Data load from Firestore
+// Load user data from Firestore
 async function loadUserData(uid) {
   userDocRef = doc(db, "users", uid);
   const docSnap = await getDoc(userDocRef);
@@ -315,7 +359,9 @@ async function loadUserData(uid) {
       mines: 0,
       lastMine: 0,
       referrals: 0,
-      history: []
+      history: [],
+      referredBy: null,
+      signupTime: 0
     };
   }
 }
@@ -358,7 +404,7 @@ function renderHistory() {
   });
 }
 
-// Mining function with server update
+// Mining function with referral bonus logic
 mineBtn.addEventListener('click', async () => {
   if (userData.mines >= MAX_DAILY_MINES) {
     alert('Daily mining limit reached!');
@@ -366,14 +412,12 @@ mineBtn.addEventListener('click', async () => {
   }
   const now = Date.now();
 
-  // Update local userData
   userData.balance += 10;
   userData.mines += 1;
   userData.lastMine = now;
 
   let newHistoryItem = { timestamp: now, amount: 10 };
 
-  // Push update to Firestore
   await updateDoc(userDocRef, {
     balance: userData.balance,
     mines: userData.mines,
@@ -381,7 +425,22 @@ mineBtn.addEventListener('click', async () => {
     history: arrayUnion(newHistoryItem)
   });
 
-  // Update local UI
+  // Referral bonus: 2% for 7 days
+  if (userData.referredBy) {
+    const refUserRef = doc(db, "users", userData.referredBy);
+    const refUserSnap = await getDoc(refUserRef);
+    if (refUserSnap.exists()) {
+      const sevenDaysInMs = 7 * 24 * 60 * 60 * 1000;
+      if ((Date.now() - userData.signupTime) <= sevenDaysInMs) {
+        let bonus = 10 * 0.02; // 2% of 10
+        await updateDoc(refUserRef, {
+          balance: (refUserSnap.data().balance || 0) + bonus
+        });
+      }
+    }
+  }
+
+  // Update UI
   balanceEl.textContent = userData.balance;
   userData.history.push(newHistoryItem);
   renderHistory();
@@ -401,7 +460,9 @@ function resetUI() {
     mines: 0,
     lastMine: 0,
     referrals: 0,
-    history: []
+    history: [],
+    referredBy: null,
+    signupTime: 0
   };
   balanceEl.textContent = 0;
   historyList.innerHTML = "";
