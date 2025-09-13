@@ -5,161 +5,316 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Moo Deng Coin</title>
 <style>
-body { font-family: Arial, sans-serif; background: #f5f5f5; margin: 0; padding: 0; }
-header { background: #2c3e50; color: white; padding: 20px; text-align: center; }
-.container { max-width: 500px; margin: 30px auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1);}
-button { padding: 10px 15px; margin: 5px; cursor: pointer; border: none; border-radius: 5px; background: #27ae60; color: white; font-weight: bold; }
-input { padding: 10px; width: 95%; margin: 5px 0; border-radius: 5px; border: 1px solid #ccc; }
-h2, h3 { margin-top: 0; }
-.referral-section { background: #ecf0f1; padding: 10px; border-radius: 5px; margin-top: 15px; }
+  /* --- General Styles --- */
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    background: #0b0b0b;
+    color: #fff;
+  }
+  a {
+    color: #00ffea;
+    text-decoration: none;
+  }
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background: #111;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  header h1 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: #00ffea;
+  }
+  header .profile {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  header .profile img {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #00ffea;
+  }
+
+  main {
+    padding: 20px;
+    text-align: center;
+  }
+
+  .wallet {
+    margin: 20px 0;
+    font-size: 1.2rem;
+  }
+
+  button {
+    padding: 10px 20px;
+    font-size: 1rem;
+    cursor: pointer;
+    background: #00ffea;
+    color: #000;
+    border: none;
+    border-radius: 5px;
+    margin: 10px 0;
+  }
+
+  button:disabled {
+    background: #555;
+    cursor: not-allowed;
+  }
+
+  .referral {
+    margin-top: 20px;
+    font-size: 1rem;
+  }
+
+  input {
+    padding: 8px;
+    font-size: 1rem;
+    margin: 5px 0;
+    width: 80%;
+    max-width: 300px;
+    border-radius: 5px;
+    border: none;
+  }
+
+  .login-box {
+    background: #111;
+    padding: 20px;
+    border-radius: 10px;
+    display: inline-block;
+  }
+
+  /* --- Mining Animation --- */
+  .mining-circle {
+    margin: 30px auto;
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    border: 6px solid #00ffea;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #00ffea;
+  }
+
+  .mining-circle::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border: 6px solid rgba(0,255,234,0.3);
+    animation: spin 7200s linear infinite; /* 2 hours rotation */
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg);}
+    100% { transform: rotate(360deg);}
+  }
+
+  /* --- Responsive --- */
+  @media(max-width:500px){
+    header h1 { font-size: 1.2rem; }
+    .mining-circle { width: 120px; height: 120px; font-size: 0.9rem; }
+  }
 </style>
 </head>
 <body>
 
 <header>
-<h1>Moo Deng Coin</h1>
+  <h1>Moo Deng Coin</h1>
+  <div class="profile" id="profile-section" style="display:none;">
+    <span id="user-name"></span>
+    <img src="https://via.placeholder.com/35" alt="Profile">
+    <button onclick="logout()">Logout</button>
+  </div>
 </header>
 
-<div class="container" id="auth-container">
-<h2>Login / Signup</h2>
-<input type="email" id="email" placeholder="Email">
-<input type="password" id="password" placeholder="Password">
-<button id="login-btn">Login</button>
-<button id="signup-btn">Signup</button>
-<p id="auth-msg" style="color:red;"></p>
-</div>
+<main>
+  <div id="login-form" class="login-box">
+    <h2>Login / Signup</h2>
+    <input type="text" id="name" placeholder="Your Name" required><br>
+    <input type="email" id="email" placeholder="Email" required><br>
+    <input type="password" id="password" placeholder="Password" required><br>
+    <button onclick="signup()">Sign Up</button>
+    <button onclick="login()">Login</button>
+  </div>
 
-<div class="container" id="wallet-container" style="display:none;">
-<h2>Wallet</h2>
-<p>Balance: <span id="balance">0</span> tokens</p>
-<button id="mine-btn">Mine Token</button>
-<p id="mine-msg" style="color:green;"></p>
+  <div id="wallet-section" style="display:none;">
+    <div class="wallet">
+      Balance: <span id="balance">0</span> tokens
+    </div>
 
-<div class="referral-section">
-<h3>Your Referral</h3>
-<p>Your Referral Code: <span id="ref-code"></span></p>
-<p>Share this link: <span id="ref-link"></span></p>
-</div>
+    <div class="mining-circle">
+      <div id="mine-timer">2:00:00</div>
+    </div>
+    <button id="mine-btn" onclick="mineToken()">Mine Token</button>
 
-<button id="logout-btn" style="background:#c0392b;">Logout</button>
-</div>
+    <div class="referral">
+      <h3>Your Referral</h3>
+      <div>Your Referral Code: <span id="ref-code"></span></div>
+      <div>Share this link: <span id="ref-link"></span></div>
+    </div>
+  </div>
+</main>
 
 <!-- Firebase -->
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
-import { getFirestore, doc, setDoc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-analytics.js";
+  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { getFirestore, doc, setDoc, getDoc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-// Firebase Config
-const firebaseConfig = {
-  apiKey: "AIzaSyBRitTsyqXfk6XNh3t1j0boebQa1LNQkKs",
-  authDomain: "moo-deng-coin.firebaseapp.com",
-  projectId: "moo-deng-coin",
-  storageBucket: "moo-deng-coin.appspot.com",
-  messagingSenderId: "629636349388",
-  appId: "1:629636349388:web:a9a7924aaea9354a09f169"
-};
+  const firebaseConfig = {
+    apiKey: "AIzaSyBRitTsyqXfk6XNh3t1j0boebQa1LNQkKs",
+    authDomain: "moo-deng-coin.firebaseapp.com",
+    projectId: "moo-deng-coin",
+    storageBucket: "moo-deng-coin.appspot.com",
+    messagingSenderId: "629636349388",
+    appId: "1:629636349388:web:a9a7924aaea9354a09f169",
+    measurementId: "G-T7FVX8DW2Z"
+  };
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+  const auth = getAuth();
+  const db = getFirestore();
 
-// DOM Elements
-const authContainer = document.getElementById('auth-container');
-const walletContainer = document.getElementById('wallet-container');
-const emailInput = document.getElementById('email');
-const passwordInput = document.getElementById('password');
-const loginBtn = document.getElementById('login-btn');
-const signupBtn = document.getElementById('signup-btn');
-const logoutBtn = document.getElementById('logout-btn');
-const balanceEl = document.getElementById('balance');
-const mineBtn = document.getElementById('mine-btn');
-const mineMsg = document.getElementById('mine-msg');
-const refCodeEl = document.getElementById('ref-code');
-const refLinkEl = document.getElementById('ref-link');
-const authMsg = document.getElementById('auth-msg');
+  // --- Globals ---
+  let miningCooldown = 0;
+  const dailyLimit = 5;
 
-// Helper: Generate Referral Code
-function generateRefCode() {
-  return Math.random().toString(36).substring(2,10);
-}
-
-// Signup
-signupBtn.addEventListener('click', async ()=>{
-  const email = emailInput.value;
-  const password = passwordInput.value;
-  if(!email || !password){ authMsg.textContent = "Please enter email & password"; return;}
-  try{
-    const userCredential = await createUserWithEmailAndPassword(auth,email,password);
-    const user = userCredential.user;
-    const refCode = generateRefCode();
-    await setDoc(doc(db,'users',user.uid),{
-      balance:0,
-      mines:0,
-      referrals:0,
-      refCode: refCode
-    });
-  } catch(err){ authMsg.textContent = err.message; }
-});
-
-// Login
-loginBtn.addEventListener('click', async ()=>{
-  const email = emailInput.value;
-  const password = passwordInput.value;
-  if(!email || !password){ authMsg.textContent = "Please enter email & password"; return;}
-  try{
-    await signInWithEmailAndPassword(auth,email,password);
-  } catch(err){ authMsg.textContent = err.message; }
-});
-
-// Logout
-logoutBtn.addEventListener('click', ()=>{
-  signOut(auth);
-});
-
-// Auth State
-onAuthStateChanged(auth, async (user)=>{
-  if(user){
-    authContainer.style.display = 'none';
-    walletContainer.style.display = 'block';
-    const docRef = doc(db,'users',user.uid);
-    const docSnap = await getDoc(docRef);
-    if(docSnap.exists()){
-      const data = docSnap.data();
-      balanceEl.textContent = data.balance;
-      refCodeEl.textContent = data.refCode;
-      refLinkEl.textContent = window.location.href + "?ref=" + data.refCode;
+  // --- Utilities ---
+  function generateReferralCode(length=8){
+    const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+    let code = '';
+    for(let i=0;i<length;i++){
+      code += chars.charAt(Math.floor(Math.random()*chars.length));
     }
-  } else{
-    authContainer.style.display = 'block';
-    walletContainer.style.display = 'none';
-    authMsg.textContent = '';
-    emailInput.value = '';
-    passwordInput.value = '';
+    return code;
   }
-});
 
-// Mining
-mineBtn.addEventListener('click', async ()=>{
-  const user = auth.currentUser;
-  if(!user) return;
-  const docRef = doc(db,'users',user.uid);
-  const docSnap = await getDoc(docRef);
-  if(docSnap.exists()){
-    const data = docSnap.data();
-    const minedTokens = 10;
-    const newBalance = data.balance + minedTokens;
-    const newMines = data.mines + 1;
-    await updateDoc(docRef,{
-      balance: newBalance,
-      mines: newMines
+  function updateTimerDisplay(seconds){
+    const h = Math.floor(seconds/3600);
+    const m = Math.floor((seconds%3600)/60);
+    const s = seconds%60;
+    document.getElementById('mine-timer').innerText = `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+  }
+
+  // --- Signup ---
+  async function signup(){
+    const name = document.getElementById('name').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value.trim();
+    if(!name || !email || !password){ alert('All fields required'); return; }
+
+    try{
+      const userCredential = await createUserWithEmailAndPassword(auth,email,password);
+      const uid = userCredential.user.uid;
+      const refCode = generateReferralCode();
+      await setDoc(doc(db,'users',uid),{
+        name: name,
+        balance: 0,
+        mines: 0,
+        referralCode: refCode,
+        referrals: 0
+      });
+      alert('Signup successful');
+      showWallet(userCredential.user);
+    }catch(err){
+      alert(err.message);
+    }
+  }
+
+  // --- Login ---
+  async function login(){
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value.trim();
+    if(!email || !password){ alert('Email and password required'); return; }
+
+    try{
+      const userCredential = await signInWithEmailAndPassword(auth,email,password);
+      showWallet(userCredential.user);
+    }catch(err){
+      alert(err.message);
+    }
+  }
+
+  // --- Logout ---
+  async function logout(){
+    await signOut(auth);
+    document.getElementById('login-form').style.display = 'block';
+    document.getElementById('wallet-section').style.display = 'none';
+    document.getElementById('profile-section').style.display = 'none';
+  }
+
+  // --- Show Wallet ---
+  async function showWallet(user){
+    document.getElementById('login-form').style.display = 'none';
+    document.getElementById('wallet-section').style.display = 'block';
+    document.getElementById('profile-section').style.display = 'flex';
+
+    const uid = user.uid;
+    const userDoc = await getDoc(doc(db,'users',uid));
+    if(userDoc.exists()){
+      const data = userDoc.data();
+      document.getElementById('balance').innerText = data.balance || 0;
+      document.getElementById('ref-code').innerText = data.referralCode;
+      document.getElementById('ref-link').innerText = `${location.href}?ref=${data.referralCode}`;
+      document.getElementById('user-name').innerText = data.name || "User";
+      miningCooldown = 0;
+      if(data.mines >= dailyLimit){
+        document.getElementById('mine-btn').disabled = true;
+      }
+    }
+  }
+
+  // --- Mining ---
+  async function mineToken(){
+    const user = auth.currentUser;
+    if(!user) return alert('Login required');
+    const uid = user.uid;
+    const userRef = doc(db,'users',uid);
+    const userDoc = await getDoc(userRef);
+    const data = userDoc.data();
+    if(data.mines >= dailyLimit){ alert('Daily limit reached'); return; }
+
+    // Update mining count and balance
+    await updateDoc(userRef,{
+      balance: increment(10),
+      mines: increment(1)
     });
-    balanceEl.textContent = newBalance;
-    mineMsg.textContent = `Successfully mined ${minedTokens} tokens!`;
-    setTimeout(()=>{mineMsg.textContent='';},3000);
-  }
-});
-</script>
 
+    // Update display
+    document.getElementById('balance').innerText = data.balance + 10;
+    alert('Successfully mined 10 tokens!');
+
+    if(data.mines + 1 >= dailyLimit){
+      document.getElementById('mine-btn').disabled = true;
+    }
+  }
+
+  // --- Mining Animation Timer (2 hours countdown) ---
+  let countdown = 7200; // 2 hours in seconds
+  setInterval(()=>{
+    if(countdown>0){
+      countdown--;
+      updateTimerDisplay(countdown);
+    }
+  },1000);
+
+</script>
 </body>
 </html>
