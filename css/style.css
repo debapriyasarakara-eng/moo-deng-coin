@@ -1,12 +1,14 @@
+/* Universal Styles and Basic Layout */
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Poppins', sans-serif;
     background-color: #121212;
-    color: #fff;
+    color: #e0e0e0;
     text-align: center;
     padding: 20px;
     margin: 0;
     overflow-x: hidden;
     position: relative;
+    transition: all 0.5s ease-in-out;
 }
 
 body::before {
@@ -17,7 +19,7 @@ body::before {
     transform: translate(-50%, -50%) scale(1.5);
     width: 100vw;
     height: 100vh;
-    background-image: url('https://i.imgur.com/your-moo-deng-coin-image.png');
+    background-image: url('https://i.imgur.com/your-moo-deng-coin-image.png'); /* আপনার কয়েনের ছবির URL দিন */
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -29,37 +31,75 @@ body::before {
 .container {
     max-width: 400px;
     margin: 50px auto;
-    background-color: rgba(30, 30, 30, 0.9);
+    background-color: rgba(25, 25, 25, 0.8);
     padding: 20px;
-    border-radius: 50%;
-    box-shadow: 0 0 20px rgba(0, 255, 200, 0.5);
-    transition: all 0.5s ease-in-out;
+    border-radius: 20px;
+    box-shadow: 0 0 20px rgba(0, 255, 200, 0.3);
+    border: 1px solid #333;
+    animation: fadeIn 1s ease-in-out;
 }
 
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+h1 {
+    color: #00ffc8;
+    text-shadow: 0 0 10px rgba(0, 255, 200, 0.5);
+    font-weight: 700;
+}
+
+p {
+    color: #b0b0b0;
+}
+
+a {
+    color: #00ffc8;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+a:hover {
+    color: #00e0b8;
+}
+
+/* Form Elements */
 input {
     width: 80%;
-    padding: 10px;
+    padding: 12px;
     margin: 10px 0;
-    border: none;
-    border-radius: 5px;
-    background-color: #333;
-    color: #fff;
+    border: 1px solid #555;
+    border-radius: 8px;
+    background-color: #2e2e2e;
+    color: #e0e0e0;
+    font-size: 16px;
+    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);
+    transition: border-color 0.3s ease;
+}
+
+input:focus {
+    outline: none;
+    border-color: #00ffc8;
 }
 
 button {
-    padding: 10px 20px;
+    padding: 12px 25px;
     margin: 10px 5px;
     border: none;
-    border-radius: 5px;
+    border-radius: 8px;
     background-color: #00ffc8;
     color: #000;
     font-weight: bold;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 255, 200, 0.4);
 }
 
 button:hover {
     background-color: #00e0b8;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 255, 200, 0.6);
 }
 
 .hidden {
@@ -71,37 +111,43 @@ button:hover {
     height: 100%;
     width: 0;
     position: fixed;
-    z-index: 10;
+    z-index: 100;
     top: 0;
     left: 0;
-    background-color: #1a1a1a;
+    background-color: rgba(18, 18, 18, 0.95);
     overflow-x: hidden;
     transition: 0.5s;
     padding-top: 60px;
-    box-shadow: 2px 0 5px rgba(0,0,0,0.5);
+    box-shadow: 2px 0 10px rgba(0,0,0,0.5);
+    backdrop-filter: blur(5px);
 }
 
 .side-menu a {
-    padding: 8px 8px 8px 32px;
+    padding: 15px 15px 15px 32px;
     text-decoration: none;
-    font-size: 20px;
-    color: #818181;
-    display: block;
-    transition: 0.3s;
-    text-align: left;
+    font-size: 18px;
+    color: #b0b0b0;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    transition: all 0.3s ease;
 }
 
 .side-menu a:hover {
-    color: #f1f1f1;
-    background-color: #333;
+    color: #00ffc8;
+    background-color: #2e2e2e;
+}
+
+.side-menu a i {
+    font-size: 20px;
 }
 
 .side-menu .close-btn {
     position: absolute;
-    top: 0;
+    top: 15px;
     right: 25px;
     font-size: 36px;
-    margin-left: 50px;
+    color: #fff;
 }
 
 .menu-btn {
@@ -115,21 +161,29 @@ button:hover {
     top: 10px;
     left: 10px;
     z-index: 2;
+    transition: background-color 0.3s ease;
+}
+
+.menu-btn:hover {
+    background-color: #2e2e2e;
 }
 
 .user-info {
     text-align: center;
     padding-bottom: 20px;
+    border-bottom: 1px solid #333;
+    margin-bottom: 20px;
 }
 
 .profile-pic {
     width: 80px;
     height: 80px;
     border-radius: 50%;
-    border: 2px solid #00ffc8;
+    border: 3px solid #00ffc8;
+    box-shadow: 0 0 15px rgba(0, 255, 200, 0.5);
 }
 
-/* Page Content Styling */
+/* Main Content Area */
 #main-content {
     transition: margin-left .5s;
     padding: 16px;
@@ -137,49 +191,38 @@ button:hover {
 
 .content-page {
     display: none;
+    animation: fadeIn 1s ease-in-out;
+    padding: 20px;
+    background-color: rgba(25, 25, 25, 0.8);
+    border-radius: 15px;
+    margin-top: 20px;
+    box-shadow: 0 0 15px rgba(0, 255, 200, 0.2);
 }
 
-/* Add some styles for the new buttons and lists */
-#copy-referral-btn {
-    padding: 8px 15px;
-    background-color: #00ffc8;
-    color: #000;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    margin-top: 10px;
-}
-
-#history-list {
-    list-style-type: none;
-    padding: 0;
-}
-
-#history-list li {
-    background-color: #2e2e2e;
-    padding: 10px;
-    margin-bottom: 5px;
-    border-radius: 5px;
+h2 {
+    color: #00ffc8;
+    margin-bottom: 20px;
 }
 
 /* Mining Coin Animation and Timer Styling */
 #mining-coin-container {
     position: relative;
-    width: 200px;
-    height: 200px;
-    margin: 30px auto;
+    width: 250px;
+    height: 250px;
+    margin: 50px auto;
     border-radius: 50%;
     box-shadow: 0 0 25px rgba(0, 255, 200, 0.7);
     display: flex;
     justify-content: center;
     align-items: center;
     overflow: hidden;
+    cursor: pointer;
 }
 
 .mining-coin {
     width: 100%;
     height: 100%;
-    background-image: url('https://i.imgur.com/your-moo-deng-coin-image.png');
+    background-image: url('https://i.imgur.com/your-moo-deng-coin-image.png'); /* আপনার কয়েনের ছবির URL দিন */
     background-size: cover;
     background-position: center;
     border-radius: 50%;
@@ -187,6 +230,13 @@ button:hover {
     top: 0;
     left: 0;
     z-index: 1;
+    animation: pulse 2s infinite ease-in-out;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); box-shadow: 0 0 10px rgba(0, 255, 200, 0.5); }
+    50% { transform: scale(1.05); box-shadow: 0 0 20px rgba(0, 255, 200, 0.8); }
+    100% { transform: scale(1); box-shadow: 0 0 10px rgba(0, 255, 200, 0.5); }
 }
 
 .mining-timer {
@@ -196,9 +246,9 @@ button:hover {
     transform: translate(-50%, -50%);
     font-size: 2em;
     font-weight: bold;
-    color: #00ffc8;
+    color: #fff;
     z-index: 10;
-    text-shadow: 0 0 10px #00e0b8;
+    text-shadow: 0 0 15px #00ffc8;
 }
 
 .mining-progress-ring {
@@ -216,9 +266,65 @@ button:hover {
 .mine-btn {
     z-index: 15;
     position: relative;
+    padding: 15px 30px;
+    font-size: 1.1em;
 }
 
 .mine-btn[disabled] {
     background-color: #555;
     cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
+}
+
+/* Wallet, History, and Referral Pages */
+#wallet-balance {
+    color: #00ffc8;
+    font-size: 1.5em;
+    font-weight: bold;
+}
+
+#referral-code {
+    background-color: #2e2e2e;
+    padding: 10px 15px;
+    border-radius: 5px;
+    display: inline-block;
+    margin-top: 10px;
+    font-weight: bold;
+    color: #00ffc8;
+}
+
+#copy-referral-btn {
+    background-color: #00ffc8;
+    color: #000;
+    font-weight: bold;
+}
+
+#history-list {
+    list-style-type: none;
+    padding: 0;
+    text-align: left;
+}
+
+#history-list li {
+    background-color: #2e2e2e;
+    padding: 12px;
+    margin-bottom: 8px;
+    border-radius: 8px;
+    border-left: 3px solid #00ffc8;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+/* Whitepaper Styles */
+#whitepaper-content h3 {
+    color: #00ffc8;
+    border-bottom: 2px solid #333;
+    padding-bottom: 5px;
+    margin-top: 20px;
+}
+
+#whitepaper-content ul {
+    text-align: left;
+    list-style-type: '⚡ ';
+    padding-left: 20px;
 }
