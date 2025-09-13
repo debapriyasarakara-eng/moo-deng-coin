@@ -11,7 +11,7 @@ const emailInput = document.getElementById('email');
 const passwordInput = document.getElementById('password');
 const signupBtn = document.getElementById('signup-btn');
 const loginBtn = document.getElementById('login-btn');
-const logoutBtn = document.getElementById('logout-btn-main'); // Changed to match new HTML
+const logoutBtn = document.getElementById('logout-btn-main');
 const userEmail = document.getElementById('user-email');
 const pageTitle = document.getElementById('page-title');
 
@@ -236,8 +236,10 @@ async function startMiningCooldown(user) {
                 mineBtn.textContent = 'Daily Limit Reached';
             }
             if (mineStatus) mineStatus.textContent = `You have reached your daily mining limit (${todayMines}/${MAX_MINES_PER_DAY}).`;
-            if (document.querySelector('.mining-timer')) document.querySelector('.mining-timer').textContent = "LIMIT REACHED";
-            if (document.querySelector('.mining-progress-ring')) document.querySelector('.mining-progress-ring').style.setProperty('--progress', `100%`);
+            const miningTimerDisplay = document.querySelector('.mining-timer');
+            if (miningTimerDisplay) miningTimerDisplay.textContent = "LIMIT REACHED";
+            const miningProgressRing = document.querySelector('.mining-progress-ring');
+            if (miningProgressRing) miningProgressRing.style.setProperty('--progress', `100%`);
             return;
         }
 
@@ -247,8 +249,10 @@ async function startMiningCooldown(user) {
                 mineBtn.textContent = 'Start Mining';
             }
             if (mineStatus) mineStatus.textContent = `Ready to mine! You have mined ${todayMines} out of ${MAX_MINES_PER_DAY} times today.`;
-            if (document.querySelector('.mining-timer')) document.querySelector('.mining-timer').textContent = "READY!";
-            if (document.querySelector('.mining-progress-ring')) document.querySelector('.mining-progress-ring').style.setProperty('--progress', `100%`);
+            const miningTimerDisplay = document.querySelector('.mining-timer');
+            if (miningTimerDisplay) miningTimerDisplay.textContent = "READY!";
+            const miningProgressRing = document.querySelector('.mining-progress-ring');
+            if (miningProgressRing) miningProgressRing.style.setProperty('--progress', `100%`);
             clearInterval(miningInterval);
         } else {
             if (mineBtn) {
@@ -265,8 +269,10 @@ async function startMiningCooldown(user) {
                         mineBtn.textContent = 'Start Mining';
                     }
                     if (mineStatus) mineStatus.textContent = `Ready to mine! You have mined ${todayMines} out of ${MAX_MINES_PER_DAY} times today.`;
-                    if (document.querySelector('.mining-timer')) document.querySelector('.mining-timer').textContent = "READY!";
-                    if (document.querySelector('.mining-progress-ring')) document.querySelector('.mining-progress-ring').style.setProperty('--progress', `100%`);
+                    const miningTimerDisplay = document.querySelector('.mining-timer');
+                    if (miningTimerDisplay) miningTimerDisplay.textContent = "READY!";
+                    const miningProgressRing = document.querySelector('.mining-progress-ring');
+                    if (miningProgressRing) miningProgressRing.style.setProperty('--progress', `100%`);
                 } else {
                     updateTimerDisplay(remainingTime);
                 }
@@ -279,6 +285,19 @@ async function startMiningCooldown(user) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    const miningCoinContainer = document.getElementById('mining-coin-container');
+    if (miningCoinContainer) {
+        const miningCoin = document.createElement('div');
+        miningCoin.className = 'mining-coin';
+        const miningTimerDisplay = document.createElement('div');
+        miningTimerDisplay.className = 'mining-timer';
+        const miningProgressRing = document.createElement('div');
+        miningProgressRing.className = 'mining-progress-ring';
+        miningCoinContainer.appendChild(miningCoin);
+        miningCoinContainer.appendChild(miningTimerDisplay);
+        miningCoinContainer.appendChild(miningProgressRing);
+    }
+    
     if (signupBtn) {
         signupBtn.addEventListener('click', () => {
             const email = emailInput.value;
@@ -325,7 +344,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     
-    // Updated Logout button listener
     if (logoutBtn) {
         logoutBtn.addEventListener('click', () => {
             signOut(auth).then(() => {
@@ -374,7 +392,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         const newHistoryEntry = { type: "Mine", amount: REWARD_PER_MINE, timestamp: now };
                         history.push(newHistoryEntry);
                         
-                        // Check for referral bonus
                         if (referrerId && referralStart && (now - referralStart <= REFERRAL_WEEK_MS)) {
                             const referrerRef = doc(db, "users", referrerId);
                             const referrerSnap = await getDoc(referrerRef);
@@ -421,19 +438,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
-
-    const miningCoinContainer = document.getElementById('mining-coin-container');
-    if (miningCoinContainer) {
-        const miningCoin = document.createElement('div');
-        miningCoin.className = 'mining-coin';
-        const miningTimerDisplay = document.createElement('div');
-        miningTimerDisplay.className = 'mining-timer';
-        const miningProgressRing = document.createElement('div');
-        miningProgressRing.className = 'mining-progress-ring';
-        miningCoinContainer.appendChild(miningCoin);
-        miningCoinContainer.appendChild(miningTimerDisplay);
-        miningCoinContainer.appendChild(miningProgressRing);
-    }
 });
 
 onAuthStateChanged(auth, async (user) => {
@@ -441,10 +445,11 @@ onAuthStateChanged(auth, async (user) => {
         if (user) {
             if (authContainer) authContainer.classList.add('hidden');
             if (mainContent) mainContent.classList.remove('hidden');
-            if (userEmail) userEmail.textContent = `Logged in as: ${user.email}`;
             
             const userRef = doc(db, "users", user.uid);
             const userSnap = await getDoc(userRef);
+            
+            // This is a crucial check to handle new users.
             if (!userSnap.exists()) {
                  await setDoc(userRef, {
                     email: user.email,
@@ -457,10 +462,14 @@ onAuthStateChanged(auth, async (user) => {
                 });
             }
             
+            if (userEmail) userEmail.textContent = user.email;
+            if (userDisplayName) userDisplayName.textContent = user.displayName || 'Moo Deng User';
+            
             const now = Date.now();
             const lastMineDate = new Date(userSnap.data().lastMineTime || 0);
             const currentDate = new Date(now);
 
+            // Reset daily mine count if it's a new day
             if (lastMineDate.getDate() !== currentDate.getDate() || lastMineDate.getMonth() !== currentDate.getMonth() || lastMineDate.getFullYear() !== currentDate.getFullYear()) {
                 await updateDoc(userRef, { todayMines: 0 });
             }
@@ -475,10 +484,10 @@ onAuthStateChanged(auth, async (user) => {
                 mineBtn.disabled = false;
                 mineBtn.textContent = 'Start Mining';
             }
-            showPage('home'); // Ensure auth page is shown on logout
+            showPage('home');
         }
     } catch (error) {
-        alert("An error occurred: " + error.message);
+        alert("An unexpected error occurred: " + error.message);
         console.error(error);
     }
 });
