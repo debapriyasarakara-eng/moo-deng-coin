@@ -4,67 +4,93 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Moo Deng Coin</title>
+
+<!-- Font Awesome for Google icon -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#FFD700">
+
 <style>
-/* আপনার আগের মতো CSS */
 * {margin:0; padding:0; box-sizing:border-box; font-family: Arial, sans-serif;}
 body {background:#0d0d0d; color:#fff; display:flex; justify-content:center; align-items:flex-start; min-height:100vh; padding:20px;}
-a {color:#00ffdd; text-decoration:none;}
-button {cursor:pointer; background:#00ffdd; border:none; padding:10px 20px; color:#000; font-weight:bold; border-radius:5px; transition:0.3s;}
-button:hover {background:#00ccaa;}
+
+/* Container */
 .container {max-width:450px; width:100%; background:#111; padding:20px; border-radius:10px; box-shadow:0 0 20px rgba(0,255,221,0.3);}
 h1,h2,h3 {margin-bottom:10px;}
+
+/* Header */
+h1 {
+  font-family: 'Georgia', serif;
+  font-size: 28px;
+  background: linear-gradient(90deg, #FFD700, #FFA500);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-align: center;
+  font-weight: bold;
+}
+
+/* Wallet */
 .wallet, .referral, .tabs, .tab-content {margin-top:20px;}
 .wallet span, .referral span {font-weight:bold; color:#00ffdd;}
-.mining-container {position:relative; width:200px; height:200px; margin:20px auto;}
-.circle {width:100%; height:100%; border-radius:50%; border:5px solid #00ffdd; display:flex; justify-content:center; align-items:center; font-size:20px; font-weight:bold; position:relative;}
-.circle::after {content:''; position:absolute; width:100%; height:100%; border-radius:50%; border:5px solid rgba(0,255,221,0.3); animation: rotateCircle linear infinite;}
-@keyframes rotateCircle {from{transform:rotate(0deg);} to{transform:rotate(360deg);}}
-.tabs {display:flex; justify-content:space-around;}
-.tabs button {flex:1; margin:0 5px;}
-.tab-content {display:none; margin-top:20px; background:#111; padding:15px; border-radius:10px;}
+
+/* Mining Circle with Coin BG */
+.mining-container {position:relative; width:220px; height:220px; margin:20px auto;}
+.circle {
+  width:100%; height:100%; border-radius:50%;
+  background:url('coin.png') no-repeat center; 
+  background-size:cover;
+  display:flex; justify-content:center; align-items:center;
+  font-size:20px; font-weight:bold;
+  color:#fff;
+  text-shadow:0 0 5px #000;
+}
+
+/* Referral */
 .referral-link {display:flex; justify-content:space-between; align-items:center; margin-top:10px;}
 input.copy-input {width:70%; padding:5px; border-radius:5px; border:none;}
-.logout-warning {margin-top:15px; color:#ff5555; font-weight:bold; text-align:center;}
-.profile-pic {width:50px; height:50px; border-radius:50%; background:#333; display:flex; justify-content:center; align-items:center; font-size:20px; margin-right:10px; cursor:pointer;}
-.header-flex {display:flex; align-items:center; justify-content:space-between;}
-.logout-btn {margin-left:10px;}
 .copy-btn {padding:5px 10px; font-size:14px; border-radius:5px; background:#00ffdd; border:none; cursor:pointer;}
+
+/* Tabs */
+.tabs {display:flex; justify-content:space-around;}
+.tabs button {flex:1; margin:0 5px; padding:10px; background:#00ffdd; border:none; border-radius:5px; cursor:pointer; color:#000; font-weight:bold;}
+.tab-content {display:none; margin-top:20px; background:#111; padding:15px; border-radius:10px;}
+
+/* Social Login */
+.social-buttons {display:flex; flex-direction:column; gap:12px; margin:20px 0;}
+.social-btn {display:flex; align-items:center; justify-content:center; gap:10px; padding:12px; border-radius:8px; font-size:16px; font-weight:bold; cursor:pointer; border:none; transition:0.3s;}
+.social-btn i {font-size:20px;}
+.google {background:#fff; color:#000;} 
+.google:hover {background:#f0f0f0;}
+
+/* Install Instructions */
+.install-instructions {margin-top:20px; font-size:14px; line-height:1.6;}
+.install-instructions h3 {color:#FFD700; margin-bottom:10px; text-align:center;}
 </style>
 </head>
 <body>
 
+<!-- Auth Container -->
 <div class="container" id="authContainer">
-
-  <!-- Authentication -->
-  <h2>Sign In / Sign Up</h2>
-
-  <!-- Google Sign-In -->
-  <button id="googleSignInBtn">Sign in with Google</button>
-
-  <hr style="margin:20px 0;">
-
-  <!-- Email Signup -->
-  <input type="text" id="signupName" placeholder="Name" style="width:100%; padding:8px; margin-bottom:10px;">
-  <input type="email" id="signupEmail" placeholder="Email" style="width:100%; padding:8px; margin-bottom:10px;">
-  <input type="password" id="signupPass" placeholder="Password" style="width:100%; padding:8px; margin-bottom:10px;">
-  <button id="signupBtn">Sign Up</button>
-
-  <hr style="margin:20px 0;">
-
-  <!-- Email Login -->
-  <input type="email" id="loginEmail" placeholder="Email" style="width:100%; padding:8px; margin-bottom:10px;">
-  <input type="password" id="loginPass" placeholder="Password" style="width:100%; padding:8px; margin-bottom:10px;">
-  <button id="loginBtn">Login</button>
-
+  <h2>Sign In</h2>
+  <div class="social-buttons">
+    <button id="googleSignInBtn" class="social-btn google">
+      <i class="fab fa-google"></i> Sign in with Google
+    </button>
+  </div>
+  <div class="install-instructions">
+    <h3>Install MDC</h3>
+    <p>1. Tap on the ⋮ in the right corner browser menu!</p>
+    <p>2. Scroll down and select "Add to Home Screen"</p>
+    <p>3. Open MDC from your Home Screen!</p>
+    <p>4. Mine MDC coin</p>
+  </div>
 </div>
 
+<!-- Main App -->
 <div class="container" id="mainContainer" style="display:none;">
-
-  <!-- Header -->
-  <div class="header-flex">
-    <div class="profile-pic" id="profilePic">🪙</div>
+  <div class="header-flex" style="display:flex;align-items:center;justify-content:space-between;">
     <h1>Moo Deng Coin</h1>
-    <button class="logout-btn" id="logoutBtn">Logout</button>
+    <button id="logoutBtn" style="background:#ff4444; color:#fff; border:none; padding:8px 14px; border-radius:5px;">Logout</button>
   </div>
 
   <!-- Wallet -->
@@ -72,16 +98,14 @@ input.copy-input {width:70%; padding:5px; border-radius:5px; border:none;}
     <h2>Wallet</h2>
     <p>MDC Balance: <span id="balance">0</span></p>
     <button id="mineBtn">Mine Token</button>
-    <p class="logout-warning">
-      ⭐ Keep this tab open! Closing will stop mining. You can safely minimize.
+    <p style="color:#ff5555; font-weight:bold; margin-top:10px; text-align:center;">
+      ⭐ Keep this tab open! Mining stops if you close it. Minimize is safe.
     </p>
   </div>
 
-  <!-- Mining Circle -->
+  <!-- Mining Coin Circle -->
   <div class="mining-container">
-    <div class="circle">
-      <span id="timerText">00:00:00</span>
-    </div>
+    <div class="circle"><span id="timerText">00:00:00</span></div>
   </div>
 
   <!-- Referral -->
@@ -99,33 +123,25 @@ input.copy-input {width:70%; padding:5px; border-radius:5px; border:none;}
   <!-- Tabs -->
   <div class="tabs">
     <button data-tab="historyTab">History</button>
-    <button data-tab="whitelistTab">White List</button>
+    <button data-tab="whitelistTab">Whitelist</button>
   </div>
-
-  <!-- Tabs Content -->
   <div class="tab-content" id="historyTab">
     <h3>Mining History</h3>
     <ul id="historyList"></ul>
   </div>
   <div class="tab-content" id="whitelistTab">
-    <h3>White List</h3>
-    <p>Update your whitelist here later.</p>
+    <h3>Whitelist</h3>
+    <p>Update whitelist here later.</p>
     <button style="background:#ff5555; color:#fff;">Withdrawal Coming Soon</button>
   </div>
-
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-app.js";
-import {
-  getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword,
-  signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/10.6.0/firebase-auth.js";
-import {
-  getFirestore, doc, getDoc, setDoc, updateDoc, arrayUnion, runTransaction
-} from "https://www.gstatic.com/firebasejs/10.6.0/firebase-firestore.js";
+import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-auth.js";
+import { getFirestore, doc, getDoc, setDoc, updateDoc, arrayUnion, runTransaction } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-firestore.js";
 
-// Firebase Config
+// Firebase Config (তোমারটা一样ই থাকুক)
 const firebaseConfig = {
   apiKey: "AIzaSyBRitTsyqXfk6XNh3t1j0boebQa1LNQkKs",
   authDomain: "moo-deng-coin.firebaseapp.com",
@@ -135,7 +151,6 @@ const firebaseConfig = {
   appId: "1:629636349388:web:a9a7924aaea9354a09f169",
   measurementId: "G-T7FVX8DW2Z"
 };
-
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
@@ -143,336 +158,103 @@ const db = getFirestore(app);
 // Elements
 const authContainer = document.getElementById('authContainer');
 const mainContainer = document.getElementById('mainContainer');
-
-const signupName = document.getElementById('signupName');
-const signupEmail = document.getElementById('signupEmail');
-const signupPass = document.getElementById('signupPass');
-const signupBtn = document.getElementById('signupBtn');
-
-const loginEmail = document.getElementById('loginEmail');
-const loginPass = document.getElementById('loginPass');
-const loginBtn = document.getElementById('loginBtn');
-
 const googleSignInBtn = document.getElementById('googleSignInBtn');
-
 const logoutBtn = document.getElementById('logoutBtn');
-
 const balanceEl = document.getElementById('balance');
 const mineBtn = document.getElementById('mineBtn');
 const timerText = document.getElementById('timerText');
-
 const refCodeEl = document.getElementById('refCode');
 const refLinkInput = document.getElementById('refLink');
 const copyBtn = document.getElementById('copyBtn');
-
 const historyList = document.getElementById('historyList');
-
 const tabs = document.querySelectorAll('.tabs button');
 const tabContents = document.querySelectorAll('.tab-content');
 
-let userDocRef = null;
-let miningTimer = null;
+let userDocRef = null, miningTimer = null;
+let userData = {balance:0, mines:0, lastMine:0, referrals:0, history:[], referredBy:null, signupTime:0};
+const MINE_INTERVAL = 2*60*60*1000; const MAX_DAILY_MINES = 5;
 
 // Referral code from URL
 let urlParams = new URLSearchParams(window.location.search);
-let refCodeFromURL = urlParams.get('ref') || null;
+let refCodeFromURL = urlParams.get('ref')||null;
 
-let userData = {
-  balance: 0,
-  mines: 0,
-  lastMine: 0,
-  referrals: 0,
-  history: [],
-  referredBy: null,
-  signupTime: 0
-};
+// Copy Referral
+copyBtn.addEventListener('click', ()=>{refLinkInput.select();document.execCommand('copy');alert('Referral link copied!');});
 
-const MINE_INTERVAL = 2 * 60 * 60 * 1000; // 2 hours
-const MAX_DAILY_MINES = 5;
+// Tabs
+tabs.forEach(tab=>{tab.addEventListener('click',()=>{tabContents.forEach(tc=>tc.style.display='none');document.getElementById(tab.dataset.tab).style.display='block';});});
 
-// Referral UI update
-function updateReferralUI(uid) {
-  userDocRef = doc(db, "users", uid);
-  getDoc(userDocRef).then((docSnap) => {
-    if (docSnap.exists()) {
-      const data = docSnap.data();
-      refCodeEl.textContent = data.refCode || uid;
-      refLinkInput.value = window.location.href.split('?')[0] + '?ref=' + (data.refCode || uid);
-      document.getElementById('refCount').textContent = data.referrals || 0;
-    }
-  });
-}
-
-// Copy referral link
-copyBtn.addEventListener('click', () => {
-  refLinkInput.select();
-  document.execCommand('copy');
-  alert('Referral link copied!');
-});
-
-// Tabs logic
-tabs.forEach(tab => {
-  tab.addEventListener('click', () => {
-    tabContents.forEach(tc => tc.style.display = 'none');
-    document.getElementById(tab.dataset.tab).style.display = 'block';
-  });
-});
-
-// Transaction for referral bonus
-async function applyReferralBonus(referralUid) {
-  const refUserRef = doc(db, "users", referralUid);
-  try {
-    await runTransaction(db, async (transaction) => {
-      const refUserDoc = await transaction.get(refUserRef);
-      if (!refUserDoc.exists()) throw "Refer user does not exist!";
-
-      const currentData = refUserDoc.data();
-      const newBalance = (currentData.balance || 0) + 50;
-      const newReferralCount = (currentData.referrals || 0) + 1;
-
-      transaction.update(refUserRef, {
-        balance: newBalance,
-        referrals: newReferralCount
+// Referral Bonus 50 coins
+async function applyReferralBonus(refUid){
+  const refUserRef = doc(db,"users",refUid);
+  try{
+    await runTransaction(db,async(transaction)=>{
+      const refUserDoc=await transaction.get(refUserRef);
+      if(!refUserDoc.exists()) throw "No referrer!";
+      const d=refUserDoc.data();
+      transaction.update(refUserRef,{
+        balance:(d.balance||0)+50,
+        referrals:(d.referrals||0)+1
       });
     });
-    console.log("Referral bonus successfully applied.");
-  } catch (error) {
-    console.error("Failed to apply referral bonus: ", error);
-  }
+    console.log("Referral bonus applied.");
+  }catch(e){console.error(e);}
 }
 
-// Signup with ref bonus
-signupBtn.addEventListener('click', async () => {
-  const name = signupName.value.trim();
-  const email = signupEmail.value.trim();
-  const pass = signupPass.value.trim();
-  if (!name || !email || !pass) {
-    alert('Please fill all fields');
-    return;
-  }
-  try {
-    let userCredential = await createUserWithEmailAndPassword(auth, email, pass);
-    let user = userCredential.user;
-    userDocRef = doc(db, "users", user.uid);
-
-    await setDoc(userDocRef, {
-      name,
-      email,
-      balance: 0,
-      mines: 0,
-      lastMine: 0,
-      referrals: 0,
-      history: [],
-      refCode: user.uid,
-      referredBy: refCodeFromURL || null,
-      signupTime: Date.now()
-    });
-
-    if (refCodeFromURL) {
-      await applyReferralBonus(refCodeFromURL);
-    }
-
-    await loadUserData(user.uid);
-    afterLoginUI();
-  } catch (error) {
-    alert('Signup Error: ' + error.message);
-  }
-});
-
-// Login function
-loginBtn.addEventListener('click', async () => {
-  const email = loginEmail.value.trim();
-  const pass = loginPass.value.trim();
-  if (!email || !pass) {
-    alert('Please fill all fields');
-    return;
-  }
-  try {
-    let userCredential = await signInWithEmailAndPassword(auth, email, pass);
-    let user = userCredential.user;
-    await loadUserData(user.uid);
-    afterLoginUI();
-  } catch (error) {
-    alert('Login Error: ' + error.message);
-  }
-});
-
-// Google sign-in with referral bonus
-googleSignInBtn.addEventListener('click', async () => {
-  googleSignInBtn.disabled = true;
-  const provider = new GoogleAuthProvider();
-  try {
-    let result = await signInWithPopup(auth, provider);
-    let user = result.user;
-    userDocRef = doc(db, "users", user.uid);
-    const docSnap = await getDoc(userDocRef);
-    if (!docSnap.exists()) {
-      await setDoc(userDocRef, {
-        name: user.displayName || "",
-        email: user.email,
-        balance: 0,
-        mines: 0,
-        lastMine: 0,
-        referrals: 0,
-        history: [],
-        refCode: user.uid,
-        referredBy: refCodeFromURL || null,
-        signupTime: Date.now()
+// Google SignIn
+googleSignInBtn.addEventListener('click',async()=>{
+  googleSignInBtn.disabled=true;
+  try{
+    let result=await signInWithPopup(auth,new GoogleAuthProvider());
+    let user=result.user;
+    userDocRef=doc(db,"users",user.uid);
+    const docSnap=await getDoc(userDocRef);
+    if(!docSnap.exists()){
+      await setDoc(userDocRef,{
+        name:user.displayName||"",email:user.email,balance:0,mines:0,lastMine:0,referrals:0,history:[],refCode:user.uid,
+        referredBy:refCodeFromURL||null,signupTime:Date.now()
       });
-      if (refCodeFromURL) {
-        await applyReferralBonus(refCodeFromURL);
-      }
+      if(refCodeFromURL){await applyReferralBonus(refCodeFromURL);}
     }
-    await loadUserData(user.uid);
-    afterLoginUI();
-  } catch (error) {
-    alert('Google Sign-In Error: ' + error.message);
-  } finally {
-    googleSignInBtn.disabled = false;
-  }
+    await loadUser(user.uid); afterLoginUI();
+  }catch(e){alert("Google SignIn Error:"+e.message);} finally{googleSignInBtn.disabled=false;}
 });
 
-// Logout function
-logoutBtn.addEventListener('click', async () => {
-  await signOut(auth);
-  resetUI();
+logoutBtn.addEventListener('click',async()=>{await signOut(auth);resetUI();});
+onAuthStateChanged(auth,async(user)=>{if(user){await loadUser(user.uid);afterLoginUI();}else{resetUI();}});
+
+async function loadUser(uid){
+  userDocRef=doc(db,"users",uid); const snap=await getDoc(userDocRef);
+  if(snap.exists()){userData=snap.data(); balanceEl.textContent=userData.balance||0; refCodeEl.textContent=userData.refCode||uid;
+    refLinkInput.value=window.location.href.split('?')[0]+"?ref="+(userData.refCode||uid); document.getElementById('refCount').textContent=userData.referrals||0;
+    renderHistory(); updateMiningTimer();}
+}
+
+function renderHistory(){historyList.innerHTML="";(userData.history||[]).slice().reverse().forEach(i=>{let li=document.createElement("li");li.textContent=`Mined 10 MDC at ${new Date(i.timestamp).toLocaleString()}`;historyList.appendChild(li);});}
+
+function updateMiningTimer(){const now=Date.now();let remaining=userData.lastMine+MINE_INTERVAL-now;
+  if(remaining<=0||userData.mines>=MAX_DAILY_MINES){timerText.textContent="Ready";mineBtn.disabled=false;}
+  else{mineBtn.disabled=true;let h=Math.floor(remaining/3600000),m=Math.floor((remaining%3600000)/60000),s=Math.floor((remaining%60000)/1000);
+  timerText.textContent=`${h.toString().padStart(2,"0")}:${m.toString().padStart(2,"0")}:${s.toString().padStart(2,"0")}`;
+  if(miningTimer) cancelAnimationFrame(miningTimer); miningTimer=requestAnimationFrame(updateMiningTimer);}}
+
+mineBtn.addEventListener('click',async()=>{
+  if(userData.mines>=MAX_DAILY_MINES){alert('Daily mining limit reached!');return;}
+  const now=Date.now(); userData.balance+=10; userData.mines+=1; userData.lastMine=now;
+  let newHist={timestamp:now,amount:10};
+  await updateDoc(userDocRef,{balance:userData.balance,mines:userData.mines,lastMine:userData.lastMine,history:arrayUnion(newHist)});
+  if(userData.referredBy){const refUserRef=doc(db,"users",userData.referredBy); const refSnap=await getDoc(refUserRef);
+    if(refSnap.exists()){if((Date.now()-userData.signupTime)<=7*24*60*60*1000){let bonus=10*0.02;await updateDoc(refUserRef,{balance:(refSnap.data().balance||0)+bonus});}}}
+  balanceEl.textContent=userData.balance; userData.history.push(newHist); renderHistory(); updateMiningTimer();
 });
 
-// Auth state observer
-onAuthStateChanged(auth, async (user) => {
-  if (user) {
-    await loadUserData(user.uid);
-    afterLoginUI();
-  } else {
-    resetUI();
-  }
-});
-
-async function loadUserData(uid) {
-  userDocRef = doc(db, "users", uid);
-  const docSnap = await getDoc(userDocRef);
-  if (docSnap.exists()) {
-    userData = docSnap.data();
-    balanceEl.textContent = userData.balance || 0;
-    updateReferralUI(userData.refCode || uid);
-    renderHistory();
-    updateMiningTimer();
-  } else {
-    userData = {
-      balance: 0,
-      mines: 0,
-      lastMine: 0,
-      referrals: 0,
-      history: [],
-      referredBy: null,
-      signupTime: 0
-    };
-  }
-}
-
-// Update mining timer
-function updateMiningTimer() {
-  const now = Date.now();
-  let remaining = userData.lastMine + MINE_INTERVAL - now;
-
-  if (remaining <= 0 || userData.mines >= MAX_DAILY_MINES) {
-    timerText.textContent = "Ready";
-    mineBtn.disabled = false;
-  } else {
-    mineBtn.disabled = true;
-    let hrs = Math.floor(remaining / 3600000);
-    let mins = Math.floor((remaining % 3600000) / 60000);
-    let secs = Math.floor((remaining % 60000) / 1000);
-
-    timerText.textContent =`${
-      hrs.toString().padStart(2, "0")
-    }:${
-      mins.toString().padStart(2, "0")
-    }:${
-      secs.toString().padStart(2, "0")
-    }`;
-
-    if(miningTimer) {
-      cancelAnimationFrame(miningTimer);
-    }
-    miningTimer = requestAnimationFrame(updateMiningTimer);
-  }
-}
-
-function renderHistory() {
-  historyList.innerHTML = "";
-  (userData.history || []).slice().reverse().forEach(item => {
-    const li = document.createElement("li");
-    li.textContent = `Mined 10 MDC at ${new Date(item.timestamp).toLocaleString()}`;
-    historyList.appendChild(li);
-  });
-}
-
-mineBtn.addEventListener('click', async () => {
-  if (userData.mines >= MAX_DAILY_MINES) {
-    alert('Daily mining limit reached!');
-    return;
-  }
-  const now = Date.now();
-
-  userData.balance += 10;
-  userData.mines += 1;
-  userData.lastMine = now;
-
-  let newHistoryItem = { timestamp: now, amount: 10 };
-
-  await updateDoc(userDocRef, {
-    balance: userData.balance,
-    mines: userData.mines,
-    lastMine: userData.lastMine,
-    history: arrayUnion(newHistoryItem)
-  });
-
-  if (userData.referredBy) {
-    const refUserRef = doc(db, "users", userData.referredBy);
-    const refUserSnap = await getDoc(refUserRef);
-    if (refUserSnap.exists()) {
-      const sevenDaysInMs = 7 * 24 * 60 * 60 * 1000;
-      if ((Date.now() - userData.signupTime) <= sevenDaysInMs) {
-        let bonus = 10 * 0.02; // 2% of 10
-        await updateDoc(refUserRef, {
-          balance: (refUserSnap.data().balance || 0) + bonus
-        });
-      }
-    }
-  }
-
-  balanceEl.textContent = userData.balance;
-  userData.history.push(newHistoryItem);
-  renderHistory();
-  updateMiningTimer();
-});
-
-function afterLoginUI() {
-  authContainer.style.display = "none";
-  mainContainer.style.display = "block";
-}
-
-function resetUI() {
-  authContainer.style.display = "block";
-  mainContainer.style.display = "none";
-  userData = {
-    balance: 0,
-    mines: 0,
-    lastMine: 0,
-    referrals: 0,
-    history: [],
-    referredBy: null,
-    signupTime: 0
-  };
-  balanceEl.textContent = 0;
-  historyList.innerHTML = "";
-  timerText.textContent = "00:00:00";
-  if(miningTimer) {
-    cancelAnimationFrame(miningTimer);
-  }
-}
-
+function afterLoginUI(){authContainer.style.display='none'; mainContainer.style.display='block';}
+function resetUI(){authContainer.style.display='block'; mainContainer.style.display='none';
+  userData={balance:0,mines:0,lastMine:0,referrals:0,history:[],referredBy:null,signupTime:0};
+  balanceEl.textContent=0; historyList.innerHTML=""; timerText.textContent="00:00:00"; if(miningTimer) cancelAnimationFrame(miningTimer);}
+  
+// Register service worker for PWA
+if("serviceWorker" in navigator){window.addEventListener("load",()=>{navigator.serviceWorker.register("/sw.js").then(r=>console.log("SW registered",r));});}
 </script>
 </body>
 </html>
