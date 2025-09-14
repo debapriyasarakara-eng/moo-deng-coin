@@ -10,7 +10,6 @@
 <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 
 <style>
-  /* আগের মত CSS থাকবে */
   * {margin:0; padding:0; box-sizing:border-box; font-family: Arial, sans-serif;}
   body {
     background: #0d0d0d; color: #fff;
@@ -60,20 +59,30 @@
     background: #ff4444; color: #fff; padding: 8px 14px;
     border: none; border-radius: 5px; cursor: pointer;
   }
-  #authContainer {display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 300px; text-align: center;}
+  #authContainer {
+    display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 300px; text-align: center;
+  }
   #googleSignInBtn {
     background: #fff; border: none; padding: 12px 20px;
     border-radius: 8px; font-size: 16px; font-weight: bold;
     cursor: pointer; display: flex; align-items: center;
     gap: 8px; color: #000; margin-top: 20px;
   }
-  #googleSignInBtn i {font-size: 20px;}
+  #googleSignInBtn i {
+    font-size: 20px;
+  }
   .install-instructions {
     margin-top: 20px; font-size: 14px; line-height: 1.6; color: #ccc; text-align: center;
   }
-  .install-instructions h3 {color: #FFD700; margin-bottom: 10px;}
-  .wallet, .referral, .tabs, .tab-content {margin-top: 20px;}
-  .wallet span, .referral span {font-weight: bold; color: #00ffdd;}
+  .install-instructions h3 {
+    color: #FFD700; margin-bottom: 10px;
+  }
+  .wallet, .referral, .tabs, .tab-content {
+    margin-top: 20px;
+  }
+  .wallet span, .referral span {
+    font-weight: bold; color: #00ffdd;
+  }
   .mining-container {
     position: relative; width: 220px; margin: 20px auto;
   }
@@ -84,9 +93,10 @@
     font-size: 22px; font-weight: bold;
     color: #000;
     text-shadow: 0 0 4px #fff, 0 0 2px #000;
-    box-shadow: inset -3px -3px 8px rgba(0,0,0,0.6),
-                inset 3px 3px 6px rgba(255,255,255,0.6),
-                0 0 20px rgba(255,215,0,0.6);
+    box-shadow:
+      inset -3px -3px 8px rgba(0,0,0,0.6),
+      inset 3px 3px 6px rgba(255,255,255,0.6),
+      0 0 20px rgba(255,215,0,0.6);
   }
   #mineBtn {
     display: block; margin: 20px auto; padding: 15px 25px;
@@ -102,17 +112,27 @@
     background: linear-gradient(90deg, #FFA500, #FFD700);
     transform: scale(1.05);
   }
-  .tabs {display: flex; justify-content: space-around;}
+  .tabs {
+    display: flex; justify-content: space-around;
+  }
   .tabs button {
     flex: 1; margin: 0 5px; padding: 10px;
-    background: #00ffdd; border: none; border-radius: 5px;
-    cursor: pointer; color: #000; font-weight: bold;
+    background: #00ffdd;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    color: #000;
+    font-weight: bold;
   }
   .tab-content {
     display: none; margin-top: 20px; background: #111;
     padding: 15px; border-radius: 10px;
+    max-height: 500px;
+    overflow-y: auto;
   }
-  .tab-content.active {display: block;}
+  .tab-content.active {
+    display: block;
+  }
   .referral input.copy-input {
     flex: 1; padding: 6px 10px; border: none; border-radius: 5px;
     background: #222; color: #0ff; font-weight: bold; font-size: 14px;
@@ -123,7 +143,9 @@
     padding: 5px 12px; cursor: pointer; font-weight: bold;
     color: #000; margin-left: 8px;
   }
-  .game-section {margin-top: 30px; text-align: center;}
+  .game-section {
+    margin-top: 30px; text-align: center;
+  }
   .boxes {
     display: flex; justify-content: center; gap: 15px; margin: 20px 0;
   }
@@ -134,7 +156,8 @@
     border-radius: 15px;
     display: flex; align-items: center; justify-content: center;
     cursor: pointer;
-    box-shadow: 0 4px 8px rgba(255, 165, 0, 0.6),
+    box-shadow:
+      0 4px 8px rgba(255, 165, 0, 0.6),
       inset 0 0 10px rgba(255, 255, 255, 0.3);
     border: 2px solid #fff5a1;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -142,11 +165,14 @@
   }
   .boxes .box:hover {
     background: linear-gradient(135deg, #fff700, #ffb700);
-    box-shadow: 0 6px 12px rgba(255, 215, 0, 0.8),
+    box-shadow:
+      0 6px 12px rgba(255, 215, 0, 0.8),
       inset 0 0 14px rgba(255, 255, 255, 0.6);
     transform: scale(1.1);
   }
-  #gameResult {color: #0ff; font-weight: bold;}
+  #gameResult {
+    color: #0ff; font-weight: bold;
+  }
   #claimBtn {
     display: none; background: #00ffdd; border: none; border-radius: 5px;
     padding: 10px 20px; cursor: pointer; color: #000;
@@ -190,7 +216,7 @@
     <h3>Your Referral</h3>
     <p>Code: <span id="refCode"></span></p>
     <div style="display:flex; gap:8px; margin-top: 10px;">
-      <input class="copy-input" id="refLink" readonly>
+      <input class="copy-input" id="refLink" readonly />
       <button class="copy-btn" id="copyBtn">Copy</button>
     </div>
     <p>Referred Users: <span id="refCount">0</span></p>
@@ -201,13 +227,65 @@
     <button data-tab="historyTab" class="active">History</button>
     <button data-tab="whitepaperTab">White Paper</button>
   </div>
+
   <div class="tab-content active" id="historyTab">
     <h3>Mining History</h3>
     <ul id="historyList"></ul>
   </div>
+
   <div class="tab-content" id="whitepaperTab">
-    <h3>White Paper</h3>
-    <p>Coming soon...</p>
+    <div style="color:#fff; font-family: Arial, sans-serif; line-height: 1.6; max-height: 500px; overflow-y: auto; padding: 15px;">
+      <h1>White Paper</h1>
+
+      <h2>Moo Deng Coin (MDC)</h2>
+      <p><strong>Version 1.0</strong><br/>
+      <strong>Author:</strong> Moo Deng Labs<br/>
+      <strong>Contact:</strong> info@moodengcoin.com</p>
+
+      <hr style="border-color: #444; margin: 15px 0;" />
+
+      <h3>Abstract</h3>
+      <p><strong>Moo Deng Coin (MDC)</strong> is a <strong>mobile-first digital token</strong> designed for ease of mining and user engagement. Unlike traditional blockchain-based cryptocurrencies, MDC operates via a token-driven gaming and economic system, powered by modern web technologies and Firebase backend for authentication and data management. Users can mine MDC at fixed intervals and quantities, with additional token rewards available through a <strong>robust referral system</strong>. This white paper outlines the platform’s core features, tokenomics, and roadmap.</p>
+
+      <h3>Launch & Market Price Mechanism</h3>
+      <p>Our platform is <strong>set to launch imminently</strong>, with no rigid exam or test date. The <strong>value of MDC will be entirely market-driven</strong>, fluctuating based on demand and supply dynamics within the ecosystem. Users are free to mine tokens subject to time-based restrictions designed to ensure fair distribution and sustainable growth.</p>
+
+      <h3>Key Features</h3>
+      <ul>
+        <li><strong>Google Authentication:</strong> Secure and seamless login with Google accounts.</li>
+        <li><strong>Mining System:</strong> Users can mine a fixed amount (10 MDC) every 2 hours, with a live timer displayed.</li>
+        <li><strong>Referral Program:</strong>
+          <ul>
+            <li>Referrers receive a <strong>one-time 50 MDC bonus</strong> when new users sign up with their referral link.</li>
+            <li>Referrers also earn a <strong>2% commission on mining rewards</strong> mined by their referees for the first 7 days after signup.</li>
+          </ul>
+        </li>
+        <li><strong>Real-Time Wallet Updates:</strong> Direct addition of mined tokens to users’ wallets, with upcoming withdrawal functionality.</li>
+        <li><strong>Daily Lucky Box Game:</strong> Users can play once daily to win between 1 to 50 MDC tokens.</li>
+        <li><strong>User-Friendly Wallet Interface:</strong> Fast display of balances and transaction history on the platform.</li>
+        <li><strong>Security & Transparency:</strong> All transactions and user data securely stored and encrypted in Firebase Firestore.</li>
+      </ul>
+
+      <h3>Tokenomics</h3>
+      <p>MDC is a <strong>utility token</strong> intended for use within the platform’s ecosystem. Token supply and distribution are designed to be balanced by mining activities and market interactions, ensuring long-term sustainability and user incentives.</p>
+
+      <h3>Roadmap</h3>
+      <ul>
+        <li><strong>Q4 2025:</strong> Platform launch, including mining and referral features.</li>
+        <li><strong>Q1 2026:</strong> Introduction of staking, futures trading, and launchpad features.</li>
+        <li><strong>Q2 2026:</strong> Mobile app release and integration with external wallets.</li>
+        <li><strong>Beyond:</strong> Adding real-world utility and expanding ecosystem adoption.</li>
+      </ul>
+
+      <h3>Community Request</h3>
+      <p>As the launch date approaches, we <strong>urge our community to purchase and hold MDC tokens.</strong> Early participation will not only be lucrative for investors but will also fuel the project's growth and momentum. Together, we can build a thriving and sustainable platform.</p>
+
+      <h3>Important Notice</h3>
+      <p><strong>Tokens mined by users will be credited directly to their wallets.</strong> This ensures immediate availability and transparency. To further enhance usability, <strong>withdrawal options will be introduced soon,</strong> enabling users to transfer their tokens with ease and security.</p>
+
+      <h3>Conclusion</h3>
+      <p>Moo Deng Coin aims to <strong>revolutionize mobile crypto mining and trading</strong> by merging gamified token economics with accessible technology. We invite users, investors, and partners to join us as we build a secure, engaging, and profitable crypto ecosystem.</p>
+    </div>
   </div>
 
   <!-- Lucky Box Game -->
@@ -224,6 +302,7 @@
     <p id="gameResult"></p>
     <button id="claimBtn">Claim Coins</button>
   </div>
+
 </div>
 
 <script type="module">
