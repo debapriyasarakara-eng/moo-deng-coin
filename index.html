@@ -11,7 +11,6 @@
 <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 
 <style>
-  /* আপনার পূর্বের CSS এখানে অপরিবর্তিত রাখা হয়েছে */
   * {margin:0; padding:0; box-sizing:border-box; font-family: Arial, sans-serif;}
   body {
     background: #0d0d0d; color: #fff;
@@ -27,6 +26,8 @@
   h1, h2, h3 {
     margin-bottom: 10px;
   }
+
+  /* Header */
   .app-header {
     display: flex; align-items: center; justify-content: space-between;
   }
@@ -48,13 +49,11 @@
     width: 50px; aspect-ratio: 1/1; border-radius: 50%;
     background: radial-gradient(circle, #FFD700 10%, #FFA500 70%, #b8860b 100%);
     display: inline-flex; align-items: center; justify-content: center;
-    font-size: 22px; font-weight: bold;
+    font-size: 24px; color: #fff; font-weight: bold;
     margin-left: 6px;
     animation: coinPulse 2s infinite;
     box-shadow: 0 0 15px rgba(255, 215, 0, 0.9),
       inset 0 0 6px #fff;
-    /* কয়েন লোগো স্পষ্ট করার জন্য */
-    text-shadow: 0 0 2px #000, 0 0 4px #fff;
   }
   @keyframes coinPulse {
     0% {transform: scale(1);}
@@ -65,6 +64,8 @@
     background: #ff4444; color: #fff; padding: 8px 14px;
     border: none; border-radius: 5px; cursor: pointer;
   }
+
+  /* Auth container: center login button */
   #authContainer {
     display: flex;
     flex-direction: column;
@@ -73,6 +74,8 @@
     min-height: 300px;
     text-align: center;
   }
+
+  /* Google Sign In button */
   #googleSignInBtn {
     background: #fff; border: none; padding: 12px 20px;
     border-radius: 8px; font-size: 16px; font-weight: bold;
@@ -83,6 +86,8 @@
   #googleSignInBtn i {
     font-size: 20px;
   }
+
+  /* Install instructions below login */
   .install-instructions {
     margin-top: 20px; font-size: 14px;
     line-height: 1.6; color: #ccc; text-align: center;
@@ -90,8 +95,12 @@
   .install-instructions h3 {
     color: #FFD700; margin-bottom: 10px;
   }
+
+  /* Wallet, Referral, Tabs and Mine Button */
   .wallet, .referral, .tabs, .tab-content {margin-top: 20px;}
   .wallet span, .referral span {font-weight: bold; color: #00ffdd;}
+  
+  /* Mining Circle */
   .mining-container {
     position: relative;
     width: 220px;
@@ -111,6 +120,7 @@
       inset 3px 3px 6px rgba(255,255,255,0.6),
       0 0 20px rgba(255,215,0,0.6);
   }
+
   #mineBtn {
     display: block;
     margin: 20px auto;
@@ -129,6 +139,8 @@
     background: linear-gradient(90deg, #FFA500, #FFD700);
     transform: scale(1.05);
   }
+
+  /* Tabs */
   .tabs {
     display: flex;
     justify-content: space-around;
@@ -154,6 +166,8 @@
   .tab-content.active {
     display: block;
   }
+
+  /* Referral input and copy button styling */
   .referral input.copy-input {
     flex: 1;
     padding: 6px 10px;
@@ -175,6 +189,8 @@
     color: #000;
     margin-left: 8px;
   }
+
+  /* Lucky Box Game styling */
   .game-section {
     margin-top: 30px;
     text-align: center;
@@ -223,17 +239,6 @@
     cursor: pointer;
     color: #000;
   }
-  /* Social links for login page */
-  .social-links {
-    margin-top: 20px;
-    text-align: center;
-  }
-  .social-links a {
-    color: #FFD700;
-    margin: 0 10px;
-    font-size: 20px;
-    text-decoration: none;
-  }
 </style>
 </head>
 <body>
@@ -242,42 +247,6 @@
 <div class="container" id="authContainer">
   <h2>Sign In</h2>
   <button id="googleSignInBtn"><i class="fab fa-google"></i> Sign in with Google</button>
-
-  <!-- Ad Banners on login page -->
-  <div>
-    <script async="async" data-cfasync="false" src="//pl27641534.revenuecpmgate.com/ecf5a237ae39eced40a4f2bea410d45b/invoke.js"></script>
-    <div id="container-ecf5a237ae39eced40a4f2bea410d45b"></div>
-
-    <script type="text/javascript">
-      atOptions = {
-        'key' : '56c7e68cb187e2bbd1d7a071ebc374e0',
-        'format' : 'iframe',
-        'height' : 50,
-        'width' : 320,
-        'params' : {}
-      };
-    </script>
-    <script type="text/javascript" src="//www.highperformanceformat.com/56c7e68cb187e2bbd1d7a071ebc374e0/invoke.js"></script>
-
-    <script type="text/javascript">
-      atOptions = {
-        'key' : '077874450aaa530a8c84fbc3c2275129',
-        'format' : 'iframe',
-        'height' : 250,
-        'width' : 300,
-        'params' : {}
-      };
-    </script>
-    <script type="text/javascript" src="//www.highperformanceformat.com/077874450aaa530a8c84fbc3c2275129/invoke.js"></script>
-  </div>
-
-  <!-- Social Links -->
-  <div class="social-links">
-    <a href="https://facebook.com" target="_blank"><i class="fab fa-facebook"></i></a>
-    <a href="https://twitter.com" target="_blank"><i class="fab fa-twitter"></i></a>
-    <a href="https://instagram.com" target="_blank"><i class="fab fa-instagram"></i></a>
-  </div>
-
   <div class="install-instructions">
     <h3>Install MDC</h3>
     <p>1. Tap on the ⋮ menu in your browser's right corner.</p>
@@ -291,50 +260,194 @@
 <div class="container" id="mainContainer" style="display:none;">
   <div class="app-header">
     <h1>Moo Deng COIN <span class="coin-symbol">🦛</span></h1>
+    <button id="logoutBtn" class="logout-btn">Logout</button>
   </div>
 
-  <!-- Mining Section -->
+  <div class="wallet">
+    <h2>Wallet</h2>
+    <p>MDC Balance: <span id="balance">0</span></p>
+    <button id="mineBtn">Mine Token</button>
+  </div>
+
   <div class="mining-container">
-    <div class="circle"></div>
-    <button id="mineBtn">Start Mining</button>
+    <div class="circle"><span id="timerText">00:00:00</span></div>
+  </div>
+
+  <!-- Referral Section -->
+  <div class="referral">
+    <h3>Your Referral</h3>
+    <p>Code: <span id="refCode"></span></p>
+    <div style="display:flex; gap:8px; margin-top: 10px;">
+      <input class="copy-input" id="refLink" readonly>
+      <button class="copy-btn" id="copyBtn">Copy</button>
+    </div>
+    <p>Referred Users: <span id="refCount">0</span></p>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button data-tab="historyTab">History</button>
+    <button data-tab="whitepaperTab">White Paper</button>
+  </div>
+  <div class="tab-content" id="historyTab">
+    <h3>Mining History</h3>
+    <ul id="historyList"></ul>
+  </div>
+  <div class="tab-content" id="whitepaperTab">
+    <h3>White Paper</h3>
+    <p>Coming soon...</p>
   </div>
 
   <!-- Lucky Box Game -->
   <div class="game-section">
-    <h2>Lucky Box</h2>
+    <h3>Lucky Box Game 🎁</h3>
+    <p>You can play once every 24 hours. Pick a box and win 1–50 MDC randomly!</p>
     <div class="boxes">
-      <div class="box">?</div>
-      <div class="box">?</div>
-      <div class="box">?</div>
+      <div class="box" data-index="1">?</div>
+      <div class="box" data-index="2">?</div>
+      <div class="box" data-index="3">?</div>
+      <div class="box" data-index="4">?</div>
+      <div class="box" data-index="5">?</div>
     </div>
-    <div id="gameResult"></div>
-    <button id="claimBtn">Claim Reward</button>
+    <p id="gameResult"></p>
+    <button id="claimBtn">Claim Coins</button>
   </div>
 </div>
 
-<script>
-  const adLink = "https://www.revenuecpmgate.com/w4nb3vzbh0?key=adf446e9803ea369c6ceb9816deb5be0";
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-app.js";
+  import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-auth.js";
+  import { getFirestore, doc, getDoc, setDoc, updateDoc, arrayUnion, runTransaction } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-firestore.js";
 
-  // Mining button with ad integration
-  document.getElementById("mineBtn").addEventListener("click", function(e){
-    e.preventDefault();
-    window.open(adLink, "_blank");
-    setTimeout(function(){
-      alert("Ad viewed. Mining started!");
-      // Mining start logic here (কোড পরিবর্তন করবেন না)
-    }, 4000);
+  const firebaseConfig = {
+    apiKey: "AIzaSyBRitTsyqXfk6XNh3t1j0boebQa1LNQkKs",
+    authDomain: "moo-deng-coin.firebaseapp.com",
+    projectId: "moo-deng-coin",
+    storageBucket: "moo-deng-coin.appspot.com",
+    messagingSenderId: "629636349388",
+    appId: "1:629636349388:web:a9a7924aaea9354a09f169",
+    measurementId: "G-T7FVX8DW2Z"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  const authContainer = document.getElementById("authContainer");
+  const mainContainer = document.getElementById("mainContainer");
+  const googleSignInBtn = document.getElementById("googleSignInBtn");
+  const logoutBtn = document.getElementById("logoutBtn");
+  const balanceEl = document.getElementById("balance");
+  const mineBtn = document.getElementById("mineBtn");
+  const timerText = document.getElementById("timerText");
+  const refCodeEl = document.getElementById("refCode");
+  const refCountEl = document.getElementById("refCount");
+  const historyList = document.getElementById("historyList");
+  const tabs = document.querySelectorAll(".tabs button");
+  const tabContents = document.querySelectorAll(".tab-content");
+  const refLink = document.getElementById("refLink");
+  const copyBtn = document.getElementById("copyBtn");
+  const gameResult = document.getElementById("gameResult");
+  const claimBtn = document.getElementById("claimBtn");
+  const boxes = document.querySelectorAll(".boxes .box");
+
+  let userDocRef = null;
+  let userData = {
+    balance: 0,
+    mines: 0,
+    lastMine: 0,
+    history: [],
+    referrals: 0,
+    referredBy: null,
+    signupTime: 0,
+    lastGame: 0
+  };
+  const MINE_INTERVAL = 2 * 60 * 60 * 1000;
+  const MAX_DAILY_MINES = 5;
+
+  async function applyReferralBonus(refUid) {
+    const refUserRef = doc(db, "users", refUid);
+    try {
+      await runTransaction(db, async (t) => {
+        const refUserDoc = await t.get(refUserRef);
+        if (!refUserDoc.exists()) return;
+        const d = refUserDoc.data();
+        t.update(refUserRef, {
+          balance: (d.balance || 0) + 50,
+          referrals: (d.referrals || 0) + 1,
+        });
+      });
+    } catch (e) {
+      console.error("Referral bonus error:", e);
+    }
+  }
+
+  googleSignInBtn.addEventListener("click", async () => {
+    googleSignInBtn.disabled = true;
+    try {
+      const result = await signInWithPopup(auth, new GoogleAuthProvider());
+      const user = result.user;
+      userDocRef = doc(db, "users", user.uid);
+      const snapshot = await getDoc(userDocRef);
+      let refCodeFromURL = new URLSearchParams(window.location.search).get("ref") || null;
+      if (!snapshot.exists()) {
+        await setDoc(userDocRef, {
+          name: user.displayName || "",
+          email: user.email,
+          balance: 0,
+          mines: 0,
+          lastMine: 0,
+          referrals: 0,
+          history: [],
+          refCode: user.uid,
+          referredBy: refCodeFromURL,
+          signupTime: Date.now(),
+          lastGame: 0
+        });
+        if (refCodeFromURL) await applyReferralBonus(refCodeFromURL);
+      }
+      await loadUser(user.uid);
+      afterLoginUI();
+    } catch (error) {
+      alert("Google Sign In Error: " + error.message);
+    } finally {
+      googleSignInBtn.disabled = false;
+    }
   });
 
-  // Claim button with ad integration
-  document.getElementById("claimBtn").addEventListener("click", function(e){
-    e.preventDefault();
-    window.open(adLink, "_blank");
-    setTimeout(function(){
-      alert("Ad viewed. Reward Claimed!");
-      // Claim reward logic here (কোড পরিবর্তন করবেন না)
-    }, 4000);
+  logoutBtn.addEventListener("click", async () => {
+    await signOut(auth);
+    resetUI();
   });
-</script>
 
-</body>
-</html>
+  onAuthStateChanged(auth, async (user) => {
+    if (user) {
+      userDocRef = doc(db, "users", user.uid);
+      const docSnap = await getDoc(userDocRef);
+      if (docSnap.exists()) {
+        userData = docSnap.data();
+        await loadUser(user.uid);
+        afterLoginUI();
+      }
+    } else {
+      resetUI();
+    }
+  });
+
+  async function loadUser(uid) {
+    const snap = await getDoc(doc(db, "users", uid));
+    if (snap.exists()) {
+      userData = snap.data();
+      balanceEl.textContent = userData.balance || 0;
+      refCodeEl.textContent = userData.refCode || uid;
+      refCountEl.textContent = userData.referrals || 0;
+      refLink.value = window.location.href.split('?')[0] + "?ref=" + (userData.refCode || userDocRef.id);
+      renderHistory();
+      updateMiningTimer();
+    }
+  }
+
+  function renderHistory() {
+    historyList.innerHTML = "";
+    (userData.history || []).slice().reverse().forEach(item => {
+      const li =
