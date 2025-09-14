@@ -450,4 +450,126 @@
   function renderHistory() {
     historyList.innerHTML = "";
     (userData.history || []).slice().reverse().forEach(item => {
-      const li =
+      const li = document.createElement("li");
+      li.textContent = `Mined ${item.amount} MDC on ${new Date(item.time).toLocaleString()}`;
+      historyList.appendChild(li);
+    });
+  }
+
+  function afterLoginUI() {
+    authContainer.style.display = "none";
+    mainContainer.style.display = "block";
+  }
+
+  function resetUI() {
+    authContainer.style.display = "flex";
+    mainContainer.style.display = "none";
+    balanceEl.textContent = "0";
+    refCodeEl.textContent = "";
+    refCountEl.textContent = "0";
+    historyList.innerHTML = "";
+  }
+
+  function updateMiningTimer() {
+    const now = Date.now();
+    const elapsed = now - (userData.lastMine || 0);
+    let timeLeft = MINE_INTERVAL - elapsed;
+    if (timeLeft < 0) timeLeft = 0;
+
+    const hours = Math.floor(timeLeft / (1000 * 60 * 60));
+    const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+
+    timerText.textContent = `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+  }
+
+  mineBtn.addEventListener("click", async () => {
+    const now = Date.now();
+    if (userData.mines >= MAX_DAILY_MINES) {
+      alert("You have reached the maximum daily mines.");
+      return;
+    }
+    if (now - userData.lastMine < MINE_INTERVAL) {
+      alert("Please wait until the timer resets to mine again.");
+      return;
+    }
+
+    const minedAmount = Math.floor(Math.random() * 20) + 1;
+    userData.balance += minedAmount;
+    userData.mines += 1;
+    userData.lastMine = now;
+    userData.history.push({ amount: minedAmount, time: now });
+
+    try {
+      await updateDoc(userDocRef, {
+        balance: userData.balance,
+        mines: userData.mines,
+        lastMine: userData.lastMine,
+        history: userData.history,
+      });
+      balanceEl.textContent = userData.balance;
+      renderHistory();
+      updateMiningTimer();
+    } catch (error) {
+      alert("Error updating balance: " + error.message);
+    }
+  });
+
+  copyBtn.addEventListener("click", () => {
+    refLink.select();
+    refLink.setSelectionRange(0, 99999);
+    document.execCommand("copy");
+    alert("Referral link copied to clipboard!");
+  });
+
+  tabs.forEach(btn => {
+    btn.addEventListener("click", () => {
+      tabs.forEach(b => b.classList.remove("active"));
+      tabContents.forEach(tc => tc.classList.remove("active"));
+      btn.classList.add("active");
+      document.getElementById(btn.dataset.tab).classList.add("active");
+    });
+  });
+
+  // Lucky Box Game Logic
+  let gamePlayedToday = false;
+
+  function canPlayGame() {
+    const now = Date.now();
+    return now - userData.lastGame > 24 * 60 * 60 * 1000;
+  }
+
+  boxes.forEach(box => {
+    box.addEventListener("click", () => {
+      if (gamePlayedToday || !canPlayGame()) {
+        gameResult.textContent = "You can only play once every 24 hours.";
+        return;
+      }
+      gamePlayedToday = true;
+      const prize = Math.floor(Math.random() * 50) + 1;
+      gameResult.textContent = `You won ${prize} MDC!`;
+      claimBtn.style.display = "inline-block";
+
+      claimBtn.onclick = async () => {
+        userData.balance += prize;
+        userData.lastGame = Date.now();
+        gamePlayedToday = false;
+
+        try {
+          await updateDoc(userDocRef, {
+            balance: userData.balance,
+            lastGame: userData.lastGame,
+          });
+          balanceEl.textContent = userData.balance;
+          gameResult.textContent = "";
+          claimBtn.style.display = "none";
+        } catch (error) {
+          alert("Error updating game reward: " + error.message);
+        }
+      };
+    });
+  });
+
+</script>
+</body>
+</html>
