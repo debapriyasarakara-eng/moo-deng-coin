@@ -5,101 +5,74 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Moo Deng Coin</title>
 
-<!-- Fonts & Icons -->
+<!-- Fonts -->
 <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#FFD700">
 
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif;}
-body{background:#0d0d0d;color:#fff;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:20px;}
+body{background:#0d0d0d;color:#fff;display:flex;justify-content:center;min-height:100vh;padding:20px;}
 
 .container{max-width:450px;width:100%;background:#111;padding:20px;border-radius:10px;box-shadow:0 0 20px rgba(0,255,221,0.3);}
 h1,h2,h3{margin-bottom:10px;}
 
 /* Header */
 .app-header{display:flex;align-items:center;justify-content:space-between;}
-h1{font-family:'Cinzel Decorative',serif;font-size:28px;font-weight:bold;
+h1{font-family:'Cinzel Decorative',serif;font-size:26px;font-weight:bold;
     background:linear-gradient(90deg,#FFD700,#FFA500);
     -webkit-background-clip:text;-webkit-text-fill-color:transparent;
     animation:glow 2s infinite alternate;display:flex;align-items:center;gap:8px;}
-@keyframes glow{from{text-shadow:0 0 5px #FFD700,0 0 10px #FFA500;} to{text-shadow:0 0 15px #FFD700,0 0 25px #FFA500;}}
-.coin-symbol{width:50px;height:50px;border-radius:50%;
+@keyframes glow{from{text-shadow:0 0 5px #FFD700;}to{text-shadow:0 0 20px #FFA500;}}
+.coin-symbol{width:50px;aspect-ratio:1/1;border-radius:50%;
     background:radial-gradient(circle,#FFD700 10%,#FFA500 70%,#b8860b 100%);
     display:inline-flex;align-items:center;justify-content:center;
     font-size:24px;color:#fff;font-weight:bold;margin-left:6px;
     animation:coinPulse 2s infinite;
     box-shadow:0 0 15px rgba(255,215,0,0.9), inset 0 0 6px #fff;}
-@keyframes coinPulse{0%{transform:scale(1);box-shadow:0 0 8px #FFD700;}
-50%{transform:scale(1.15);box-shadow:0 0 20px #FFA500;}
-100%{transform:scale(1);box-shadow:0 0 8px #FFD700;}}
-.logout-btn{background:#ff4444;color:#fff;border:none;padding:8px 14px;border-radius:5px;cursor:pointer;}
+@keyframes coinPulse{0%{transform:scale(1);}50%{transform:scale(1.15);}100%{transform:scale(1);}}
+.logout-btn{background:#ff4444;color:#fff;padding:8px 14px;border:none;border-radius:5px;cursor:pointer;}
 
 /* Wallet */
 .wallet,.referral,.tabs,.tab-content{margin-top:20px;}
 .wallet span,.referral span{font-weight:bold;color:#00ffdd;}
 
 /* Mining Circle */
-.mining-container{position:relative;width:220px;height:220px;margin:20px auto;}
-.circle{width:100%;height:100%;border-radius:50%;background:url('./coin.png') no-repeat center;background-size:cover;
-    display:flex;justify-content:center;align-items:center;font-size:22px;font-weight:bold;color:#fff;text-shadow:0 0 5px #000;}
+.mining-container{position:relative;width:220px;margin:20px auto;}
+.circle{
+  width:100%;aspect-ratio:1/1;border-radius:50%;
+  background:url('./coin.png') no-repeat center/cover,
+             radial-gradient(circle at 30% 30%, #fff8b0 0%, #FFD700 30%, #FFA500 70%, #7a4a00 100%);
+  display:flex;justify-content:center;align-items:center;
+  font-size:22px;font-weight:bold;color:#000;
+  text-shadow:0 0 4px #fff,0 0 2px #000;
+  box-shadow: inset -3px -3px 8px rgba(0,0,0,0.6),
+              inset 3px 3px 6px rgba(255,255,255,0.6),
+              0 0 20px rgba(255,215,0,0.6);
+}
 
 /* Mine Button */
 #mineBtn{display:block;margin:20px auto;padding:15px 25px;font-size:18px;font-weight:bold;
-    background:linear-gradient(90deg,#FFD700,#FFA500);border:none;border-radius:50px;color:#111;
-    box-shadow:0 4px 10px rgba(255,215,0,0.5);cursor:pointer;transition:0.3s;}
-#mineBtn:hover{background:linear-gradient(90deg,#FFA500,#FFD700);
-    box-shadow:0 6px 14px rgba(255,215,0,0.7);transform:scale(1.05);}
-
-/* Referral */
-.referral-link{display:flex;justify-content:space-between;align-items:center;margin-top:10px;}
-input.copy-input{width:70%;padding:5px;border-radius:5px;border:none;}
-.copy-btn{padding:5px 10px;font-size:14px;border-radius:5px;background:#00ffdd;border:none;cursor:pointer;}
+  background:linear-gradient(90deg,#FFD700,#FFA500);border:none;border-radius:50px;color:#111;
+  box-shadow:0 4px 10px rgba(255,215,0,0.5);cursor:pointer;}
+#mineBtn:hover{background:linear-gradient(90deg,#FFA500,#FFD700);transform:scale(1.05);}
 
 /* Tabs */
 .tabs{display:flex;justify-content:space-around;}
 .tabs button{flex:1;margin:0 5px;padding:10px;background:#00ffdd;border:none;border-radius:5px;cursor:pointer;color:#000;font-weight:bold;}
 .tab-content{display:none;margin-top:20px;background:#111;padding:15px;border-radius:10px;}
-
-/* Social Login */
-.social-buttons{display:flex;flex-direction:column;gap:12px;margin:20px 0;}
-.social-btn{display:flex;align-items:center;justify-content:center;gap:10px;padding:12px;border-radius:8px;font-size:16px;font-weight:bold;cursor:pointer;border:none;transition:0.3s;}
-.social-btn i{font-size:20px;}
-.google{background:#fff;color:#000;} .google:hover{background:#f0f0f0;}
-
-/* Install Instructions */
-.install-instructions{margin-top:20px;font-size:14px;line-height:1.6;}
-.install-instructions h3{color:#FFD700;margin-bottom:10px;text-align:center;}
-
-/* Game Section */
-.game-section{margin-top:30px;text-align:center;}
-.boxes{display:flex;justify-content:center;gap:12px;margin:20px 0;}
-.box{width:60px;height:60px;background:#222;color:#FFD700;font-size:22px;
-    display:flex;align-items:center;justify-content:center;border-radius:10px;cursor:pointer;transition:0.3s;font-weight:bold;}
-.box:hover{background:#444;transform:scale(1.1);}
+.tab-content.active{display:block;}
 </style>
 </head>
 <body>
 
-<!-- Auth Container -->
+<!-- Auth -->
 <div class="container" id="authContainer">
   <h2>Sign In</h2>
-  <div class="social-buttons">
-    <button id="googleSignInBtn" class="social-btn google">
-      <i class="fab fa-google"></i> Sign in with Google
-    </button>
-  </div>
-  <div class="install-instructions">
-    <h3>Install MDC</h3>
-    <p>1. Tap on the ⋮ in the right corner browser menu!</p>
-    <p>2. Scroll down and select "Add to Home Screen"</p>
-    <p>3. Open MDC from your Home Screen!</p>
-    <p>4. Mine MDC coin</p>
-  </div>
+  <button id="googleSignInBtn">Sign in with Google</button>
 </div>
 
-<!-- Main App -->
+<!-- Main UI -->
 <div class="container" id="mainContainer" style="display:none;">
   <div class="app-header">
     <h1>Moo Deng COIN <span class="coin-symbol">🦛</span></h1>
@@ -111,9 +84,6 @@ input.copy-input{width:70%;padding:5px;border-radius:5px;border:none;}
     <h2>Wallet</h2>
     <p>MDC Balance: <span id="balance">0</span></p>
     <button id="mineBtn">Mine Token</button>
-    <p style="color:#ff5555;font-weight:bold;margin-top:10px;text-align:center;">
-      ⭐ Keep this tab open! Mining stops if you close. Minimize is safe.
-    </p>
   </div>
 
   <!-- Mining Circle -->
@@ -124,13 +94,8 @@ input.copy-input{width:70%;padding:5px;border-radius:5px;border:none;}
   <!-- Referral -->
   <div class="referral">
     <h3>Your Referral</h3>
-    <p>Your Referral Code: <span id="refCode"></span></p>
-    <div class="referral-link">
-      <input class="copy-input" id="refLink" readonly>
-      <button class="copy-btn" id="copyBtn">Copy</button>
-    </div>
+    <p>Code: <span id="refCode"></span></p>
     <p>Referred Users: <span id="refCount">0</span></p>
-    <p>Bonus: 2% from referrals for 7 days</p>
   </div>
 
   <!-- Tabs -->
@@ -139,22 +104,7 @@ input.copy-input{width:70%;padding:5px;border-radius:5px;border:none;}
     <button data-tab="whitepaperTab">White Paper</button>
   </div>
   <div class="tab-content" id="historyTab"><h3>Mining History</h3><ul id="historyList"></ul></div>
-  <div class="tab-content" id="whitepaperTab"><h3>White Paper</h3><p>White Paper content will be added here soon...</p></div>
-
-  <!-- Lucky Game -->
-  <div class="game-section">
-    <h3>Lucky Box Game 🎁</h3>
-    <p>You can play once every 24 hours. Pick a box and win 1–50 MDC randomly!</p>
-    <div class="boxes">
-      <div class="box" data-index="1">?</div>
-      <div class="box" data-index="2">?</div>
-      <div class="box" data-index="3">?</div>
-      <div class="box" data-index="4">?</div>
-      <div class="box" data-index="5">?</div>
-    </div>
-    <p id="gameResult"></p>
-    <button id="claimBtn" style="display:none;">Claim Coins</button>
-  </div>
+  <div class="tab-content" id="whitepaperTab"><h3>White Paper</h3><p>Coming soon...</p></div>
 </div>
 
 <script type="module">
@@ -162,52 +112,79 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.6.0/firebas
 import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-auth.js";
 import { getFirestore, doc, getDoc, setDoc, updateDoc, arrayUnion, runTransaction } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-firestore.js";
 
-const firebaseConfig={apiKey:"AIzaSyBRitTsyqXfk6XNh3t1j0boebQa1LNQkKs",authDomain:"moo-deng-coin.firebaseapp.com",projectId:"moo-deng-coin",storageBucket:"moo-deng-coin.appspot.com",messagingSenderId:"629636349388",appId:"1:629636349388:web:a9a7924aaea9354a09f169",measurementId:"G-T7FVX8DW2Z"};
-const app=initializeApp(firebaseConfig); const auth=getAuth(app); const db=getFirestore(app);
+const firebaseConfig={apiKey:"AIza..",authDomain:"...",projectId:"..."};
+const app=initializeApp(firebaseConfig);const auth=getAuth(app);const db=getFirestore(app);
 
 const authContainer=document.getElementById('authContainer'),mainContainer=document.getElementById('mainContainer');
 const googleSignInBtn=document.getElementById('googleSignInBtn'),logoutBtn=document.getElementById('logoutBtn');
 const balanceEl=document.getElementById('balance'),mineBtn=document.getElementById('mineBtn'),timerText=document.getElementById('timerText');
-const refCodeEl=document.getElementById('refCode'),refLinkInput=document.getElementById('refLink'),copyBtn=document.getElementById('copyBtn');
-const historyList=document.getElementById('historyList');
+const refCodeEl=document.getElementById('refCode'),refCountEl=document.getElementById('refCount'),historyList=document.getElementById('historyList');
 const tabs=document.querySelectorAll('.tabs button'),tabContents=document.querySelectorAll('.tab-content');
-const boxes=document.querySelectorAll('.box'),gameResult=document.getElementById('gameResult'),claimBtn=document.getElementById('claimBtn');
 
-let userDocRef=null,miningTimer=null;
-let userData={balance:0,mines:0,lastMine:0,referrals:0,history:[],referredBy:null,signupTime:0,lastGame:0};
+let userDocRef=null,userData={balance:0,mines:0,lastMine:0,history:[],referrals:0,referredBy:null,signupTime:0};
 const MINE_INTERVAL=2*60*60*1000,MAX_DAILY_MINES=5;
 
-let urlParams=new URLSearchParams(window.location.search);
-let refCodeFromURL=urlParams.get('ref')||null;
+// Referral Bonus function
+async function applyReferralBonus(refUid){
+  const refUserRef=doc(db,"users",refUid);
+  try{await runTransaction(db,async(t)=>{const refUserDoc=await t.get(refUserRef);
+    if(!refUserDoc.exists())return;
+    const d=refUserDoc.data();
+    t.update(refUserRef,{balance:(d.balance||0)+50,referrals:(d.referrals||0)+1});
+  });}catch(e){console.error(e);}
+}
 
-// Referral Bonus
-async function applyReferralBonus(refUid){const refUserRef=doc(db,"users",refUid);try{await runTransaction(db,async(t)=>{const refUserDoc=await t.get(refUserRef);if(!refUserDoc.exists())throw"no ref";const d=refUserDoc.data();t.update(refUserRef,{balance:(d.balance||0)+50,referrals:(d.referrals||0)+1});});}catch(e){console.error(e);}}
+// Google Auth
+googleSignInBtn.addEventListener("click",async()=>{await signInWithPopup(auth,new GoogleAuthProvider());});
+logoutBtn.addEventListener("click",()=>signOut(auth));
+onAuthStateChanged(auth,async(u)=>{
+  if(u){
+    authContainer.style.display="none";mainContainer.style.display="block";
+    userDocRef=doc(db,"users",u.uid);
+    const snap=await getDoc(userDocRef);
+    let referredBy=new URLSearchParams(window.location.search).get("ref");
+    if(!snap.exists()){
+      await setDoc(userDocRef,{balance:0,mines:0,lastMine:0,history:[],referrals:0,refCode:u.uid,referredBy:referredBy||null,signupTime:Date.now()});
+      if(referredBy)await applyReferralBonus(referredBy);
+    }
+    loadUser(u.uid);
+  }else{authContainer.style.display="block";mainContainer.style.display="none";}
+});
 
-// Google SignIn
-googleSignInBtn.addEventListener('click',async()=>{googleSignInBtn.disabled=true;try{let result=await signInWithPopup(auth,new GoogleAuthProvider());let user=result.user;userDocRef=doc(db,"users",user.uid);const snap=await getDoc(userDocRef);if(!snap.exists()){await setDoc(userDocRef,{name:user.displayName||"",email:user.email,balance:0,mines:0,lastMine:0,referrals:0,history:[],refCode:user.uid,referredBy:refCodeFromURL||null,signupTime:Date.now(),lastGame:0});if(refCodeFromURL)await applyReferralBonus(refCodeFromURL);}await loadUser(user.uid);afterLoginUI();}catch(e){alert("Google SignIn Error:"+e.message);}finally{googleSignInBtn.disabled=false;}});
+// Load user
+async function loadUser(uid){
+  const snap=await getDoc(doc(db,"users",uid));
+  if(snap.exists()){
+    userData=snap.data();
+    balanceEl.textContent=userData.balance||0;
+    refCodeEl.textContent=userData.refCode||uid;
+    refCountEl.textContent=userData.referrals||0;
+    renderHistory();
+    updateMiningTimer();
+  }
+}
+function renderHistory(){historyList.innerHTML="";(userData.history||[]).slice().reverse().forEach(i=>{historyList.innerHTML+=`<li>Mined ${i.amount} MDC at ${new Date(i.timestamp).toLocaleString()}</li>`;});}
+function updateMiningTimer(){
+  const now=Date.now();let remain=userData.lastMine+MINE_INTERVAL-now;
+  if(remain<=0||userData.mines>=MAX_DAILY_MINES){timerText.textContent="Ready";mineBtn.disabled=false;}
+  else{mineBtn.disabled=true;let h=Math.floor(remain/3600000),m=Math.floor((remain%3600000)/60000),s=Math.floor((remain%60000)/1000);
+    timerText.textContent=`${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;requestAnimationFrame(updateMiningTimer);}
+}
 
-logoutBtn.addEventListener('click',async()=>{await signOut(auth);resetUI();});
-onAuthStateChanged(auth,async(user)=>{if(user){await loadUser(user.uid);afterLoginUI();}else{resetUI();}});
+// Mining
+mineBtn.addEventListener("click",async()=>{
+  if(userData.mines>=MAX_DAILY_MINES){alert("Daily mining limit reached!");return;}
+  userData.balance+=10;userData.mines+=1;userData.lastMine=Date.now();
+  const newHist={amount:10,timestamp:Date.now()};
+  await updateDoc(userDocRef,{balance:userData.balance,mines:userData.mines,lastMine:userData.lastMine,history:arrayUnion(newHist)});
+  if(userData.referredBy&&(Date.now()-userData.signupTime<=7*24*60*60*1000)){
+    const refUserRef=doc(db,"users",userData.referredBy);const refSnap=await getDoc(refUserRef);
+    if(refSnap.exists()){await updateDoc(refUserRef,{balance:(refSnap.data().balance||0)+0.2});}}
+  balanceEl.textContent=userData.balance;userData.history.push(newHist);renderHistory();updateMiningTimer();
+});
 
-async function loadUser(uid){userDocRef=doc(db,"users",uid);const s=await getDoc(userDocRef);if(s.exists()){userData=s.data();balanceEl.textContent=userData.balance||0;refCodeEl.textContent=userData.refCode||uid;refLinkInput.value=window.location.href.split('?')[0]+"?ref="+(userData.refCode||uid);document.getElementById('refCount').textContent=userData.referrals||0;renderHistory();updateMiningTimer();}}
-
-function renderHistory(){historyList.innerHTML="";(userData.history||[]).slice().reverse().forEach(i=>{let li=document.createElement("li");li.textContent=`Mined ${i.amount} MDC at ${new Date(i.timestamp).toLocaleString()}`;historyList.appendChild(li);});}
-
-function updateMiningTimer(){const now=Date.now();let remain=userData.lastMine+MINE_INTERVAL-now;if(remain<=0||userData.mines>=MAX_DAILY_MINES){timerText.textContent="Ready";mineBtn.disabled=false;}else{mineBtn.disabled=true;let h=Math.floor(remain/3600000),m=Math.floor((remain%3600000)/60000),s=Math.floor((remain%60000)/1000);timerText.textContent=`${h.toString().padStart(2,"0")}:${m.toString().padStart(2,"0")}:${s.toString().padStart(2,"0")}`;if(miningTimer)cancelAnimationFrame(miningTimer);miningTimer=requestAnimationFrame(updateMiningTimer);}}
-
-mineBtn.addEventListener('click',async()=>{if(userData.mines>=MAX_DAILY_MINES){alert('Daily mining limit reached!');return;}const now=Date.now();userData.balance+=10;userData.mines+=1;userData.lastMine=now;let newHist={timestamp:now,amount:10};await updateDoc(userDocRef,{balance:userData.balance,mines:userData.mines,lastMine:userData.lastMine,history:arrayUnion(newHist)});if(userData.referredBy){const refUserRef=doc(db,"users",userData.referredBy);const refSnap=await getDoc(refUserRef);if(refSnap.exists()){if((Date.now()-userData.signupTime)<=7*24*60*60*1000){let bonus=10*0.02;await updateDoc(refUserRef,{balance:(refSnap.data().balance||0)+bonus});}}}userData.history.push(newHist);balanceEl.textContent=userData.balance;renderHistory();updateMiningTimer();});
-
-// Lucky Game
-let reward=0;
-boxes.forEach(box=>{box.addEventListener('click',()=>{if(Date.now()-userData.lastGame<24*60*60*1000){gameResult.textContent="⏳ You can play only once every 24 hours!";return;}reward=Math.floor(Math.random()*50)+1;gameResult.textContent=`🎉 You won ${reward} MDC! Click Claim.`;claimBtn.style.display="inline-block";});});
-claimBtn.addEventListener('click',async()=>{userData.balance+=reward;userData.lastGame=Date.now();await updateDoc(userDocRef,{balance:userData.balance,lastGame:userData.lastGame});balanceEl.textContent=userData.balance;gameResult.textContent=`✅ ${reward} MDC added!`;claimBtn.style.display="none";});
-
-// UI
-function afterLoginUI(){authContainer.style.display='none';mainContainer.style.display='block';}
-function resetUI(){authContainer.style.display='block';mainContainer.style.display='none';userData={balance:0,mines:0,lastMine:0,referrals:0,history:[],referredBy:null,signupTime:0,lastGame:0};balanceEl.textContent=0;historyList.innerHTML="";timerText.textContent="00:00:00";if(miningTimer)cancelAnimationFrame(miningTimer);}
-
-// PWA SW
-if("serviceWorker"in navigator){window.addEventListener("load",()=>{navigator.serviceWorker.register("sw.js").then(r=>console.log("SW registered",r));});}
+// Tabs
+tabs.forEach(tab=>{tab.addEventListener("click",()=>{tabContents.forEach(tc=>tc.classList.remove("active"));document.getElementById(tab.dataset.tab).classList.add("active");});});
 </script>
 </body>
 </html>
