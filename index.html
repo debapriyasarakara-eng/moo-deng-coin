@@ -1,18 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta name="monetag" content="a1111e498e24d9804cb5fc3a7704cfb3">
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Moo Deng Coin</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&display=swap" rel="stylesheet" />
-<link rel="manifest" href="manifest.json" />
 <meta name="theme-color" content="#FFD700" />
 <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 
 <style>
-  /* এটা আগের মত CSS থাকবে (ইচ্ছা করলে চাইলে যোগ করতে পারেন) */
+  /* আগের মত CSS থাকবে */
   * {margin:0; padding:0; box-sizing:border-box; font-family: Arial, sans-serif;}
   body {
     background: #0d0d0d; color: #fff;
@@ -278,31 +276,61 @@
   const MINE_INTERVAL = 2 * 60 * 60 * 1000; // 2 hours
   const COMMISSION_PERIOD = 7 * 24 * 60 * 60 * 1000; // 7 days
 
-  // Apply referral bonus and increment referral count
+  // Interval to update mining timer every second continuously
+  let miningTimerInterval = null;
+  function updateMiningTimer() {
+    if (miningTimerInterval) clearInterval(miningTimerInterval);
+
+    miningTimerInterval = setInterval(() => {
+      const now = Date.now();
+      const elapsed = now - (userData.lastMine || 0);
+      let timeLeft = MINE_INTERVAL - elapsed;
+      if (timeLeft < 0) {
+        timeLeft = 0;
+        clearInterval(miningTimerInterval);
+        miningTimerInterval = null;
+      }
+      const hours = Math.floor(timeLeft / (1000 * 60 * 60));
+      const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+      timerText.textContent = `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+    }, 1000);
+  }
+
+  // Referral bonus function with logging and check
   async function applyReferralBonus(refUid) {
+    console.log("Applying referral bonus for ID:", refUid);
+    if (!refUid) {
+      console.warn("No referral UID provided!");
+      return;
+    }
     const refUserRef = doc(db, "users", refUid);
     try {
       await runTransaction(db, async (t) => {
         const refUserDoc = await t.get(refUserRef);
-        if (!refUserDoc.exists()) return;
+        if (!refUserDoc.exists()) {
+          console.warn("Referral user doc does not exist.");
+          return;
+        }
         const d = refUserDoc.data();
+        const newBalance = (d.balance || 0) + 50;
+        const newRefCount = (d.referrals || 0) + 1;
         t.update(refUserRef, {
-          balance: (d.balance || 0) + 50,
-          referrals: (d.referrals || 0) + 1,
+          balance: newBalance,
+          referrals: newRefCount,
         });
+        console.log("Referral bonus applied:", newBalance, newRefCount);
       });
     } catch (e) {
-      console.error("Referral bonus error:", e);
+      console.error("Referral bonus transaction error:", e);
     }
   }
 
-  // Apply commission of 2% for 7 days to referrer
+  // Referral commission for mining amounts for 7 days
   async function applyReferralCommission(amount) {
     if (!userData.referredBy) return;
     const now = Date.now();
-    // check if within 7 days of signup
     if (now - userData.signupTime > COMMISSION_PERIOD) return;
-
     const refUserRef = doc(db, "users", userData.referredBy);
     try {
       await runTransaction(db, async (t) => {
@@ -407,33 +435,19 @@
     historyList.innerHTML = "";
   }
 
-  function updateMiningTimer() {
-    const now = Date.now();
-    const elapsed = now - (userData.lastMine || 0);
-    let timeLeft = MINE_INTERVAL - elapsed;
-    if (timeLeft < 0) timeLeft = 0;
-
-    const hours = Math.floor(timeLeft / (1000 * 60 * 60));
-    const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
-
-    timerText.textContent = `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
-  }
-
   mineBtn.addEventListener("click", async () => {
     const now = Date.now();
 
-    // শুধু ২ ঘণ্টার মাইনিং টাইমার চেক
     if (now - userData.lastMine < MINE_INTERVAL) {
       alert("Please wait until the timer resets to mine again.");
       return;
     }
 
-    const minedAmount = Math.floor(Math.random() * 20) + 1;
+    const fixedAmount = 10;
 
-    userData.balance += minedAmount;
+    userData.balance += fixedAmount;
     userData.lastMine = now;
-    userData.history.push({ amount: minedAmount, time: now });
+    userData.history.push({ amount: fixedAmount, time: now });
 
     try {
       await updateDoc(userDocRef, {
@@ -445,9 +459,7 @@
       renderHistory();
       updateMiningTimer();
 
-      // মাইনিংয়ের উপর রেফারার হিসেবে ২% কমিশন দিন
-      await applyReferralCommission(minedAmount);
-
+      await applyReferralCommission(fixedAmount);
     } catch (error) {
       alert("Error updating balance: " + error.message);
     }
@@ -469,7 +481,6 @@
     });
   });
 
-  // Lucky Box Game Logic
   let gamePlayedToday = false;
 
   function canPlayGame() {
