@@ -1,78 +1,226 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Moo Deng Coin</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Moo Deng Coin</title>
 
-<!-- Fonts -->
-<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&display=swap" rel="stylesheet">
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#FFD700">
+  <!-- Google Fonts & Manifest -->
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&display=swap" rel="stylesheet" />
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#FFD700" />
 
-<style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif;}
-body{background:#0d0d0d;color:#fff;display:flex;justify-content:center;min-height:100vh;padding:20px;}
+  <!-- FontAwesome for Google Icon -->
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 
-.container{max-width:450px;width:100%;background:#111;padding:20px;border-radius:10px;box-shadow:0 0 20px rgba(0,255,221,0.3);}
-h1,h2,h3{margin-bottom:10px;}
+  <style>
+    * {margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif;}
+    body {
+      background: #0d0d0d;
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .container {
+      max-width: 450px;
+      width: 100%;
+      background: #111;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 20px rgba(0, 255, 221, 0.3);
+    }
+    h1, h2, h3 {
+      margin-bottom: 10px;
+    }
 
-/* Header */
-.app-header{display:flex;align-items:center;justify-content:space-between;}
-h1{font-family:'Cinzel Decorative',serif;font-size:26px;font-weight:bold;
-    background:linear-gradient(90deg,#FFD700,#FFA500);
-    -webkit-background-clip:text;-webkit-text-fill-color:transparent;
-    animation:glow 2s infinite alternate;display:flex;align-items:center;gap:8px;}
-@keyframes glow{from{text-shadow:0 0 5px #FFD700;}to{text-shadow:0 0 20px #FFA500;}}
-.coin-symbol{width:50px;aspect-ratio:1/1;border-radius:50%;
-    background:radial-gradient(circle,#FFD700 10%,#FFA500 70%,#b8860b 100%);
-    display:inline-flex;align-items:center;justify-content:center;
-    font-size:24px;color:#fff;font-weight:bold;margin-left:6px;
-    animation:coinPulse 2s infinite;
-    box-shadow:0 0 15px rgba(255,215,0,0.9), inset 0 0 6px #fff;}
-@keyframes coinPulse{0%{transform:scale(1);}50%{transform:scale(1.15);}100%{transform:scale(1);}}
-.logout-btn{background:#ff4444;color:#fff;padding:8px 14px;border:none;border-radius:5px;cursor:pointer;}
+    /* Header */
+    .app-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    h1 {
+      font-family: 'Cinzel Decorative', serif;
+      font-weight: bold;
+      font-size: 26px;
+      background: linear-gradient(90deg, #FFD700, #FFA500);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      animation: glow 2s infinite alternate;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    @keyframes glow {
+      from { text-shadow: 0 0 5px #FFD700; }
+      to { text-shadow: 0 0 20px #FFA500; }
+    }
+    .coin-symbol {
+      width: 50px;
+      aspect-ratio: 1/1;
+      border-radius: 50%;
+      background: radial-gradient(circle, #FFD700 10%, #FFA500 70%, #b8860b 100%);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      color: #fff;
+      font-weight: bold;
+      margin-left: 6px;
+      animation: coinPulse 2s infinite;
+      box-shadow: 0 0 15px rgba(255, 215, 0, 0.9), inset 0 0 6px #fff;
+    }
+    @keyframes coinPulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.15); }
+      100% { transform: scale(1); }
+    }
+    .logout-btn {
+      background: #ff4444;
+      color: #fff;
+      padding: 8px 14px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
 
-/* Wallet */
-.wallet,.referral,.tabs,.tab-content{margin-top:20px;}
-.wallet span,.referral span{font-weight:bold;color:#00ffdd;}
+    /* Login Button */
+    #googleSignInBtn {
+      background: #fff;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #000;
+      margin-top: 20px;
+    }
+    #googleSignInBtn i {
+      font-size: 20px;
+    }
 
-/* Mining Circle */
-.mining-container{position:relative;width:220px;margin:20px auto;}
-.circle{
-  width:100%;aspect-ratio:1/1;border-radius:50%;
-  background:url('./coin.png') no-repeat center/cover,
-             radial-gradient(circle at 30% 30%, #fff8b0 0%, #FFD700 30%, #FFA500 70%, #7a4a00 100%);
-  display:flex;justify-content:center;align-items:center;
-  font-size:22px;font-weight:bold;color:#000;
-  text-shadow:0 0 4px #fff,0 0 2px #000;
-  box-shadow: inset -3px -3px 8px rgba(0,0,0,0.6),
-              inset 3px 3px 6px rgba(255,255,255,0.6),
-              0 0 20px rgba(255,215,0,0.6);
-}
+    /* Install Instructions */
+    .install-instructions {
+      margin-top: 20px;
+      font-size: 14px;
+      line-height: 1.6;
+      color: #ccc;
+      text-align: center;
+    }
+    .install-instructions h3 {
+      color: #FFD700;
+      margin-bottom: 10px;
+    }
 
-/* Mine Button */
-#mineBtn{display:block;margin:20px auto;padding:15px 25px;font-size:18px;font-weight:bold;
-  background:linear-gradient(90deg,#FFD700,#FFA500);border:none;border-radius:50px;color:#111;
-  box-shadow:0 4px 10px rgba(255,215,0,0.5);cursor:pointer;}
-#mineBtn:hover{background:linear-gradient(90deg,#FFA500,#FFD700);transform:scale(1.05);}
+    /* Wallet */
+    .wallet,
+    .referral,
+    .tabs,
+    .tab-content {
+      margin-top: 20px;
+    }
+    .wallet span,
+    .referral span {
+      font-weight: bold;
+      color: #00ffdd;
+    }
 
-/* Tabs */
-.tabs{display:flex;justify-content:space-around;}
-.tabs button{flex:1;margin:0 5px;padding:10px;background:#00ffdd;border:none;border-radius:5px;cursor:pointer;color:#000;font-weight:bold;}
-.tab-content{display:none;margin-top:20px;background:#111;padding:15px;border-radius:10px;}
-.tab-content.active{display:block;}
-</style>
+    /* Mining Circle */
+    .mining-container {
+      position: relative;
+      width: 220px;
+      margin: 20px auto;
+    }
+    .circle {
+      width: 100%;
+      aspect-ratio: 1/1;
+      border-radius: 50%;
+      background:
+        url('./coin.png') no-repeat center/cover,
+        radial-gradient(circle at 30% 30%, #fff8b0 0%, #FFD700 30%, #FFA500 70%, #7a4a00 100%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 22px;
+      font-weight: bold;
+      color: #000;
+      text-shadow: 0 0 4px #fff, 0 0 2px #000;
+      box-shadow:
+        inset -3px -3px 8px rgba(0, 0, 0, 0.6),
+        inset 3px 3px 6px rgba(255, 255, 255, 0.6),
+        0 0 20px rgba(255, 215, 0, 0.6);
+    }
+
+    /* Mine Button */
+    #mineBtn {
+      display: block;
+      margin: 20px auto;
+      padding: 15px 25px;
+      font-size: 18px;
+      font-weight: bold;
+      background: linear-gradient(90deg, #FFD700, #FFA500);
+      border: none;
+      border-radius: 50px;
+      color: #111;
+      box-shadow: 0 4px 10px rgba(255, 215, 0, 0.5);
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    #mineBtn:hover {
+      background: linear-gradient(90deg, #FFA500, #FFD700);
+      transform: scale(1.05);
+    }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      justify-content: space-around;
+    }
+    .tabs button {
+      flex: 1;
+      margin: 0 5px;
+      padding: 10px;
+      background: #00ffdd;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      color: #000;
+      font-weight: bold;
+    }
+    .tab-content {
+      display: none;
+      margin-top: 20px;
+      background: #111;
+      padding: 15px;
+      border-radius: 10px;
+    }
+    .tab-content.active {
+      display: block;
+    }
+  </style>
 </head>
 <body>
 
-<!-- Auth -->
+<!-- Auth Container -->
 <div class="container" id="authContainer">
   <h2>Sign In</h2>
-  <button id="googleSignInBtn">Sign in with Google</button>
+  <button id="googleSignInBtn"><i class="fab fa-google"></i> Sign in with Google</button>
+  <div class="install-instructions">
+    <h3>Install MDC</h3>
+    <p>1. Tap on the ⋮ menu in your browser's right corner.</p>
+    <p>2. Scroll down and select "Add to Home Screen".</p>
+    <p>3. Open MDC from your Home Screen!</p>
+    <p>4. Keep this tab open to keep mining active.</p>
+  </div>
 </div>
 
-<!-- Main UI -->
+<!-- Main Container -->
 <div class="container" id="mainContainer" style="display:none;">
   <div class="app-header">
     <h1>Moo Deng COIN <span class="coin-symbol">🦛</span></h1>
@@ -103,88 +251,245 @@ h1{font-family:'Cinzel Decorative',serif;font-size:26px;font-weight:bold;
     <button data-tab="historyTab">History</button>
     <button data-tab="whitepaperTab">White Paper</button>
   </div>
-  <div class="tab-content" id="historyTab"><h3>Mining History</h3><ul id="historyList"></ul></div>
-  <div class="tab-content" id="whitepaperTab"><h3>White Paper</h3><p>Coming soon...</p></div>
+  <div class="tab-content" id="historyTab">
+    <h3>Mining History</h3>
+    <ul id="historyList"></ul>
+  </div>
+  <div class="tab-content" id="whitepaperTab">
+    <h3>White Paper</h3>
+    <p>Coming soon...</p>
+  </div>
 </div>
 
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-app.js";
-import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-auth.js";
-import { getFirestore, doc, getDoc, setDoc, updateDoc, arrayUnion, runTransaction } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-firestore.js";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-app.js";
+  import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-auth.js";
+  import { getFirestore, doc, getDoc, setDoc, updateDoc, arrayUnion, runTransaction } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-firestore.js";
 
-const firebaseConfig={apiKey:"AIza..",authDomain:"...",projectId:"..."};
-const app=initializeApp(firebaseConfig);const auth=getAuth(app);const db=getFirestore(app);
+  const firebaseConfig = {
+    apiKey: "AIzaSyBRitTsyqXfk6XNh3t1j0boebQa1LNQkKs",
+    authDomain: "moo-deng-coin.firebaseapp.com",
+    projectId: "moo-deng-coin",
+    storageBucket: "moo-deng-coin.appspot.com",
+    messagingSenderId: "629636349388",
+    appId: "1:629636349388:web:a9a7924aaea9354a09f169",
+    measurementId: "G-T7FVX8DW2Z"
+  };
 
-const authContainer=document.getElementById('authContainer'),mainContainer=document.getElementById('mainContainer');
-const googleSignInBtn=document.getElementById('googleSignInBtn'),logoutBtn=document.getElementById('logoutBtn');
-const balanceEl=document.getElementById('balance'),mineBtn=document.getElementById('mineBtn'),timerText=document.getElementById('timerText');
-const refCodeEl=document.getElementById('refCode'),refCountEl=document.getElementById('refCount'),historyList=document.getElementById('historyList');
-const tabs=document.querySelectorAll('.tabs button'),tabContents=document.querySelectorAll('.tab-content');
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
 
-let userDocRef=null,userData={balance:0,mines:0,lastMine:0,history:[],referrals:0,referredBy:null,signupTime:0};
-const MINE_INTERVAL=2*60*60*1000,MAX_DAILY_MINES=5;
+  const authContainer = document.getElementById("authContainer");
+  const mainContainer = document.getElementById("mainContainer");
+  const googleSignInBtn = document.getElementById("googleSignInBtn");
+  const logoutBtn = document.getElementById("logoutBtn");
+  const balanceEl = document.getElementById("balance");
+  const mineBtn = document.getElementById("mineBtn");
+  const timerText = document.getElementById("timerText");
+  const refCodeEl = document.getElementById("refCode");
+  const refCountEl = document.getElementById("refCount");
+  const historyList = document.getElementById("historyList");
+  const tabs = document.querySelectorAll(".tabs button");
+  const tabContents = document.querySelectorAll(".tab-content");
 
-// Referral Bonus function
-async function applyReferralBonus(refUid){
-  const refUserRef=doc(db,"users",refUid);
-  try{await runTransaction(db,async(t)=>{const refUserDoc=await t.get(refUserRef);
-    if(!refUserDoc.exists())return;
-    const d=refUserDoc.data();
-    t.update(refUserRef,{balance:(d.balance||0)+50,referrals:(d.referrals||0)+1});
-  });}catch(e){console.error(e);}
-}
+  let userDocRef = null;
+  let userData = {
+    balance: 0,
+    mines: 0,
+    lastMine: 0,
+    history: [],
+    referrals: 0,
+    referredBy: null,
+    signupTime: 0,
+    lastGame: 0
+  };
+  const MINE_INTERVAL = 2 * 60 * 60 * 1000;
+  const MAX_DAILY_MINES = 5;
 
-// Google Auth
-googleSignInBtn.addEventListener("click",async()=>{await signInWithPopup(auth,new GoogleAuthProvider());});
-logoutBtn.addEventListener("click",()=>signOut(auth));
-onAuthStateChanged(auth,async(u)=>{
-  if(u){
-    authContainer.style.display="none";mainContainer.style.display="block";
-    userDocRef=doc(db,"users",u.uid);
-    const snap=await getDoc(userDocRef);
-    let referredBy=new URLSearchParams(window.location.search).get("ref");
-    if(!snap.exists()){
-      await setDoc(userDocRef,{balance:0,mines:0,lastMine:0,history:[],referrals:0,refCode:u.uid,referredBy:referredBy||null,signupTime:Date.now()});
-      if(referredBy)await applyReferralBonus(referredBy);
+  // Referral bonus function
+  async function applyReferralBonus(refUid) {
+    const refUserRef = doc(db, "users", refUid);
+    try {
+      await runTransaction(db, async (t) => {
+        const refUserDoc = await t.get(refUserRef);
+        if (!refUserDoc.exists()) return;
+        const d = refUserDoc.data();
+        t.update(refUserRef, {
+          balance: (d.balance || 0) + 50,
+          referrals: (d.referrals || 0) + 1,
+        });
+      });
+    } catch (e) {
+      console.error("Referral bonus error:", e);
     }
-    loadUser(u.uid);
-  }else{authContainer.style.display="block";mainContainer.style.display="none";}
-});
+  }
 
-// Load user
-async function loadUser(uid){
-  const snap=await getDoc(doc(db,"users",uid));
-  if(snap.exists()){
-    userData=snap.data();
-    balanceEl.textContent=userData.balance||0;
-    refCodeEl.textContent=userData.refCode||uid;
-    refCountEl.textContent=userData.referrals||0;
+  // Google sign in event
+  googleSignInBtn.addEventListener("click", async () => {
+    googleSignInBtn.disabled = true;
+    try {
+      const result = await signInWithPopup(auth, new GoogleAuthProvider());
+      const user = result.user;
+      userDocRef = doc(db, "users", user.uid);
+      const snapshot = await getDoc(userDocRef);
+      let refCodeFromURL = new URLSearchParams(window.location.search).get("ref") || null;
+      if (!snapshot.exists()) {
+        await setDoc(userDocRef, {
+          name: user.displayName || "",
+          email: user.email,
+          balance: 0,
+          mines: 0,
+          lastMine: 0,
+          referrals: 0,
+          history: [],
+          refCode: user.uid,
+          referredBy: refCodeFromURL,
+          signupTime: Date.now(),
+          lastGame: 0
+        });
+        if (refCodeFromURL) await applyReferralBonus(refCodeFromURL);
+      }
+      await loadUser(user.uid);
+      afterLoginUI();
+    } catch (error) {
+      alert("Google Sign In Error: " + error.message);
+    } finally {
+      googleSignInBtn.disabled = false;
+    }
+  });
+
+  // Logout event
+  logoutBtn.addEventListener("click", async () => {
+    await signOut(auth);
+    resetUI();
+  });
+
+  // On auth state changed
+  onAuthStateChanged(auth, async (user) => {
+    if (user) {
+      userDocRef = doc(db, "users", user.uid);
+      const docSnap = await getDoc(userDocRef);
+      if (docSnap.exists()) {
+        userData = docSnap.data();
+        await loadUser(user.uid);
+        afterLoginUI();
+      }
+    } else {
+      resetUI();
+    }
+  });
+
+  // Load user data and render UI
+  async function loadUser(uid) {
+    const snap = await getDoc(doc(db, "users", uid));
+    if (snap.exists()) {
+      userData = snap.data();
+      balanceEl.textContent = userData.balance || 0;
+      refCodeEl.textContent = userData.refCode || uid;
+      refCountEl.textContent = userData.referrals || 0;
+      renderHistory();
+      updateMiningTimer();
+    }
+  }
+
+  // Render mining history
+  function renderHistory() {
+    historyList.innerHTML = "";
+    (userData.history || []).slice().reverse().forEach(item => {
+      const li = document.createElement("li");
+      li.textContent = `Mined ${item.amount} MDC at ${new Date(item.timestamp).toLocaleString()}`;
+      historyList.appendChild(li);
+    });
+  }
+
+  // Format remaining time for mining timer
+  function formatTime(ms) {
+    const h = Math.floor(ms / 3600000);
+    const m = Math.floor((ms % 3600000) / 60000);
+    const s = Math.floor((ms % 60000) / 1000);
+    return `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
+  }
+
+  // Update mining timer display and enable/disable mine button
+  function updateMiningTimer() {
+    const now = Date.now();
+    let remaining = userData.lastMine + MINE_INTERVAL - now;
+    if (remaining <= 0 || userData.mines >= MAX_DAILY_MINES) {
+      timerText.textContent = "Ready";
+      mineBtn.disabled = false;
+    } else {
+      timerText.textContent = formatTime(remaining);
+      mineBtn.disabled = true;
+      requestAnimationFrame(updateMiningTimer);
+    }
+  }
+
+  // Mine button click event
+  mineBtn.addEventListener("click", async () => {
+    if (userData.mines >= MAX_DAILY_MINES) {
+      alert("Daily mining limit reached!");
+      return;
+    }
+    userData.balance += 10;
+    userData.mines += 1;
+    userData.lastMine = Date.now();
+    const newHist = { amount: 10, timestamp: Date.now() };
+    await updateDoc(userDocRef, {
+      balance: userData.balance,
+      mines: userData.mines,
+      lastMine: userData.lastMine,
+      history: arrayUnion(newHist)
+    });
+
+    // Referral 2% bonus for 7 days
+    if (userData.referredBy && Date.now() - userData.signupTime <= 7 * 24 * 60 * 60 * 1000) {
+      const refUserRef = doc(db, "users", userData.referredBy);
+      const refSnap = await getDoc(refUserRef);
+      if (refSnap.exists()) {
+        const bonus = 10 * 0.02;
+        await updateDoc(refUserRef, {
+          balance: (refSnap.data().balance || 0) + bonus,
+        });
+      }
+    }
+    userData.history.push(newHist);
+    balanceEl.textContent = userData.balance;
     renderHistory();
     updateMiningTimer();
+  });
+
+  // Tab switching logic
+  tabs.forEach(tab => {
+    tab.addEventListener("click", () => {
+      tabContents.forEach(tc => tc.classList.remove("active"));
+      document.getElementById(tab.dataset.tab).classList.add("active");
+    });
+  });
+
+  // UI control functions
+  function afterLoginUI() {
+    authContainer.style.display = "none";
+    mainContainer.style.display = "block";
   }
-}
-function renderHistory(){historyList.innerHTML="";(userData.history||[]).slice().reverse().forEach(i=>{historyList.innerHTML+=`<li>Mined ${i.amount} MDC at ${new Date(i.timestamp).toLocaleString()}</li>`;});}
-function updateMiningTimer(){
-  const now=Date.now();let remain=userData.lastMine+MINE_INTERVAL-now;
-  if(remain<=0||userData.mines>=MAX_DAILY_MINES){timerText.textContent="Ready";mineBtn.disabled=false;}
-  else{mineBtn.disabled=true;let h=Math.floor(remain/3600000),m=Math.floor((remain%3600000)/60000),s=Math.floor((remain%60000)/1000);
-    timerText.textContent=`${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;requestAnimationFrame(updateMiningTimer);}
-}
 
-// Mining
-mineBtn.addEventListener("click",async()=>{
-  if(userData.mines>=MAX_DAILY_MINES){alert("Daily mining limit reached!");return;}
-  userData.balance+=10;userData.mines+=1;userData.lastMine=Date.now();
-  const newHist={amount:10,timestamp:Date.now()};
-  await updateDoc(userDocRef,{balance:userData.balance,mines:userData.mines,lastMine:userData.lastMine,history:arrayUnion(newHist)});
-  if(userData.referredBy&&(Date.now()-userData.signupTime<=7*24*60*60*1000)){
-    const refUserRef=doc(db,"users",userData.referredBy);const refSnap=await getDoc(refUserRef);
-    if(refSnap.exists()){await updateDoc(refUserRef,{balance:(refSnap.data().balance||0)+0.2});}}
-  balanceEl.textContent=userData.balance;userData.history.push(newHist);renderHistory();updateMiningTimer();
-});
-
-// Tabs
-tabs.forEach(tab=>{tab.addEventListener("click",()=>{tabContents.forEach(tc=>tc.classList.remove("active"));document.getElementById(tab.dataset.tab).classList.add("active");});});
+  function resetUI() {
+    authContainer.style.display = "block";
+    mainContainer.style.display = "none";
+    userData = {
+      balance: 0,
+      mines: 0,
+      lastMine: 0,
+      history: [],
+      referrals: 0,
+      referredBy: null,
+      signupTime: 0,
+      lastGame: 0
+    };
+    balanceEl.textContent = 0;
+    historyList.innerHTML = "";
+    timerText.textContent = "00:00:00";
+  }
 </script>
 </body>
 </html>
