@@ -11,6 +11,7 @@
 <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 
 <style>
+  /* এটা আগের মত CSS থাকবে (ইচ্ছা করলে চাইলে যোগ করতে পারেন) */
   * {margin:0; padding:0; box-sizing:border-box; font-family: Arial, sans-serif;}
   body {
     background: #0d0d0d; color: #fff;
@@ -23,11 +24,7 @@
     border-radius: 10px;
     box-shadow: 0 0 20px rgba(0, 255, 221, 0.3);
   }
-  h1, h2, h3 {
-    margin-bottom: 10px;
-  }
-
-  /* Header */
+  h1, h2, h3 {margin-bottom: 10px;}
   .app-header {
     display: flex; align-items: center; justify-content: space-between;
   }
@@ -64,72 +61,39 @@
     background: #ff4444; color: #fff; padding: 8px 14px;
     border: none; border-radius: 5px; cursor: pointer;
   }
-
-  /* Auth container: center login button */
-  #authContainer {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: 300px;
-    text-align: center;
-  }
-
-  /* Google Sign In button */
+  #authContainer {display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 300px; text-align: center;}
   #googleSignInBtn {
     background: #fff; border: none; padding: 12px 20px;
     border-radius: 8px; font-size: 16px; font-weight: bold;
     cursor: pointer; display: flex; align-items: center;
-    gap: 8px; color: #000;
-    margin-top: 20px;
+    gap: 8px; color: #000; margin-top: 20px;
   }
-  #googleSignInBtn i {
-    font-size: 20px;
-  }
-
-  /* Install instructions below login */
+  #googleSignInBtn i {font-size: 20px;}
   .install-instructions {
-    margin-top: 20px; font-size: 14px;
-    line-height: 1.6; color: #ccc; text-align: center;
+    margin-top: 20px; font-size: 14px; line-height: 1.6; color: #ccc; text-align: center;
   }
-  .install-instructions h3 {
-    color: #FFD700; margin-bottom: 10px;
-  }
-
-  /* Wallet, Referral, Tabs and Mine Button */
+  .install-instructions h3 {color: #FFD700; margin-bottom: 10px;}
   .wallet, .referral, .tabs, .tab-content {margin-top: 20px;}
   .wallet span, .referral span {font-weight: bold; color: #00ffdd;}
-  
-  /* Mining Circle */
   .mining-container {
-    position: relative;
-    width: 220px;
-    margin: 20px auto;
+    position: relative; width: 220px; margin: 20px auto;
   }
   .circle {
     width: 100%; aspect-ratio: 1/1; border-radius: 50%;
-    background:
-      url('./coin.png') no-repeat center/cover,
-      radial-gradient(circle at 30% 30%, #fff8b0 0%, #FFD700 30%, #FFA500 70%, #7a4a00 100%);
+    background: radial-gradient(circle at 30% 30%, #fff8b0 0%, #FFD700 30%, #FFA500 70%, #7a4a00 100%);
     display: flex; justify-content: center; align-items: center;
     font-size: 22px; font-weight: bold;
     color: #000;
     text-shadow: 0 0 4px #fff, 0 0 2px #000;
-    box-shadow:
-      inset -3px -3px 8px rgba(0,0,0,0.6),
-      inset 3px 3px 6px rgba(255,255,255,0.6),
-      0 0 20px rgba(255,215,0,0.6);
+    box-shadow: inset -3px -3px 8px rgba(0,0,0,0.6),
+                inset 3px 3px 6px rgba(255,255,255,0.6),
+                0 0 20px rgba(255,215,0,0.6);
   }
-
   #mineBtn {
-    display: block;
-    margin: 20px auto;
-    padding: 15px 25px;
-    font-size: 18px;
-    font-weight: bold;
+    display: block; margin: 20px auto; padding: 15px 25px;
+    font-size: 18px; font-weight: bold;
     background: linear-gradient(90deg, #FFD700, #FFA500);
-    border: none;
-    border-radius: 50px;
+    border: none; border-radius: 50px;
     color: #111;
     box-shadow: 0 4px 10px rgba(255,215,0,0.5);
     cursor: pointer;
@@ -139,86 +103,43 @@
     background: linear-gradient(90deg, #FFA500, #FFD700);
     transform: scale(1.05);
   }
-
-  /* Tabs */
-  .tabs {
-    display: flex;
-    justify-content: space-around;
-  }
+  .tabs {display: flex; justify-content: space-around;}
   .tabs button {
-    flex: 1;
-    margin: 0 5px;
-    padding: 10px;
-    background: #00ffdd;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    color: #000;
-    font-weight: bold;
+    flex: 1; margin: 0 5px; padding: 10px;
+    background: #00ffdd; border: none; border-radius: 5px;
+    cursor: pointer; color: #000; font-weight: bold;
   }
   .tab-content {
-    display: none;
-    margin-top: 20px;
-    background: #111;
-    padding: 15px;
-    border-radius: 10px;
+    display: none; margin-top: 20px; background: #111;
+    padding: 15px; border-radius: 10px;
   }
-  .tab-content.active {
-    display: block;
-  }
-
-  /* Referral input and copy button styling */
+  .tab-content.active {display: block;}
   .referral input.copy-input {
-    flex: 1;
-    padding: 6px 10px;
-    border: none;
-    border-radius: 5px;
-    background: #222;
-    color: #0ff;
-    font-weight: bold;
-    font-size: 14px;
+    flex: 1; padding: 6px 10px; border: none; border-radius: 5px;
+    background: #222; color: #0ff; font-weight: bold; font-size: 14px;
     user-select: all;
   }
   .referral .copy-btn {
-    background: #00ffdd;
-    border: none;
-    border-radius: 5px;
-    padding: 5px 12px;
-    cursor: pointer;
-    font-weight: bold;
-    color: #000;
-    margin-left: 8px;
+    background: #00ffdd; border: none; border-radius: 5px;
+    padding: 5px 12px; cursor: pointer; font-weight: bold;
+    color: #000; margin-left: 8px;
   }
-
-  /* Lucky Box Game styling */
-  .game-section {
-    margin-top: 30px;
-    text-align: center;
-  }
+  .game-section {margin-top: 30px; text-align: center;}
   .boxes {
-    display: flex;
-    justify-content: center;
-    gap: 15px;
-    margin: 20px 0;
+    display: flex; justify-content: center; gap: 15px; margin: 20px 0;
   }
   .boxes .box {
-    width: 70px;
-    height: 70px;
+    width: 70px; height: 70px;
     background: linear-gradient(135deg, #ffd700, #ffa500);
-    color: #fff;
-    font-size: 28px;
-    font-weight: bold;
+    color: #fff; font-size: 28px; font-weight: bold;
     border-radius: 15px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: flex; align-items: center; justify-content: center;
     cursor: pointer;
     box-shadow: 0 4px 8px rgba(255, 165, 0, 0.6),
       inset 0 0 10px rgba(255, 255, 255, 0.3);
     border: 2px solid #fff5a1;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
-    user-select: none;
-    user-drag: none;
+    user-select: none; user-drag: none;
   }
   .boxes .box:hover {
     background: linear-gradient(135deg, #fff700, #ffb700);
@@ -226,18 +147,10 @@
       inset 0 0 14px rgba(255, 255, 255, 0.6);
     transform: scale(1.1);
   }
-  #gameResult {
-    color: #0ff;
-    font-weight: bold;
-  }
+  #gameResult {color: #0ff; font-weight: bold;}
   #claimBtn {
-    display: none;
-    background: #00ffdd;
-    border: none;
-    border-radius: 5px;
-    padding: 10px 20px;
-    cursor: pointer;
-    color: #000;
+    display: none; background: #00ffdd; border: none; border-radius: 5px;
+    padding: 10px 20px; cursor: pointer; color: #000;
   }
 </style>
 </head>
@@ -286,10 +199,10 @@
 
   <!-- Tabs -->
   <div class="tabs">
-    <button data-tab="historyTab">History</button>
+    <button data-tab="historyTab" class="active">History</button>
     <button data-tab="whitepaperTab">White Paper</button>
   </div>
-  <div class="tab-content" id="historyTab">
+  <div class="tab-content active" id="historyTab">
     <h3>Mining History</h3>
     <ul id="historyList"></ul>
   </div>
@@ -317,7 +230,7 @@
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-app.js";
   import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-auth.js";
-  import { getFirestore, doc, getDoc, setDoc, updateDoc, arrayUnion, runTransaction } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-firestore.js";
+  import { getFirestore, doc, getDoc, setDoc, updateDoc, runTransaction } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyBRitTsyqXfk6XNh3t1j0boebQa1LNQkKs",
@@ -354,7 +267,6 @@
   let userDocRef = null;
   let userData = {
     balance: 0,
-    mines: 0,
     lastMine: 0,
     history: [],
     referrals: 0,
@@ -362,9 +274,10 @@
     signupTime: 0,
     lastGame: 0
   };
-  const MINE_INTERVAL = 2 * 60 * 60 * 1000;
-  const MAX_DAILY_MINES = 5;
+  const MINE_INTERVAL = 2 * 60 * 60 * 1000; // 2 hours
+  const COMMISSION_PERIOD = 7 * 24 * 60 * 60 * 1000; // 7 days
 
+  // Apply referral bonus and increment referral count
   async function applyReferralBonus(refUid) {
     const refUserRef = doc(db, "users", refUid);
     try {
@@ -382,6 +295,30 @@
     }
   }
 
+  // Apply commission of 2% for 7 days to referrer
+  async function applyReferralCommission(amount) {
+    if (!userData.referredBy) return;
+    const now = Date.now();
+    // check if within 7 days of signup
+    if (now - userData.signupTime > COMMISSION_PERIOD) return;
+
+    const refUserRef = doc(db, "users", userData.referredBy);
+    try {
+      await runTransaction(db, async (t) => {
+        const refUserDoc = await t.get(refUserRef);
+        if (!refUserDoc.exists()) return;
+        const d = refUserDoc.data();
+        const commissionAmount = Math.floor(amount * 0.02);
+        if (commissionAmount <= 0) return;
+        t.update(refUserRef, {
+          balance: (d.balance || 0) + commissionAmount,
+        });
+      });
+    } catch (e) {
+      console.error("Referral commission error:", e);
+    }
+  }
+
   googleSignInBtn.addEventListener("click", async () => {
     googleSignInBtn.disabled = true;
     try {
@@ -395,7 +332,6 @@
           name: user.displayName || "",
           email: user.email,
           balance: 0,
-          mines: 0,
           lastMine: 0,
           referrals: 0,
           history: [],
@@ -485,31 +421,32 @@
 
   mineBtn.addEventListener("click", async () => {
     const now = Date.now();
-    if (userData.mines >= MAX_DAILY_MINES) {
-      alert("You have reached the maximum daily mines.");
-      return;
-    }
+
+    // শুধু ২ ঘণ্টার মাইনিং টাইমার চেক
     if (now - userData.lastMine < MINE_INTERVAL) {
       alert("Please wait until the timer resets to mine again.");
       return;
     }
 
     const minedAmount = Math.floor(Math.random() * 20) + 1;
+
     userData.balance += minedAmount;
-    userData.mines += 1;
     userData.lastMine = now;
     userData.history.push({ amount: minedAmount, time: now });
 
     try {
       await updateDoc(userDocRef, {
         balance: userData.balance,
-        mines: userData.mines,
         lastMine: userData.lastMine,
         history: userData.history,
       });
       balanceEl.textContent = userData.balance;
       renderHistory();
       updateMiningTimer();
+
+      // মাইনিংয়ের উপর রেফারার হিসেবে ২% কমিশন দিন
+      await applyReferralCommission(minedAmount);
+
     } catch (error) {
       alert("Error updating balance: " + error.message);
     }
