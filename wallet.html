@@ -6,7 +6,7 @@
 <title>Moo Deng Coin Wallet</title>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&display=swap" rel="stylesheet" />
 <style>
-  /* Basic Reset and Styling */
+  /* Reset and basic styling */
   * {
     margin: 0; padding: 0; box-sizing: border-box;
     font-family: Arial, sans-serif;
@@ -26,9 +26,6 @@
     padding: 20px;
     border-radius: 10px;
     box-shadow: 0 0 25px rgba(0, 255, 221, 0.3);
-  }
-  h1, h2, h3 {
-    margin-bottom: 12px;
   }
   h1 {
     font-family: 'Cinzel Decorative', serif;
@@ -75,8 +72,7 @@
     cursor: not-allowed;
     opacity: 0.6;
   }
-
-  /* Sections */
+  /* Sections styling */
   #registerContainer, #loginContainer, #walletContainer {
     display: none;
     flex-direction: column;
@@ -119,8 +115,7 @@
     margin-top: 10px;
     display: none;
   }
-
-  /* Main Wallet */
+  /* Main Wallet UI */
   .app-header {
     display: flex;
     justify-content: space-between;
@@ -301,9 +296,14 @@
     getDoc,
     setDoc,
     updateDoc,
-    runTransaction
+    runTransaction,
+    collection,
+    query,
+    limit,
+    getDocs
   } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-firestore.js";
 
+  // Firebase config
   const firebaseConfig = {
     apiKey: "AIzaSyBRitTsyqXfk6XNh3t1j0boebQa1LNQkKs",
     authDomain: "moo-deng-coin.firebaseapp.com",
@@ -317,7 +317,7 @@
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
 
-  // DOM Elements
+  // DOM elements
   const registerContainer = document.getElementById("registerContainer");
   const seedDisplay = document.getElementById("seedDisplay");
   const copySeedBtn = document.getElementById("copySeedBtn");
@@ -337,17 +337,18 @@
   const transferStatus = document.getElementById("transferStatus");
   const historyList = document.getElementById("historyList");
 
-  // Variables to track current user
+  // User-related vars
   let currentUserId = null;
   let currentUserDocRef = null;
   let currentUserData = null;
 
-  // Word list to generate a 20-word seed phrase (demo)
+  // Word list to generate 20-word seed phrase (demo)
   const wordList = ["apple", "banana", "cat", "dog", "elephant", "fish", "green", "house", "iron", "jungle",
     "king", "lion", "moon", "night", "orange", "piano", "queen", "river", "sun", "tree", "umbrella", "vase",
     "water", "xray", "yellow", "zebra"
   ];
 
+  // Seed phrase generator
   function generateSeedPhrase(wordsCount = 20) {
     let phraseWords = [];
     for (let i = 0; i < wordsCount; i++) {
@@ -356,46 +357,13 @@
     return phraseWords.join(" ");
   }
 
-  // -------- On Page Load --------
-  window.addEventListener("load", async () => {
-    // Check if any user exists (walletUsers collection)
-    // If user exists show login, else show register
-    const usersSnapshot = await getDoc(doc(db, "walletUsers", "dummyCheck"));
-    // We do not use dummyCheck, checking actual wallet count is better with a query but here keep simple
-    // So if no user registered, show register else show login
-
-    // This is a simple way: Check if any documents in walletUsers collection
-    // Firestore web does not have direct count so let's check with query and limit 1
-    const walletUsersRef = db.collection ? db.collection("walletUsers") : null; // backward check
-    if (!walletUsersRef) {
-      // fallback to show register first time
-      showRegister();
-      return;
-    }
-    // We adapt by trying to get one user doc to decide
-    try {
-      const q = window.firebase.firestore().collection('walletUsers').limit(1);
-      const querySnapshot = await q.get();
-      if (querySnapshot.empty) {
-        showRegister();
-      } else {
-        showLogin();
-      }
-    } catch(err) {
-      // On error show register by default
-      showRegister();
-    }
-  });
-
-  // Show register UI
+  // Show UI parts
   function showRegister() {
     registerContainer.classList.add("active");
     loginContainer.classList.remove("active");
     walletContainer.classList.remove("active");
     seedDisplay.textContent = generateSeedPhrase();
   }
-
-  // Show login UI
   function showLogin() {
     registerContainer.classList.remove("active");
     loginContainer.classList.add("active");
@@ -403,8 +371,6 @@
     loginPasswordInput.value = "";
     loginErrorMsg.style.display = "none";
   }
-
-  // Show wallet UI
   function showWallet() {
     registerContainer.classList.remove("active");
     loginContainer.classList.remove("active");
@@ -418,19 +384,19 @@
     });
   });
 
-  // On Register
+  // Wallet registration
   registerBtn.addEventListener("click", async () => {
     const seedPhrase = seedDisplay.textContent.trim();
     if (seedPhrase.length < 5) {
-      alert("Invalid seed phrase.");
+      alert("Invalid password. Please try again.");
       return;
     }
 
-    // Check if seedPhrase exists already
+    // Check if seed phrase already exists
     const docRef = doc(db, "walletUsers", seedPhrase);
     const docSnap = await getDoc(docRef);
     if (docSnap.exists()) {
-      alert("This password already exists! Please regenerate.");
+      alert("This password already exists! Please generate a new seed.");
       seedDisplay.textContent = generateSeedPhrase();
       return;
     }
@@ -439,24 +405,23 @@
     try {
       const now = Date.now();
       await setDoc(docRef, {
-        balance: 0,
+        balance: 1000, // initial balance, change if needed
         createdAt: now,
         lastLogin: now,
         transactionHistory: [],
         seedPhrase
       });
-      alert("Wallet registered successfully! Your password is your wallet ID.");
+      alert("Wallet registered successfully! Your password will act as your access key.");
       showLogin();
     } catch (err) {
       alert("Registration error: " + err.message);
     }
   });
 
-  // On Unlock Wallet
+  // Wallet unlock/login
   unlockBtn.addEventListener("click", async () => {
     loginErrorMsg.style.display = "none";
     loginErrorMsg.textContent = "";
-
     const password = loginPasswordInput.value.trim();
     if (!password || password.length < 5) {
       loginErrorMsg.style.display = "block";
@@ -520,16 +485,18 @@
     });
   }
 
-  // Transfer inputs validation
+  // Validate transfer inputs
   function validateTransferInputs() {
     const receiverId = receiverIdInput.value.trim();
     const amount = Number(transferAmountInput.value);
     const maxBalance = currentUserData ? (currentUserData.balance || 0) : 0;
 
-    if (receiverId.length > 5 &&
+    if (
+      receiverId.length > 5 &&
       amount > 0 &&
       amount <= maxBalance &&
-      receiverId !== currentUserId) {
+      receiverId !== currentUserId
+    ) {
       transferBtn.disabled = false;
     } else {
       transferBtn.disabled = true;
@@ -538,7 +505,7 @@
   receiverIdInput.addEventListener("input", validateTransferInputs);
   transferAmountInput.addEventListener("input", validateTransferInputs);
 
-  // Token transfer logic
+  // Token transfer handler
   transferBtn.addEventListener("click", async () => {
     transferStatus.style.color = "#00ff00";
     transferStatus.textContent = "Processing transfer...";
@@ -620,7 +587,7 @@
     }
   });
 
-  // Logout user and show login screen with unlock form
+  // Logout function
   logoutBtn.addEventListener("click", () => {
     currentUserId = null;
     currentUserDocRef = null;
@@ -636,29 +603,26 @@
     historyList.innerHTML = "";
   });
 
-  // On page load decide to show register or login
+  // Check if any registered users exist to decide which UI to show
   async function checkRegisteredUsers() {
     try {
-      // Try to get one user doc in walletUsers collection
-      const usersQuery = await db.collection("walletUsers").limit(1).get();
-      if (usersQuery.empty) {
+      const walletUsersRef = collection(db, "walletUsers");
+      const q = query(walletUsersRef, limit(1));
+      const querySnapshot = await getDocs(q);
+      if (querySnapshot.empty) {
         showRegister();
       } else {
         showLogin();
       }
     } catch {
-      // fallback: show register
       showRegister();
     }
   }
 
-  // Firestore web modular API does not support collection().limit(1).get() easily without full imports
-  // So force showLogin to allow unlock flow
-  // Let's just show login (unlock) for now and user can register fresh after logout
+  // Run check on page load
   window.addEventListener("DOMContentLoaded", () => {
-    showRegister(); // For your exact requirement, you may want to always show register first time and then never again
+    checkRegisteredUsers();
   });
-
 </script>
 </body>
 </html>
