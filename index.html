@@ -455,12 +455,10 @@
   const mainContainer = document.getElementById("mainContainer");
   const googleSignInBtn = document.getElementById("googleSignInBtn");
   const logoutBtn = document.getElementById("logoutBtn");
-  const walletBtn = document.getElementById("walletBtn"); // নতুন বাটন
-  const balanceEl = document.getElementById("balance"); // রাখা হয়েছে কারণ আপনার আগের কোডে রেফারেল লজিক ব্যালেন্স ব্যবহার করে
+  const walletBtn = document.getElementById("walletBtn");
   const mineBtn = document.getElementById("mineBtn");
   const timerText = document.getElementById("timerText");
   const refCodeEl = document.getElementById("refCode");
-  const refCountEl = document.getElementById("refCount");
   const historyList = document.getElementById("historyList");
   const tabs = document.querySelectorAll(".tabs button");
   const tabContents = document.querySelectorAll(".tab-content");
@@ -483,11 +481,9 @@
   const MINE_INTERVAL = 2 * 60 * 60 * 1000; // 2 hours
   const COMMISSION_PERIOD = 7 * 24 * 60 * 60 * 1000; // 7 days
 
-  // Interval to update mining timer every second continuously
   let miningTimerInterval = null;
   function updateMiningTimer() {
     if (miningTimerInterval) clearInterval(miningTimerInterval);
-
     miningTimerInterval = setInterval(() => {
       const now = Date.now();
       const elapsed = now - (userData.lastMine || 0);
@@ -504,14 +500,14 @@
     }, 1000);
   }
 
-  // Referral bonus function with logging and check
+  // Changed to update 'walletUsers' collection
   async function applyReferralBonus(refUid) {
     console.log("Applying referral bonus for ID:", refUid);
     if (!refUid) {
       console.warn("No referral UID provided!");
       return;
     }
-    const refUserRef = doc(db, "users", refUid);
+    const refUserRef = doc(db, "walletUsers", refUid); // Change: 'users' to 'walletUsers'
     try {
       await runTransaction(db, async (t) => {
         const refUserDoc = await t.get(refUserRef);
@@ -533,12 +529,12 @@
     }
   }
 
-  // Referral commission for mining amounts for 7 days
+  // Changed to update 'walletUsers' collection
   async function applyReferralCommission(amount) {
     if (!userData.referredBy) return;
     const now = Date.now();
     if (now - userData.signupTime > COMMISSION_PERIOD) return;
-    const refUserRef = doc(db, "users", userData.referredBy);
+    const refUserRef = doc(db, "walletUsers", userData.referredBy); // Change: 'users' to 'walletUsers'
     try {
       await runTransaction(db, async (t) => {
         const refUserDoc = await t.get(refUserRef);
@@ -560,7 +556,7 @@
     try {
       const result = await signInWithPopup(auth, new GoogleAuthProvider());
       const user = result.user;
-      userDocRef = doc(db, "users", user.uid);
+      userDocRef = doc(db, "walletUsers", user.uid); // Change: 'users' to 'walletUsers'
       const snapshot = await getDoc(userDocRef);
       let refCodeFromURL = new URLSearchParams(window.location.search).get("ref") || null;
       if (!snapshot.exists()) {
@@ -594,20 +590,23 @@
 
   onAuthStateChanged(auth, async (user) => {
     if (user) {
-      userDocRef = doc(db, "users", user.uid);
+      userDocRef = doc(db, "walletUsers", user.uid); // Change: 'users' to 'walletUsers'
       const docSnap = await getDoc(userDocRef);
       if (docSnap.exists()) {
         userData = docSnap.data();
         await loadUser(user.uid);
         afterLoginUI();
+      } else {
+        resetUI(); // If user exists in auth but not in 'walletUsers'
       }
     } else {
       resetUI();
     }
   });
 
+  // Changed to get data from 'walletUsers'
   async function loadUser(uid) {
-    const snap = await getDoc(doc(db, "users", uid));
+    const snap = await getDoc(doc(db, "walletUsers", uid)); // Change: 'users' to 'walletUsers'
     if (snap.exists()) {
       userData = snap.data();
       refCodeEl.textContent = userData.refCode || uid;
@@ -638,34 +637,39 @@
     historyList.innerHTML = "";
   }
 
-  // নতুন কোড: Wallet বাটনে ক্লিক করলে wallet.html-এ যাবে
   walletBtn.addEventListener("click", () => {
     window.location.href = "wallet.html";
   });
 
   mineBtn.addEventListener("click", async () => {
     const now = Date.now();
-
     if (now - userData.lastMine < MINE_INTERVAL) {
       alert("Please wait until the timer resets to mine again.");
       return;
     }
-
     const fixedAmount = 10;
-
-    userData.balance += fixedAmount;
-    userData.lastMine = now;
-    userData.history.push({ amount: fixedAmount, time: now });
-
+    
+    // Using runTransaction to safely update balance
     try {
-      await updateDoc(userDocRef, {
-        balance: userData.balance,
-        lastMine: userData.lastMine,
-        history: userData.history,
+      await runTransaction(db, async (t) => {
+        const docSnap = await t.get(userDocRef);
+        if (!docSnap.exists()) {
+          throw "Document does not exist!";
+        }
+        const currentBalance = docSnap.data().balance || 0;
+        const newBalance = currentBalance + fixedAmount;
+        const newHistory = [...(docSnap.data().history || []), { amount: fixedAmount, time: now }];
+        
+        t.update(userDocRef, {
+          balance: newBalance,
+          lastMine: now,
+          history: newHistory,
+        });
       });
+      userData.lastMine = now;
+      userData.history.push({ amount: fixedAmount, time: now });
       renderHistory();
       updateMiningTimer();
-
       await applyReferralCommission(fixedAmount);
     } catch (error) {
       alert("Error updating balance: " + error.message);
@@ -689,14 +693,13 @@
   });
 
   let gamePlayedToday = false;
-
   function canPlayGame() {
     const now = Date.now();
     return now - userData.lastGame > 24 * 60 * 60 * 1000;
   }
 
   boxes.forEach(box => {
-    box.addEventListener("click", () => {
+    box.addEventListener("click", async () => { // Added async
       if (gamePlayedToday || !canPlayGame()) {
         gameResult.textContent = "You can only play once every 24 hours.";
         return;
@@ -706,16 +709,21 @@
       gameResult.textContent = `You won ${prize} MDC!`;
       claimBtn.style.display = "inline-block";
 
-      claimBtn.onclick = async () => {
-        userData.balance += prize;
-        userData.lastGame = Date.now();
-        gamePlayedToday = false;
-
+      claimBtn.onclick = async () => { // Changed to async
         try {
-          await updateDoc(userDocRef, {
-            balance: userData.balance,
-            lastGame: userData.lastGame,
+          await runTransaction(db, async (t) => {
+            const docSnap = await t.get(userDocRef);
+            if (!docSnap.exists()) {
+              throw "Document does not exist!";
+            }
+            const currentBalance = docSnap.data().balance || 0;
+            const newBalance = currentBalance + prize;
+            t.update(userDocRef, {
+              balance: newBalance,
+              lastGame: Date.now(),
+            });
           });
+          gamePlayedToday = false;
           gameResult.textContent = "";
           claimBtn.style.display = "none";
         } catch (error) {
