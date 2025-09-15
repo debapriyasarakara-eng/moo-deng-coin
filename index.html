@@ -311,9 +311,6 @@
         <li><strong>Beyond:</strong> Adding real-world utility and expanding ecosystem adoption.</li>
       </ul>
 
-      <h3>Community Request</h3>
-      <p>As the launch date approaches, we <strong>urge our community to purchase and hold MDC tokens.</strong> Early participation will not only be lucrative for investors but will also fuel the project's growth and momentum. Together, we can build a thriving and sustainable platform.</p>
-
       <h3>Important Notice</h3>
       <p><strong>Tokens mined by users will be credited directly to their wallets.</strong> This ensures immediate availability and transparency. To further enhance usability, <strong>withdrawal options will be introduced soon,</strong> enabling users to transfer their tokens with ease and security.</p>
 
@@ -658,7 +655,8 @@
         }
         const currentBalance = docSnap.data().balance || 0;
         const newBalance = currentBalance + fixedAmount;
-        const newHistory = [...(docSnap.data().history || []), { amount: fixedAmount, time: now }];
+        // Updated to add 'type' field
+        const newHistory = [...(docSnap.data().history || []), { amount: fixedAmount, time: now, type: 'mine' }];
         
         t.update(userDocRef, {
           balance: newBalance,
@@ -667,7 +665,7 @@
         });
       });
       userData.lastMine = now;
-      userData.history.push({ amount: fixedAmount, time: now });
+      userData.history.push({ amount: fixedAmount, time: now, type: 'mine' });
       renderHistory();
       updateMiningTimer();
       await applyReferralCommission(fixedAmount);
@@ -718,9 +716,13 @@
             }
             const currentBalance = docSnap.data().balance || 0;
             const newBalance = currentBalance + prize;
+            // Updated to add 'type' field
+            const newHistory = [...(docSnap.data().history || []), { amount: prize, time: Date.now(), type: 'luckyBox' }];
+
             t.update(userDocRef, {
               balance: newBalance,
               lastGame: Date.now(),
+              history: newHistory
             });
           });
           gamePlayedToday = false;
