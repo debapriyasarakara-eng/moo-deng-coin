@@ -6,6 +6,10 @@
 <title>Moo Deng Coin</title>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&display=swap" rel="stylesheet" />
 <meta name="theme-color" content="#FFD700" />
+
+<!-- PWA manifest -->
+<link rel="manifest" href="manifest.json" />
+
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 <style>
   /* আপনার আগের স্টাইল একদম অপরিবর্তিত */
@@ -214,6 +218,18 @@
     display: none; background: #00ffdd; border: none; border-radius: 5px;
     padding: 10px 20px; cursor: pointer; color: #000;
   }
+  /* New referral rule message */
+  #referralRuleMsg {
+    margin-top: 15px;
+    background: #222;
+    border: 2px solid #00ffdd;
+    border-radius: 5px;
+    padding: 10px;
+    font-size: 14px;
+    color: #00ffdd;
+    font-weight: bold;
+    text-align: center;
+  }
 </style>
 </head>
 <body>
@@ -265,6 +281,10 @@
     <div style="display:flex; gap:8px; margin-top: 10px;">
       <input class="copy-input" id="refLink" readonly />
       <button class="copy-btn" id="copyBtn">Copy</button>
+    </div>
+    <div id="referralRuleMsg">
+      Referral commission is available only if you refer at least <span id="minReferralCount">10</span> users.<br />
+      If you do not reach this minimum, the lucky box airdrop will be disabled for you.
     </div>
   </div>
 
@@ -371,6 +391,8 @@
   const gameResult = document.getElementById("gameResult");
   const claimBtn = document.getElementById("claimBtn");
   const boxes = document.querySelectorAll(".boxes .box");
+  const referralRuleMsg = document.getElementById("referralRuleMsg");
+  const minReferralCount = 10;
 
   let userDocRef = null;
   let userData = {
@@ -443,7 +465,6 @@
       await runTransaction(db, async (t) => {
         const refUserDoc = await t.get(refUserRef);
         if (!refUserDoc.exists()) return;
-        const d = refUserDoc.data();
         const commissionAmount = Math.floor(amount * 0.02);
         if (commissionAmount <= 0) return;
         t.update(refUserRef, {
@@ -517,7 +538,33 @@
       refLink.value = window.location.href.split('?')[0] + "?ref=" + (userData.refCode || userDocRef.id);
       renderHistory();
       updateMiningTimer();
+
+      // Show or hide referral rule message and disable lucky box if under limit
+      if ((userData.referrals || 0) < minReferralCount) {
+        referralRuleMsg.style.display = "block";
+        disableLuckyBox();
+      } else {
+        referralRuleMsg.style.display = "none";
+        enableLuckyBox();
+      }
     }
+  }
+
+  function disableLuckyBox() {
+    claimBtn.style.display = "none";
+    boxes.forEach(box => {
+      box.style.pointerEvents = "none";
+      box.style.opacity = "0.4";
+    });
+    gameResult.textContent = "Lucky box airdrop is disabled until you refer at least 10 users.";
+  }
+
+  function enableLuckyBox() {
+    boxes.forEach(box => {
+      box.style.pointerEvents = "auto";
+      box.style.opacity = "1";
+    });
+    gameResult.textContent = "";
   }
 
   function renderHistory() {
@@ -539,6 +586,8 @@
     mainContainer.style.display = "none";
     refCodeEl.textContent = "";
     historyList.innerHTML = "";
+    referralRuleMsg.style.display = "none";
+    enableLuckyBox();
   }
 
   walletBtn.addEventListener("click", () => {
@@ -609,6 +658,10 @@
         gameResult.textContent = "You can only play once every 24 hours.";
         return;
       }
+      if ((userData.referrals || 0) < minReferralCount) {
+        gameResult.textContent = "Lucky box airdrop is disabled until you refer at least 10 users.";
+        return;
+      }
       gamePlayedToday = true;
       const prize = Math.floor(Math.random() * 50) + 1;
       gameResult.textContent = `You won ${prize} MDC!`;
@@ -640,6 +693,20 @@
       };
     });
   });
+</script>
+
+<script>
+  // Register Service Worker for PWA installation
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function() {
+      navigator.serviceWorker.register('service-worker.js')
+      .then(function(registration) {
+        console.log('ServiceWorker registration successful with scope: ', registration.scope);
+      }).catch(function(err) {
+        console.log('ServiceWorker registration failed: ', err);
+      });
+    });
+  }
 </script>
 
 </body>
