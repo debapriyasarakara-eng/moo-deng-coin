@@ -6,10 +6,7 @@
 <title>Moo Deng Coin</title>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&display=swap" rel="stylesheet" />
 <meta name="theme-color" content="#FFD700" />
-
-<!-- PWA manifest -->
 <link rel="manifest" href="manifest.json" />
-
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 <style>
   * {margin:0; padding:0; box-sizing:border-box; font-family: Arial, sans-serif;}
@@ -228,6 +225,7 @@
     font-weight: bold;
     text-align: center;
   }
+
   .ad-container {
     margin: 15px 0;
     display: flex;
@@ -239,11 +237,6 @@
 <body>
 
 <div class="container" id="authContainer">
-  <div style="width:100%; padding-bottom:10px;">
-    </div>
-  <h2>Sign In</h2>
-  
-  <!-- Ad above Google login button -->
   <div class="ad-container">
     <script type="text/javascript">
       atOptions = { 
@@ -257,9 +250,9 @@
     <script type="text/javascript" src="//www.topcreativeformat.com/56c7e68cb187e2bbd1d7a071ebc374e0/invoke.js"></script>
   </div>
   
+  <h2>Sign In</h2>
   <button id="googleSignInBtn"><i class="fab fa-google"></i> Sign in with Google</button>
-  <div style="width:100%; padding-top:10px;">
-    </div>
+  
   <div class="install-instructions">
     <h3>Install MDC</h3>
     <p>1. Tap on the ⋮ menu in your browser's right corner.</p>
@@ -268,7 +261,6 @@
     <p>4. Keep this tab open to keep mining active.</p>
   </div>
   
-  <!-- Ad below installation instructions -->
   <div class="ad-container">
     <script type="text/javascript">
       atOptions = { 
@@ -280,6 +272,19 @@
       };
     </script>
     <script type="text/javascript" src="//www.topcreativeformat.com/077874450aaa530a8c84fbc3c2275129/invoke.js"></script>
+  </div>
+  
+  <div class="ad-container">
+    <script type="text/javascript">
+      atOptions = {
+        'key' : 'adf446e9803ea369c6ceb9816deb5be0',
+        'format' : 'iframe',
+        'height' : 600,
+        'width' : 300,
+        'params' : {}
+      };
+    </script>
+    <script type="text/javascript" src="//notioncarpplash.com/adf446e9803ea369c6ceb9816deb5be0/invoke.js"></script>
   </div>
 </div>
 
@@ -459,21 +464,13 @@
     }, 1000);
   }
 
-  // Changed to update 'walletUsers' collection
   async function applyReferralBonus(refUid) {
-    console.log("Applying referral bonus for ID:", refUid);
-    if (!refUid) {
-      console.warn("No referral UID provided!");
-      return;
-    }
+    if (!refUid) return;
     const refUserRef = doc(db, "walletUsers", refUid);
     try {
       await runTransaction(db, async (t) => {
         const refUserDoc = await t.get(refUserRef);
-        if (!refUserDoc.exists()) {
-          console.warn("Referral user doc does not exist.");
-          return;
-        }
+        if (!refUserDoc.exists()) return;
         const d = refUserDoc.data();
         const newBalance = (d.balance || 0) + 50;
         const newRefCount = (d.referrals || 0) + 1;
@@ -481,14 +478,12 @@
           balance: newBalance,
           referrals: newRefCount,
         });
-        console.log("Referral bonus applied:", newBalance, newRefCount);
       });
     } catch (e) {
       console.error("Referral bonus transaction error:", e);
     }
   }
 
-  // Changed to update 'walletUsers' collection
   async function applyReferralCommission(amount) {
     if (!userData.referredBy) return;
     const now = Date.now();
@@ -498,6 +493,7 @@
       await runTransaction(db, async (t) => {
         const refUserDoc = await t.get(refUserRef);
         if (!refUserDoc.exists()) return;
+        const d = refUserDoc.data();
         const commissionAmount = Math.floor(amount * 0.02);
         if (commissionAmount <= 0) return;
         t.update(refUserRef, {
@@ -507,18 +503,6 @@
     } catch (e) {
       console.error("Referral commission error:", e);
     }
-  }
-
-  // Function to show ad before executing button function
-  function showAdBeforeAction(actionFunction) {
-    // Show ad
-    const adScript = document.createElement('script');
-    adScript.type = 'text/javascript';
-    adScript.src = 'https://notioncarpplash.com/w4nb3vzbh0?key=adf446e9803ea369c6ceb9816deb5be0';
-    document.head.appendChild(adScript);
-    
-    // Execute the original function after a short delay
-    setTimeout(actionFunction, 1000);
   }
 
   googleSignInBtn.addEventListener("click", async () => {
@@ -567,14 +551,13 @@
         await loadUser(user.uid);
         afterLoginUI();
       } else {
-        resetUI(); // If user exists in auth but not in 'walletUsers'
+        resetUI();
       }
     } else {
       resetUI();
     }
   });
 
-  // Changed to get data from 'walletUsers'
   async function loadUser(uid) {
     const snap = await getDoc(doc(db, "walletUsers", uid));
     if (snap.exists()) {
@@ -584,7 +567,6 @@
       renderHistory();
       updateMiningTimer();
 
-      // Show or hide referral rule message and disable lucky box if under limit
       if ((userData.referrals || 0) < minReferralCount) {
         referralRuleMsg.style.display = "block";
         disableLuckyBox();
@@ -631,71 +613,61 @@
     mainContainer.style.display = "none";
     refCodeEl.textContent = "";
     historyList.innerHTML = "";
-    referralRuleMsg.style.display = "none";
-    enableLuckyBox();
+    referralRuleMsg.style.display = "block";
+    disableLuckyBox();
   }
 
   walletBtn.addEventListener("click", () => {
-    showAdBeforeAction(() => {
-      window.location.href = "wallet.html";
-    });
+    window.location.href = "wallet.html";
   });
 
   mineBtn.addEventListener("click", async () => {
-    showAdBeforeAction(async () => {
-      const now = Date.now();
-      if (now - userData.lastMine < MINE_INTERVAL) {
-        alert("Please wait until the timer resets to mine again.");
-        return;
-      }
-      const fixedAmount = 10;
-      
-      // Using runTransaction to safely update balance
-      try {
-        await runTransaction(db, async (t) => {
-          const docSnap = await t.get(userDocRef);
-          if (!docSnap.exists()) {
-            throw "Document does not exist!";
-          }
-          const currentBalance = docSnap.data().balance || 0;
-          const newBalance = currentBalance + fixedAmount;
-          // Updated to add 'type' field
-          const newHistory = [...(docSnap.data().history || []), { amount: fixedAmount, time: now, type: 'mine' }];
-          
-          t.update(userDocRef, {
-            balance: newBalance,
-            lastMine: now,
-            history: newHistory,
-          });
+    const now = Date.now();
+    if (now - userData.lastMine < MINE_INTERVAL) {
+      alert("Please wait until the timer resets to mine again.");
+      return;
+    }
+    const fixedAmount = 10;
+    
+    try {
+      await runTransaction(db, async (t) => {
+        const docSnap = await t.get(userDocRef);
+        if (!docSnap.exists()) {
+          throw "Document does not exist!";
+        }
+        const currentBalance = docSnap.data().balance || 0;
+        const newBalance = currentBalance + fixedAmount;
+        const newHistory = [...(docSnap.data().history || []), { amount: fixedAmount, time: now, type: 'mine' }];
+        
+        t.update(userDocRef, {
+          balance: newBalance,
+          lastMine: now,
+          history: newHistory,
         });
-        userData.lastMine = now;
-        userData.history.push({ amount: fixedAmount, time: now, type: 'mine' });
-        renderHistory();
-        updateMiningTimer();
-        await applyReferralCommission(fixedAmount);
-      } catch (error) {
-        alert("Error updating balance: " + error.message);
-      }
-    });
+      });
+      userData.lastMine = now;
+      userData.history.push({ amount: fixedAmount, time: now, type: 'mine' });
+      renderHistory();
+      await applyReferralCommission(fixedAmount);
+      updateMiningTimer();
+    } catch (error) {
+      alert("Error updating balance: " + error.message);
+    }
   });
 
   copyBtn.addEventListener("click", () => {
-    showAdBeforeAction(() => {
-      refLink.select();
-      refLink.setSelectionRange(0, 99999);
-      document.execCommand("copy");
-      alert("Referral link copied to clipboard!");
-    });
+    refLink.select();
+    refLink.setSelectionRange(0, 99999);
+    document.execCommand("copy");
+    alert("Referral link copied to clipboard!");
   });
 
   tabs.forEach(btn => {
     btn.addEventListener("click", () => {
-      showAdBeforeAction(() => {
-        tabs.forEach(b => b.classList.remove("active"));
-        tabContents.forEach(tc => tc.classList.remove("active"));
-        btn.classList.add("active");
-        document.getElementById(btn.dataset.tab).classList.add("active");
-      });
+      tabs.forEach(b => b.classList.remove("active"));
+      tabContents.forEach(tc => tc.classList.remove("active"));
+      btn.classList.add("active");
+      document.getElementById(btn.dataset.tab).classList.add("active");
     });
   });
 
@@ -716,43 +688,40 @@
         return;
       }
       
-      showAdBeforeAction(async () => {
-        gamePlayedToday = true;
-        const prize = Math.floor(Math.random() * 50) + 1;
-        gameResult.textContent = `You won ${prize} MDC!`;
-        claimBtn.style.display = "inline-block";
+      gamePlayedToday = true;
+      const prize = Math.floor(Math.random() * 50) + 1;
+      gameResult.textContent = `You won ${prize} MDC!`;
+      claimBtn.style.display = "inline-block";
 
-        claimBtn.onclick = async () => {
-          try {
-            await runTransaction(db, async (t) => {
-              const docSnap = await t.get(userDocRef);
-              if (!docSnap.exists()) {
-                throw "Document does not exist!";
-              }
-              const currentBalance = docSnap.data().balance || 0;
-              const newBalance = currentBalance + prize;
-              const newHistory = [...(docSnap.data().history || []), { amount: prize, time: Date.now(), type: 'luckyBox' }];
+      claimBtn.onclick = async () => {
+        try {
+          await runTransaction(db, async (t) => {
+            const docSnap = await t.get(userDocRef);
+            if (!docSnap.exists()) {
+              throw "Document does not exist!";
+            }
+            const currentBalance = docSnap.data().balance || 0;
+            const newBalance = currentBalance + prize;
+            const newHistory = [...(docSnap.data().history || []), { amount: prize, time: Date.now(), type: 'luckyBox' }];
 
-              t.update(userDocRef, {
-                balance: newBalance,
-                lastGame: Date.now(),
-                history: newHistory
-              });
+            t.update(userDocRef, {
+              balance: newBalance,
+              lastGame: Date.now(),
+              history: newHistory
             });
-            gamePlayedToday = false;
-            gameResult.textContent = "";
-            claimBtn.style.display = "none";
-          } catch (error) {
-            alert("Error updating game reward: " + error.message);
-          }
-        };
-      });
+          });
+          gamePlayedToday = false;
+          gameResult.textContent = "";
+          claimBtn.style.display = "none";
+        } catch (error) {
+          alert("Error updating game reward: " + error.message);
+        }
+      };
     });
   });
 </script>
 
 <script>
-  // Register Service Worker for PWA installation
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', function() {
       navigator.serviceWorker.register('service-worker.js')
