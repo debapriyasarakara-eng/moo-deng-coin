@@ -12,7 +12,7 @@
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 <style>
-  /* আগের স্টাইল একই থাকবে */
+  /* আপনার আগের স্টাইল ঠিক রাখছি */
   * {margin:0; padding:0; box-sizing:border-box; font-family: Arial, sans-serif;}
   body {
     background: #0d0d0d; color: #fff;
@@ -118,8 +118,8 @@
   .nav-btn {
     display: flex;
     justify-content: center;
-    gap: 15px; /* Spacing between buttons */
-    flex-wrap: wrap; /* Allows buttons to wrap on smaller screens */
+    gap: 15px;
+    flex-wrap: wrap;
     margin-top: 20px;
   }
   #walletBtn, #telegramBtn {
@@ -147,7 +147,7 @@
     background: #0088CC;
     color: #fff;
     box-shadow: 0 4px 10px rgba(0, 136, 204, 0.5);
-    text-decoration: none; /* Remove underline from anchor tag */
+    text-decoration: none;
   }
   #telegramBtn:hover {
     background: #0077B3;
@@ -464,7 +464,6 @@
     }, 1000);
   }
 
-  // Load user data from Firestore, update UI and referral checks
   async function loadUser(uid) {
     const snap = await getDoc(doc(db, "walletUsers", uid));
     if (snap.exists()) {
@@ -484,7 +483,6 @@
     }
   }
 
-  // Referral bonus +1 for referrer
   async function applyReferralBonus(refUid) {
     if (!refUid) return;
     const refUserRef = doc(db, "walletUsers", refUid);
@@ -503,7 +501,6 @@
     }
   }
 
-  // Referral commission for mining rewards within 7 days
   async function applyReferralCommission(amount) {
     if (!userData.referredBy) return;
     if (Date.now() - userData.signupTime > COMMISSION_PERIOD) return;
@@ -524,7 +521,6 @@
     }
   }
 
-  // Render mining/referral history on UI
   function renderHistory() {
     historyList.innerHTML = "";
     (userData.history || []).slice().reverse().forEach(item => {
@@ -538,6 +534,7 @@
     authContainer.style.display = "none";
     mainContainer.style.display = "block";
   }
+
   function resetUI() {
     authContainer.style.display = "flex";
     mainContainer.style.display = "none";
@@ -547,7 +544,6 @@
     enableLuckyBox();
   }
 
-  // Lucky box disable/enable functions
   function disableLuckyBox() {
     claimBtn.style.display = "none";
     boxes.forEach(box => {
@@ -556,6 +552,7 @@
     });
     gameResult.textContent = "Lucky box airdrop is disabled until you refer at least 10 users.";
   }
+
   function enableLuckyBox() {
     boxes.forEach(box => {
       box.style.pointerEvents = "auto";
@@ -692,7 +689,7 @@
   let gamePlayedToday = false;
   function canPlayGame() {
     const now = Date.now();
-    return now - userData.lastGame > 24*60*60*1000;
+    return now - userData.lastGame > 24 * 60 * 60 * 1000;
   }
 
   boxes.forEach(box => {
@@ -709,7 +706,6 @@
       const prize = Math.floor(Math.random() * 50) + 1;
       gameResult.textContent = `You won ${prize} MDC!`;
       claimBtn.style.display = "inline-block";
-
       claimBtn.onclick = async () => {
         try {
           await runTransaction(db, async (t) => {
@@ -733,18 +729,16 @@
       };
     });
   });
-
 </script>
 
 <script>
-  // Register service worker
+  // Service Worker Registration
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('service-worker.js')
-      .then(registration => {
-        console.log('ServiceWorker registered with scope:', registration.scope);
+      navigator.serviceWorker.register('service-worker.js').then(registration => {
+        console.log('Service Worker registered with scope:', registration.scope);
       }).catch(error => {
-        console.error('ServiceWorker registration failed:', error);
+        console.log('Service Worker registration failed:', error);
       });
     });
   }
