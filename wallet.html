@@ -30,15 +30,11 @@
   #transferBtn:disabled { background: #444; color: #999; }
   #historyList { max-height: 200px; overflow-y: auto; list-style-type: none; color: #0ff; font-weight: bold; font-size: 14px; padding-left: 10px; }
   .status-message { margin-top: 8px; font-size: 14px; }
-
-  /* Wallet Address Section Styling */
   .wallet-address-section { margin-top: 20px; }
   .wallet-address-section h2 { margin-bottom: 10px; color: #ffd700; }
   .wallet-address-box { background: #111; padding: 10px; border-radius: 8px; border: 1px dashed #00ffdd; display: flex; justify-content: space-between; align-items: center; }
   #walletAddressText { font-size: 14px; word-break: break-all; color: #00ffdd; user-select: all; }
   #copyAddressBtn { background: #00ffdd; color: #000; padding: 5px 10px; font-size: 12px; }
-
-  /* Transaction History Item Styling */
   .history-item { background: #333; padding: 10px; border-radius: 8px; margin-bottom: 8px; position: relative; }
   .history-item p { margin: 0; line-height: 1.4; }
   .history-item .date { font-size: 12px; color: #aaa; }
@@ -60,6 +56,101 @@
   .history-item .copy-history-btn:hover {
     opacity: 1;
   }
+  
+  /* New CSS for animated balance and welcome message */
+  .balance-section.shake {
+    animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+  }
+  @keyframes shake {
+    10%, 90% { transform: translate3d(-1px, 0, 0); }
+    20%, 80% { transform: translate3d(2px, 0, 0); }
+    30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+    40%, 60% { transform: translate3d(4px, 0, 0); }
+  }
+  #welcomeMessage {
+      font-size: 18px;
+      color: #ffd700;
+      font-weight: bold;
+      margin-bottom: 10px;
+  }
+  
+  /* New CSS for Market Value tab */
+  .market-value-section {
+    background: #222;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    border: 2px solid #00ffdd;
+    text-align: center;
+  }
+  .market-value-section h2 {
+    color: #ffd700;
+    margin-bottom: 5px;
+  }
+  .market-value-section p {
+    font-size: 20px;
+    font-weight: bold;
+    color: #00ffdd;
+    letter-spacing: 1px;
+  }
+
+  /* New CSS for Recent Subscribers */
+  .recent-subscribers-section {
+    margin-top: 20px;
+    background: #1e1e1e;
+    padding: 15px;
+    border-radius: 10px;
+  }
+  .recent-subscribers-section h3 {
+    color: #00ffdd;
+    text-align: center;
+    margin-bottom: 10px;
+  }
+  .subscriber-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .subscriber-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 10px;
+    background: #333;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    color: #fff;
+  }
+  .subscriber-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #007bff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    font-weight: bold;
+    color: #fff;
+  }
+  .subscriber-info {
+    flex-grow: 1;
+  }
+  .subscriber-name {
+    font-weight: bold;
+    font-size: 16px;
+  }
+  .subscriber-time {
+    font-size: 12px;
+    color: #aaa;
+  }
+  .subscriber-flag {
+    width: 30px;
+    height: 20px;
+    border-radius: 3px;
+    object-fit: cover;
+    box-shadow: 0 0 5px rgba(0,0,0,0.3);
+  }
 </style>
 </head>
 
@@ -69,6 +160,11 @@
     <h1>Moo Deng Coin Wallet</h1>
     <p>Sign in with your Google account to access your wallet.</p>
     <button id="signInBtn">Sign in with Google</button>
+    
+    <div class="recent-subscribers-section">
+      <h3>Recent Subscribers</h3>
+      <ul class="subscriber-list" id="recentSubscribersAuth"></ul>
+    </div>
   </div>
 
   <div class="wallet-section" id="walletSection">
@@ -76,6 +172,8 @@
       <h1>Moo Deng Coin Wallet <span class="coin-symbol">🦛</span></h1>
       <button id="logoutBtn">Logout</button>
     </div>
+    
+    <p id="welcomeMessage"></p>
 
     <div class="wallet-address-section">
         <h2>Your MDC Wallet Address</h2>
@@ -88,6 +186,11 @@
     <div class="balance-section">
       <h2>Balance</h2>
       <p><span id="balance">0</span> MDC</p>
+    </div>
+    
+    <div class="market-value-section">
+      <h2>MDC's Market Value</h2>
+      <p>Around **$0.000452**</p>
     </div>
 
     <div class="transfer-section">
@@ -104,15 +207,19 @@
       <h2>Transaction History</h2>
       <ul id="historyList"></ul>
     </div>
+    
+    <div class="recent-subscribers-section">
+      <h3>Recent Subscribers</h3>
+      <ul class="subscriber-list" id="recentSubscribersWallet"></ul>
+    </div>
   </div>
 </div>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-app.js";
   import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-auth.js";
-  import { getFirestore, doc, getDoc, setDoc, updateDoc, runTransaction, onSnapshot } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-firestore.js";
+  import { getFirestore, doc, getDoc, setDoc, updateDoc, runTransaction, onSnapshot, collection, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-firestore.js";
 
-  // Firebase config
   const firebaseConfig = {
     apiKey: "AIzaSyBRitTsyqXfk6XNh3t1j0boebQa1LNQkKs",
     authDomain: "moo-deng-coin.firebaseapp.com",
@@ -141,6 +248,9 @@
   const historyList = document.getElementById("historyList");
   const walletAddressText = document.getElementById("walletAddressText");
   const copyAddressBtn = document.getElementById("copyAddressBtn");
+  const welcomeMessage = document.getElementById("welcomeMessage");
+  const recentSubscribersAuthList = document.getElementById("recentSubscribersAuth");
+  const recentSubscribersWalletList = document.getElementById("recentSubscribersWallet");
   
   let userDocRef = null;
   let unsubscribeSnapshot = null;
@@ -153,6 +263,59 @@
   function showWalletSection() {
       authSection.style.display = 'none';
       walletSection.style.display = 'flex';
+  }
+  
+  // New function to fetch and render recent subscribers
+  function fetchAndRenderRecentSubscribers() {
+    const q = query(collection(db, "walletUsers"), orderBy("signupTime", "desc"), limit(10));
+    
+    onSnapshot(q, (querySnapshot) => {
+      const subscribers = [];
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        const timeAgo = Math.floor((Date.now() - (data.signupTime || Date.now())) / 60000); // in minutes
+        const minutesAgo = timeAgo > 0 ? `${timeAgo} minutes ago` : `Just now`;
+        
+        let userName = data.name || data.email || "User";
+        if (userName.includes('@')) {
+          userName = userName.split('@')[0];
+        }
+        
+        // Placeholder country logic (needs a lookup table for real countries)
+        let countryFlag = '🇮🇳'; // Default to India
+        if (data.country) {
+            // A more complex system would map country names to flags
+            // For now, this is a placeholder. You can expand this logic.
+            countryFlag = data.country.flag || '🇮🇳'; 
+        }
+
+        subscribers.push({
+          initial: userName.charAt(0).toUpperCase(),
+          name: userName,
+          time: minutesAgo,
+          flag: countryFlag
+        });
+      });
+      renderSubscribers(subscribers, recentSubscribersAuthList);
+      renderSubscribers(subscribers, recentSubscribersWalletList);
+    });
+  }
+
+  function renderSubscribers(subscribers, listElement) {
+    listElement.innerHTML = "";
+    subscribers.forEach(sub => {
+      const li = document.createElement("li");
+      li.classList.add("subscriber-item");
+      li.innerHTML = `
+        <div class="subscriber-avatar">${sub.initial}</div>
+        <div class="subscriber-info">
+          <div class="subscriber-name">${sub.name}</div>
+          <div class="subscriber-time">${sub.time}</div>
+        </div>
+        <div class="subscriber-flag">${sub.flag}</div>
+      `;
+      listElement.appendChild(li);
+    });
   }
 
   // Handle Google Sign-in
@@ -178,6 +341,7 @@
       transferStatus.textContent = '';
       transferAmountInput.value = '';
       receiverIdInput.value = '';
+      welcomeMessage.textContent = '';
   });
 
   // Authentication State Listener
@@ -189,17 +353,30 @@
       const docSnap = await getDoc(userDocRef);
       if (!docSnap.exists()) {
         await setDoc(userDocRef, {
+            name: user.displayName || "",
+            email: user.email,
             balance: 0,
             createdAt: Date.now(),
             history: []
         });
       }
       
+      // Update welcome message
+      const displayName = user.displayName ? user.displayName.split(' ')[0] : 'User';
+      welcomeMessage.textContent = `Welcome to MDC Wallet, ${displayName}!`;
+
       unsubscribeSnapshot = onSnapshot(userDocRef, (doc) => {
           if (doc.exists()) {
               const data = doc.data();
               balanceEl.textContent = data.balance || 0;
               renderTransactionHistory(data.history || []);
+
+              // Animate balance
+              const balanceSection = document.querySelector('.balance-section');
+              balanceSection.classList.add('shake');
+              setTimeout(() => {
+                  balanceSection.classList.remove('shake');
+              }, 500);
           }
       });
       
@@ -358,6 +535,9 @@
         });
     }
   });
+  
+  // Initial call to fetch subscribers
+  fetchAndRenderRecentSubscribers();
 </script>
 </body>
 </html>
