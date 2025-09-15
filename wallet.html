@@ -1,628 +1,300 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Moo Deng Coin Wallet</title>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&display=swap" rel="stylesheet" />
-<style>
-  /* Reset and basic styling */
-  * {
-    margin: 0; padding: 0; box-sizing: border-box;
-    font-family: Arial, sans-serif;
-  }
-  body {
-    background: #0d0d0d;
-    color: #fff;
-    display: flex;
-    justify-content: center;
-    min-height: 100vh;
-    padding: 20px;
-  }
-  .container {
-    max-width: 480px;
-    width: 100%;
-    background: #111;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 0 25px rgba(0, 255, 221, 0.3);
-  }
-  h1 {
-    font-family: 'Cinzel Decorative', serif;
-    font-weight: 700;
-    font-size: 28px;
-    background: linear-gradient(90deg, #ffd700, #ffa500);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    animation: glow 2s infinite alternate;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  @keyframes glow {
-    from {text-shadow: 0 0 5px #ffd700;}
-    to {text-shadow: 0 0 20px #ffa500;}
-  }
-  .coin-symbol {
-    width: 48px;
-    aspect-ratio: 1 / 1;
-    border-radius: 50%;
-    background: radial-gradient(circle, #ffd700 10%, #ffa500 70%, #b8860b 100%);
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 24px;
-    color: #000;
-    font-weight: bold;
-    box-shadow: 0 0 15px rgba(255, 215, 0, 0.9), inset 0 0 6px #fff;
-  }
-  button, input[type="text"], input[type="password"], input[type="number"] {
-    font-family: inherit;
-    font-size: 16px;
-  }
-  button {
-    cursor: pointer;
-    border-radius: 5px;
-    border: none;
-    padding: 10px 20px;
-    font-weight: 700;
-    transition: background 0.3s ease;
-  }
-  button:disabled {
-    cursor: not-allowed;
-    opacity: 0.6;
-  }
-  /* Sections styling */
-  #registerContainer, #loginContainer, #walletContainer {
-    display: none;
-    flex-direction: column;
-    gap: 16px;
-    user-select: none;
-  }
-  #registerContainer.active, #loginContainer.active, #walletContainer.active {
-    display: flex;
-  }
-  #seedDisplay {
-    font-weight: bold;
-    font-size: 14px;
-    background: #222;
-    padding: 10px;
-    border-radius: 6px;
-    color: #0ff;
-    word-wrap: break-word;
-    height: 110px;
-    overflow-y: auto;
-    user-select: all;
-    cursor: text;
-  }
-  #copySeedBtn {
-    background: #00ffdd;
-    color: #000;
-    margin-top: 6px;
-  }
-  .warning-text {
-    background: #330000;
-    color: #ff5555;
-    font-weight: bold;
-    padding: 10px;
-    border-radius: 6px;
-    font-size: 14px;
-    line-height: 1.4;
-    text-align: left;
-  }
-  #loginErrorMsg {
-    color: #ff5555;
-    margin-top: 10px;
-    display: none;
-  }
-  /* Main Wallet UI */
-  .app-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
-  }
-  #logoutBtn {
-    background: #ff4444;
-    color: #fff;
-  }
-  .balance-section, .transfer-section, .withdraw-section, .history-section {
-    background: #222;
-    padding: 15px;
-    border-radius: 10px;
-    box-shadow: inset 0 0 10px #00ffdd55;
-  }
-  .balance-section span {
-    color: #00ffdd;
-    font-weight: bold;
-    font-size: 24px;
-  }
-  .transfer-section label, .withdraw-section h4 {
-    font-weight: bold;
-    color: #00ffdd;
-  }
-  .transfer-section input, .withdraw-section .coin-list {
-    width: 100%;
-    padding: 10px;
-    border-radius: 6px;
-    border: none;
-    font-weight: bold;
-    margin-top: 6px;
-    color: #fff;
-    background: #111;
-    outline: none;
-  }
-  #transferBtn {
-    background: linear-gradient(90deg, #ffd700, #ffa500);
-    color: #111;
-    margin-top: 10px;
-    font-weight: 700;
-    width: 100%;
-  }
-  #transferBtn:hover:not(:disabled) {
-    background: linear-gradient(90deg, #ffa500, #ffd700);
-    transform: scale(1.05);
-  }
-  #transferBtn:disabled {
-    background: #444;
-    color: #999;
-  }
-  .withdraw-section .coin {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin: 8px 0;
-    color: #ccc;
-  }
-  .withdraw-section .coin svg {
-    width: 28px;
-    height: 28px;
-    fill: #ccc;
-  }
-  .withdraw-coming-soon {
-    color: #ffa500;
-    font-weight: bold;
-    margin-top: 10px;
-    text-align: center;
-    font-size: 16px;
-    font-style: italic;
-  }
-  #historyList {
-    max-height: 200px;
-    overflow-y: auto;
-    list-style-type: none;
-    color: #0ff;
-    font-weight: bold;
-    font-size: 14px;
-    padding-left: 10px;
-  }
-  .flex-row {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    justify-content: center;
-    align-items: center;
-  }
-  .flex-row input {
-    flex-grow: 1;
-    max-width: 200px;
-  }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Moo Deng Coin Wallet</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&display=swap" rel="stylesheet" />
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+  <style>
+    /* আপনার আগের স্টাইল একদম অপরিবর্তিত থাকবে */
+    * {margin:0; padding:0; box-sizing:border-box; font-family: Arial, sans-serif;}
+    body { background: #0d0d0d; color: #fff; display: flex; justify-content: center; min-height: 100vh; padding: 20px; }
+    .container { max-width: 480px; width: 100%; background: #111; padding: 20px; border-radius: 10px; box-shadow: 0 0 25px rgba(0, 255, 221, 0.3); }
+    h1 { font-family: 'Cinzel Decorative', serif; font-weight: 700; font-size: 28px; background: linear-gradient(90deg, #ffd700, #ffa500); -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: glow 2s infinite alternate; display: flex; align-items: center; gap: 10px; }
+    @keyframes glow { from {text-shadow: 0 0 5px #ffd700;} to {text-shadow: 0 0 20px #ffa500;} }
+    .coin-symbol { width: 48px; aspect-ratio: 1 / 1; border-radius: 50%; background: radial-gradient(circle, #ffd700 10%, #ffa500 70%, #b8860b 100%); display: inline-flex; align-items: center; justify-content: center; font-size: 24px; color: #000; font-weight: bold; box-shadow: 0 0 15px rgba(255, 215, 0, 0.9), inset 0 0 6px #fff; }
+    button, input[type="text"], input[type="password"], input[type="number"] { font-family: inherit; font-size: 16px; }
+    button { cursor: pointer; border-radius: 5px; border: none; padding: 10px 20px; font-weight: 700; transition: background 0.3s ease; }
+    button:disabled { cursor: not-allowed; opacity: 0.6; }
+    #authContainer, #walletContainer { display: none; flex-direction: column; gap: 16px; user-select: none; }
+    #authContainer.active, #walletContainer.active { display: flex; }
+    #googleSignInBtn { background: #fff; border: none; padding: 12px 20px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 8px; color: #000; margin-top: 20px; }
+    .app-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+    #logoutBtn { background: #ff4444; color: #fff; }
+    .balance-section, .transfer-section, .withdraw-section, .history-section { background: #222; padding: 15px; border-radius: 10px; box-shadow: inset 0 0 10px #00ffdd55; margin-bottom: 20px; }
+    .balance-section span { color: #00ffdd; font-weight: bold; font-size: 24px; }
+    .transfer-section label, .withdraw-section h4 { font-weight: bold; color: #00ffdd; }
+    .transfer-section input { width: 100%; padding: 10px; border-radius: 6px; border: none; font-weight: bold; margin-top: 6px; color: #fff; background: #111; outline: none; }
+    #transferBtn { background: linear-gradient(90deg, #ffd700, #ffa500); color: #111; margin-top: 10px; font-weight: 700; width: 100%; }
+    #transferBtn:hover:not(:disabled) { background: linear-gradient(90deg, #ffa500, #ffd700); transform: scale(1.05); }
+    #transferBtn:disabled { background: #444; color: #999; }
+    #historyList { max-height: 200px; overflow-y: auto; list-style-type: none; color: #0ff; font-weight: bold; font-size: 14px; padding-left: 10px; }
+    .flex-row { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; align-items: center; }
+    .flex-row input { flex-grow: 1; max-width: 200px; }
+    .status-message { margin-top: 8px; font-size: 14px; }
+  </style>
 </head>
 
 <body>
-<div class="container">
-
-  <!-- Registration Section -->
-  <div id="registerContainer" class="active">
-    <h1>Moo Deng Coin Wallet</h1>
-    <div class="warning-text">
-      <p>Please save this unique 20-word password carefully! If you lose it, you <strong>cannot</strong> regenerate it again and <strong>will lose all your tokens</strong>.</p>
-      <p>Copy and save this password securely. It acts as your wallet's access key.</p>
-    </div>
-    <div id="seedDisplay" title="Click to select and copy"></div>
-    <button id="copySeedBtn">Copy Password</button>
-    <button id="registerBtn" style="background:#00ffdd; color:#000; font-weight:bold; margin-top:20px;">Register Wallet</button>
-  </div>
-
-  <!-- Login Section -->
-  <div id="loginContainer">
-    <h1>Moo Deng Coin Wallet</h1>
-    <p>Enter your 20-word password to unlock your wallet.</p>
-    <input type="password" id="loginPassword" placeholder="Enter your wallet password" autocomplete="off" spellcheck="false" />
-    <button id="unlockBtn" style="background:#00ffdd; color:#000; font-weight:bold;">Unlock Wallet</button>
-    <p id="loginErrorMsg"></p>
-  </div>
-
-  <!-- Wallet Section -->
-  <div id="walletContainer">
-    <div class="app-header">
-      <h1>Moo Deng Coin Wallet <span class="coin-symbol">🦛</span></h1>
-      <button id="logoutBtn">Logout</button>
+  <div class="container">
+    <div id="authContainer" class="active">
+      <h1>Moo Deng Coin Wallet</h1>
+      <h2>Sign In</h2>
+      <button id="googleSignInBtn"><i class="fab fa-google"></i> Sign in with Google</button>
+      <p style="margin-top: 15px; text-align: center; color: #ccc;">
+        Google Sign-in is required to secure your wallet with Firebase.
+      </p>
     </div>
 
-    <div class="balance-section">
-      <h2>Balance</h2>
-      <p><span id="balance">0</span> MDC</p>
-    </div>
-
-    <!-- Transfer Section -->
-    <div class="transfer-section">
-      <h2>Transfer Tokens</h2>
-      <label for="receiverIdInput">Receiver Wallet ID</label>
-      <input type="text" id="receiverIdInput" placeholder="Enter receiver wallet ID" autocomplete="off" spellcheck="false" />
-      <label for="transferAmountInput">Amount to Transfer</label>
-      <input type="number" id="transferAmountInput" min="1" placeholder="Enter amount" />
-      <button id="transferBtn" disabled>Transfer</button>
-      <p id="transferStatus" style="margin-top:8px;"></p>
-    </div>
-
-    <!-- Withdraw Section -->
-    <div class="withdraw-section">
-      <h2>Withdraw</h2>
-      <h4>Supported Cryptocurrencies</h4>
-      <div class="coin-list">
-        <div class="coin">
-          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /></svg>
-          BTC
-        </div>
-        <div class="coin">
-          <svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"/></svg>
-          USDT
-        </div>
-        <div class="coin">
-          <svg viewBox="0 0 24 24"><polygon points="12,2 18,20 6,20"/></svg>
-          ETH
-        </div>
+    <div id="walletContainer">
+      <div class="app-header">
+        <h1>Moo Deng Coin Wallet <span class="coin-symbol">🦛</span></h1>
+        <button id="logoutBtn">Logout</button>
       </div>
-      <p class="withdraw-coming-soon">Withdraw feature coming soon!</p>
-    </div>
 
-    <!-- Transaction History -->
-    <div class="history-section">
-      <h2>Transaction History</h2>
-      <ul id="historyList"></ul>
+      <div class="balance-section">
+        <h2>Balance</h2>
+        <p><span id="balance">0</span> MDC</p>
+      </div>
+
+      <div class="transfer-section">
+        <h2>Transfer Tokens</h2>
+        <label for="receiverIdInput">Receiver Wallet ID</label>
+        <input type="text" id="receiverIdInput" placeholder="Enter receiver wallet ID" autocomplete="off" spellcheck="false" />
+        <label for="transferAmountInput" style="margin-top: 10px;">Amount to Transfer</label>
+        <input type="number" id="transferAmountInput" min="1" placeholder="Enter amount" />
+        <button id="transferBtn" disabled>Transfer</button>
+        <p id="transferStatus" class="status-message"></p>
+      </div>
+
+      <div class="history-section">
+        <h2>Transaction History</h2>
+        <ul id="historyList"></ul>
+      </div>
     </div>
   </div>
 
-</div>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-app.js";
+    import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc, setDoc, updateDoc, runTransaction, arrayUnion } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-firestore.js";
 
-<!-- Firebase SDK and Wallet Logic -->
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-app.js";
-  import {
-    getFirestore,
-    doc,
-    getDoc,
-    setDoc,
-    updateDoc,
-    runTransaction,
-    collection,
-    query,
-    limit,
-    getDocs
-  } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-firestore.js";
+    // Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyBRitTsyqXfk6XNh3t1j0boebQa1LNQkKs",
+      authDomain: "moo-deng-coin.firebaseapp.com",
+      projectId: "moo-deng-coin",
+      storageBucket: "moo-deng-coin.firebasestorage.app",
+      messagingSenderId: "629636349388",
+      appId: "1:629636349388:web:a9a7924aaea9354a09f169",
+      measurementId: "G-T7FVX8DW2Z"
+    };
 
-  // Firebase config
-  const firebaseConfig = {
-    apiKey: "AIzaSyBRitTsyqXfk6XNh3t1j0boebQa1LNQkKs",
-    authDomain: "moo-deng-coin.firebaseapp.com",
-    projectId: "moo-deng-coin",
-    storageBucket: "moo-deng-coin.firebasestorage.app",
-    messagingSenderId: "629636349388",
-    appId: "1:629636349388:web:a9a7924aaea9354a09f169",
-    measurementId: "G-T7FVX8DW2Z"
-  };
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
 
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
+    // DOM elements
+    const authContainer = document.getElementById("authContainer");
+    const walletContainer = document.getElementById("walletContainer");
+    const googleSignInBtn = document.getElementById("googleSignInBtn");
+    const logoutBtn = document.getElementById("logoutBtn");
+    const balanceEl = document.getElementById("balance");
+    const receiverIdInput = document.getElementById("receiverIdInput");
+    const transferAmountInput = document.getElementById("transferAmountInput");
+    const transferBtn = document.getElementById("transferBtn");
+    const transferStatus = document.getElementById("transferStatus");
+    const historyList = document.getElementById("historyList");
 
-  // DOM elements
-  const registerContainer = document.getElementById("registerContainer");
-  const seedDisplay = document.getElementById("seedDisplay");
-  const copySeedBtn = document.getElementById("copySeedBtn");
-  const registerBtn = document.getElementById("registerBtn");
+    // User-related vars
+    let currentUserId = null;
+    let currentUserDocRef = null;
+    let currentUserData = null;
 
-  const loginContainer = document.getElementById("loginContainer");
-  const loginPasswordInput = document.getElementById("loginPassword");
-  const unlockBtn = document.getElementById("unlockBtn");
-  const loginErrorMsg = document.getElementById("loginErrorMsg");
-
-  const walletContainer = document.getElementById("walletContainer");
-  const logoutBtn = document.getElementById("logoutBtn");
-  const balanceEl = document.getElementById("balance");
-  const receiverIdInput = document.getElementById("receiverIdInput");
-  const transferAmountInput = document.getElementById("transferAmountInput");
-  const transferBtn = document.getElementById("transferBtn");
-  const transferStatus = document.getElementById("transferStatus");
-  const historyList = document.getElementById("historyList");
-
-  // User-related vars
-  let currentUserId = null;
-  let currentUserDocRef = null;
-  let currentUserData = null;
-
-  // Word list to generate 20-word seed phrase (demo)
-  const wordList = ["apple", "banana", "cat", "dog", "elephant", "fish", "green", "house", "iron", "jungle",
-    "king", "lion", "moon", "night", "orange", "piano", "queen", "river", "sun", "tree", "umbrella", "vase",
-    "water", "xray", "yellow", "zebra"
-  ];
-
-  // Seed phrase generator
-  function generateSeedPhrase(wordsCount = 20) {
-    let phraseWords = [];
-    for (let i = 0; i < wordsCount; i++) {
-      phraseWords.push(wordList[Math.floor(Math.random() * wordList.length)]);
+    // Show UI parts
+    function showAuth() {
+      authContainer.classList.add("active");
+      walletContainer.classList.remove("active");
     }
-    return phraseWords.join(" ");
-  }
 
-  // Show UI parts
-  function showRegister() {
-    registerContainer.classList.add("active");
-    loginContainer.classList.remove("active");
-    walletContainer.classList.remove("active");
-    seedDisplay.textContent = generateSeedPhrase();
-  }
-  function showLogin() {
-    registerContainer.classList.remove("active");
-    loginContainer.classList.add("active");
-    walletContainer.classList.remove("active");
-    loginPasswordInput.value = "";
-    loginErrorMsg.style.display = "none";
-  }
-  function showWallet() {
-    registerContainer.classList.remove("active");
-    loginContainer.classList.remove("active");
-    walletContainer.classList.add("active");
-  }
+    function showWallet() {
+      authContainer.classList.remove("active");
+      walletContainer.classList.add("active");
+    }
 
-  // Copy seed phrase to clipboard
-  copySeedBtn.addEventListener("click", () => {
-    navigator.clipboard.writeText(seedDisplay.textContent).then(() => {
-      alert("Password copied to clipboard! Save it safely.");
+    // Google Sign-in
+    googleSignInBtn.addEventListener("click", async () => {
+      googleSignInBtn.disabled = true;
+      try {
+        const provider = new GoogleAuthProvider();
+        const result = await signInWithPopup(auth, provider);
+        const user = result.user;
+        currentUserId = user.uid;
+        currentUserDocRef = doc(db, "walletUsers", currentUserId);
+
+        const docSnap = await getDoc(currentUserDocRef);
+        if (!docSnap.exists()) {
+          // If user doesn't exist, create a new wallet document
+          await setDoc(currentUserDocRef, {
+            balance: 1000, // Initial balance
+            createdAt: Date.now(),
+            lastLogin: Date.now(),
+            transactionHistory: []
+          });
+        }
+        await loadWalletData();
+        showWallet();
+      } catch (error) {
+        alert("Google Sign In Error: " + error.message);
+      } finally {
+        googleSignInBtn.disabled = false;
+      }
     });
-  });
 
-  // Wallet registration
-  registerBtn.addEventListener("click", async () => {
-    const seedPhrase = seedDisplay.textContent.trim();
-    if (seedPhrase.length < 5) {
-      alert("Invalid password. Please try again.");
-      return;
+    // Logout function
+    logoutBtn.addEventListener("click", async () => {
+      await signOut(auth);
+      currentUserId = null;
+      currentUserDocRef = null;
+      currentUserData = null;
+      showAuth();
+      // Clear wallet UI
+      balanceEl.textContent = "0";
+      receiverIdInput.value = "";
+      transferAmountInput.value = "";
+      transferStatus.textContent = "";
+      historyList.innerHTML = "";
+    });
+
+    // Handle authentication state changes
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        currentUserId = user.uid;
+        currentUserDocRef = doc(db, "walletUsers", currentUserId);
+        await loadWalletData();
+        showWallet();
+      } else {
+        showAuth();
+      }
+    });
+
+    // Load wallet data
+    async function loadWalletData() {
+      if (!currentUserDocRef) return;
+      try {
+        const docSnap = await getDoc(currentUserDocRef);
+        if (docSnap.exists()) {
+          currentUserData = docSnap.data();
+          balanceEl.textContent = currentUserData.balance || 0;
+          renderTransactionHistory(currentUserData.transactionHistory || []);
+        } else {
+          // If for some reason doc doesn't exist, log out
+          await signOut(auth);
+        }
+      } catch (e) {
+        console.error("Error loading wallet data:", e);
+        balanceEl.textContent = "Error";
+      }
     }
 
-    // Check if seed phrase already exists
-    const docRef = doc(db, "walletUsers", seedPhrase);
-    const docSnap = await getDoc(docRef);
-    if (docSnap.exists()) {
-      alert("This password already exists! Please generate a new seed.");
-      seedDisplay.textContent = generateSeedPhrase();
-      return;
-    }
-
-    // Register user
-    try {
-      const now = Date.now();
-      await setDoc(docRef, {
-        balance: 1000, // initial balance, change if needed
-        createdAt: now,
-        lastLogin: now,
-        transactionHistory: [],
-        seedPhrase
-      });
-      alert("Wallet registered successfully! Your password will act as your access key.");
-      showLogin();
-    } catch (err) {
-      alert("Registration error: " + err.message);
-    }
-  });
-
-  // Wallet unlock/login
-  unlockBtn.addEventListener("click", async () => {
-    loginErrorMsg.style.display = "none";
-    loginErrorMsg.textContent = "";
-    const password = loginPasswordInput.value.trim();
-    if (!password || password.length < 5) {
-      loginErrorMsg.style.display = "block";
-      loginErrorMsg.textContent = "Please enter your wallet password.";
-      return;
-    }
-
-    try {
-      const docRef = doc(db, "walletUsers", password);
-      const docSnap = await getDoc(docRef);
-      if (!docSnap.exists()) {
-        loginErrorMsg.style.display = "block";
-        loginErrorMsg.textContent = "Invalid password or wallet not found.";
+    // Render transaction history
+    function renderTransactionHistory(transactions) {
+      historyList.innerHTML = "";
+      if (transactions.length === 0) {
+        const li = document.createElement("li");
+        li.textContent = "No transaction history found.";
+        li.style.fontStyle = "italic";
+        li.style.color = "#555";
+        historyList.appendChild(li);
         return;
       }
-
-      // Successful login
-      currentUserId = password;
-      currentUserDocRef = docRef;
-      currentUserData = docSnap.data();
-      await updateDoc(currentUserDocRef, { lastLogin: Date.now() });
-      loginPasswordInput.value = "";
-      showWallet();
-      loadWalletData();
-    } catch (error) {
-      loginErrorMsg.style.display = "block";
-      loginErrorMsg.textContent = "Error: " + error.message;
+      transactions.slice().reverse().forEach(tx => {
+        const li = document.createElement("li");
+        li.textContent = `${new Date(tx.timestamp).toLocaleString()} - Sent ${tx.amount} MDC to ${tx.receiverId}`;
+        historyList.appendChild(li);
+      });
     }
-  });
 
-  // Load wallet data
-  async function loadWalletData() {
-    if (!currentUserDocRef) return;
-    try {
-      const docSnap = await getDoc(currentUserDocRef);
-      if (docSnap.exists()) {
-        currentUserData = docSnap.data();
-        balanceEl.textContent = currentUserData.balance || 0;
-        renderTransactionHistory(currentUserData.transactionHistory || []);
-      }
-    } catch {
-      balanceEl.textContent = "Error";
+    // Validate transfer inputs
+    function validateTransferInputs() {
+      const receiverId = receiverIdInput.value.trim();
+      const amount = Number(transferAmountInput.value);
+      const maxBalance = currentUserData ? (currentUserData.balance || 0) : 0;
+      transferBtn.disabled = !(receiverId.length > 5 && amount > 0 && amount <= maxBalance && receiverId !== currentUserId);
     }
-  }
+    receiverIdInput.addEventListener("input", validateTransferInputs);
+    transferAmountInput.addEventListener("input", validateTransferInputs);
 
-  // Render transaction history
-  function renderTransactionHistory(transactions) {
-    historyList.innerHTML = "";
-    if (transactions.length === 0) {
-      const li = document.createElement("li");
-      li.textContent = "No transaction history found.";
-      li.style.fontStyle = "italic";
-      li.style.color = "#555";
-      historyList.appendChild(li);
-      return;
-    }
-    transactions.slice().reverse().forEach(tx => {
-      const li = document.createElement("li");
-      li.textContent = `${new Date(tx.timestamp).toLocaleString()} - Sent ${tx.amount} MDC to ${tx.receiverId}`;
-      historyList.appendChild(li);
-    });
-  }
-
-  // Validate transfer inputs
-  function validateTransferInputs() {
-    const receiverId = receiverIdInput.value.trim();
-    const amount = Number(transferAmountInput.value);
-    const maxBalance = currentUserData ? (currentUserData.balance || 0) : 0;
-
-    if (
-      receiverId.length > 5 &&
-      amount > 0 &&
-      amount <= maxBalance &&
-      receiverId !== currentUserId
-    ) {
-      transferBtn.disabled = false;
-    } else {
+    // Token transfer handler
+    transferBtn.addEventListener("click", async () => {
+      transferStatus.style.color = "#00ff00";
+      transferStatus.textContent = "Processing transfer...";
       transferBtn.disabled = true;
-    }
-  }
-  receiverIdInput.addEventListener("input", validateTransferInputs);
-  transferAmountInput.addEventListener("input", validateTransferInputs);
 
-  // Token transfer handler
-  transferBtn.addEventListener("click", async () => {
-    transferStatus.style.color = "#00ff00";
-    transferStatus.textContent = "Processing transfer...";
-    transferBtn.disabled = true;
+      const receiverId = receiverIdInput.value.trim();
+      const amount = Number(transferAmountInput.value);
 
-    const receiverId = receiverIdInput.value.trim();
-    const amount = Number(transferAmountInput.value);
-
-    if (receiverId === currentUserId) {
-      transferStatus.style.color = "#ff5555";
-      transferStatus.textContent = "Cannot transfer to your own wallet.";
-      transferBtn.disabled = false;
-      return;
-    }
-    if (amount <= 0 || amount > (currentUserData.balance || 0)) {
-      transferStatus.style.color = "#ff5555";
-      transferStatus.textContent = "Invalid transfer amount.";
-      transferBtn.disabled = false;
-      return;
-    }
-
-    try {
-      const receiverDocRef = doc(db, "walletUsers", receiverId);
-      const receiverSnap = await getDoc(receiverDocRef);
-      if (!receiverSnap.exists()) {
+      if (receiverId === currentUserId) {
         transferStatus.style.color = "#ff5555";
-        transferStatus.textContent = "Receiver wallet ID not found.";
+        transferStatus.textContent = "Cannot transfer to your own wallet.";
+        transferBtn.disabled = false;
+        return;
+      }
+      if (amount <= 0 || amount > (currentUserData.balance || 0)) {
+        transferStatus.style.color = "#ff5555";
+        transferStatus.textContent = "Invalid transfer amount.";
         transferBtn.disabled = false;
         return;
       }
 
-      await runTransaction(db, async (transaction) => {
-        const senderDoc = await transaction.get(currentUserDocRef);
-        const receiverDoc = await transaction.get(receiverDocRef);
+      try {
+        const receiverDocRef = doc(db, "walletUsers", receiverId);
+        await runTransaction(db, async (transaction) => {
+          const senderDoc = await transaction.get(currentUserDocRef);
+          if (!senderDoc.exists()) {
+            throw "Sender wallet does not exist.";
+          }
+          const receiverDoc = await transaction.get(receiverDocRef);
+          if (!receiverDoc.exists()) {
+            throw "Receiver wallet ID not found.";
+          }
 
-        if (!senderDoc.exists() || !receiverDoc.exists()) {
-          throw "Wallet document does not exist.";
-        }
+          const senderData = senderDoc.data();
+          const receiverData = receiverDoc.data();
 
-        const senderData = senderDoc.data();
-        const receiverData = receiverDoc.data();
+          if ((senderData.balance || 0) < amount) {
+            throw "Insufficient balance for transfer.";
+          }
 
-        if ((senderData.balance || 0) < amount) {
-          throw "Insufficient balance for transfer.";
-        }
+          // Update sender balance and add transaction record
+          transaction.update(currentUserDocRef, {
+            balance: senderData.balance - amount,
+            transactionHistory: arrayUnion({ timestamp: Date.now(), amount, receiverId, type: 'sent' })
+          });
 
-        // Update sender balance and add transaction record
-        transaction.update(currentUserDocRef, {
-          balance: senderData.balance - amount,
-          transactionHistory: [
-            ...senderData.transactionHistory,
-            {
-              timestamp: Date.now(),
-              amount,
-              receiverId,
-            }
-          ],
+          // Update receiver balance and add transaction record
+          transaction.update(receiverDocRef, {
+            balance: (receiverData.balance || 0) + amount,
+            transactionHistory: arrayUnion({ timestamp: Date.now(), amount, senderId: currentUserId, type: 'received' })
+          });
         });
 
-        // Update receiver balance
-        transaction.update(receiverDocRef, {
-          balance: (receiverData.balance || 0) + amount,
-        });
-      });
-
-      transferStatus.style.color = "#00ff00";
-      transferStatus.textContent = "Transfer successful!";
-      receiverIdInput.value = "";
-      transferAmountInput.value = "";
-      transferBtn.disabled = true;
-
-      await loadWalletData();
-
-    } catch (error) {
-      transferStatus.style.color = "#ff5555";
-      transferStatus.textContent = "Transfer failed: " + error;
-    } finally {
-      transferBtn.disabled = false;
-    }
-  });
-
-  // Logout function
-  logoutBtn.addEventListener("click", () => {
-    currentUserId = null;
-    currentUserDocRef = null;
-    currentUserData = null;
-    walletContainer.classList.remove("active");
-    loginContainer.classList.add("active");
-    registerContainer.classList.remove("active");
-    loginPasswordInput.value = "";
-    loginErrorMsg.style.display = "none";
-    transferStatus.textContent = "";
-    receiverIdInput.value = "";
-    transferAmountInput.value = "";
-    historyList.innerHTML = "";
-  });
-
-  // Check if any registered users exist to decide which UI to show
-  async function checkRegisteredUsers() {
-    try {
-      const walletUsersRef = collection(db, "walletUsers");
-      const q = query(walletUsersRef, limit(1));
-      const querySnapshot = await getDocs(q);
-      if (querySnapshot.empty) {
-        showRegister();
-      } else {
-        showLogin();
+        transferStatus.style.color = "#00ff00";
+        transferStatus.textContent = "Transfer successful!";
+        receiverIdInput.value = "";
+        transferAmountInput.value = "";
+        transferBtn.disabled = true;
+        await loadWalletData(); // Refresh data after successful transaction
+      } catch (error) {
+        transferStatus.style.color = "#ff5555";
+        transferStatus.textContent = "Transfer failed: " + error.message;
+        console.error("Transaction failed: ", error);
+      } finally {
+        transferBtn.disabled = false;
       }
-    } catch {
-      showRegister();
-    }
-  }
-
-  // Run check on page load
-  window.addEventListener("DOMContentLoaded", () => {
-    checkRegisteredUsers();
-  });
-</script>
+    });
+  </script>
 </body>
 </html>
