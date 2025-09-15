@@ -191,7 +191,7 @@
         await setDoc(userDocRef, {
             balance: 0,
             createdAt: Date.now(),
-            history: [] // Changed from transactionHistory to match index.html
+            history: []
         });
       }
       
@@ -199,7 +199,7 @@
           if (doc.exists()) {
               const data = doc.data();
               balanceEl.textContent = data.balance || 0;
-              renderTransactionHistory(data.history || []); // Changed from transactionHistory to history
+              renderTransactionHistory(data.history || []);
           }
       });
       
