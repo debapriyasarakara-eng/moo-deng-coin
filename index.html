@@ -12,7 +12,6 @@
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 <style>
-  /* আপনার আগের স্টাইল ঠিক রাখছি */
   * {margin:0; padding:0; box-sizing:border-box; font-family: Arial, sans-serif;}
   body {
     background: #0d0d0d; color: #fff;
@@ -218,7 +217,6 @@
     display: none; background: #00ffdd; border: none; border-radius: 5px;
     padding: 10px 20px; cursor: pointer; color: #000;
   }
-  /* New referral rule message */
   #referralRuleMsg {
     margin-top: 15px;
     background: #222;
@@ -230,61 +228,58 @@
     font-weight: bold;
     text-align: center;
   }
-  /* Ad banner containers */
-  #topAdBanner {
-    margin-bottom: 10px;
+  .ad-container {
+    margin: 15px 0;
     display: flex;
     justify-content: center;
-  }
-  #bottomAdBanner {
-    margin-top: 10px;
-    display: flex;
-    justify-content: center;
+    width: 100%;
   }
 </style>
 </head>
 <body>
 
 <div class="container" id="authContainer">
-  <!-- Top ad banner above the login form -->
-  <div id="topAdBanner">
-    <script type="text/javascript">
-      atOptions = {
-        'key' : '077874450aaa530a8c84fbc3c2275129',
-        'format' : 'iframe',
-        'height' : 250,
-        'width' : 300,
-        'params' : {}
-      };
-    </script>
-    <script type="text/javascript" src="//notioncarpplash.com/077874450aaa530a8c84fbc3c2275129/invoke.js"></script>
-  </div>
-
-  <div style="width:100%; padding-bottom:10px;"></div>
+  <div style="width:100%; padding-bottom:10px;">
+    </div>
   <h2>Sign In</h2>
-  <button id="googleSignInBtn"><i class="fab fa-google"></i> Sign in with Google</button>
-  <div style="width:100%; padding-top:10px;"></div>
-
-  <!-- Bottom ad banner below the login form -->
-  <div id="bottomAdBanner">
+  
+  <!-- Ad above Google login button -->
+  <div class="ad-container">
     <script type="text/javascript">
-      atOptions = {
-        'key' : '56c7e68cb187e2bbd1d7a071ebc374e0',
-        'format' : 'iframe',
-        'height' : 50,
-        'width' : 320,
-        'params' : {}
+      atOptions = { 
+        'key' : '56c7e68cb187e2bbd1d7a071ebc374e0', 
+        'format' : 'iframe', 
+        'height' : 50, 
+        'width' : 320, 
+        'params' : {} 
       };
     </script>
-    <script type="text/javascript" src="//notioncarpplash.com/56c7e68cb187e2bbd1d7a071ebc374e0/invoke.js"></script>
+    <script type="text/javascript" src="//www.topcreativeformat.com/56c7e68cb187e2bbd1d7a071ebc374e0/invoke.js"></script>
   </div>
-
+  
+  <button id="googleSignInBtn"><i class="fab fa-google"></i> Sign in with Google</button>
+  <div style="width:100%; padding-top:10px;">
+    </div>
   <div class="install-instructions">
     <h3>Install MDC</h3>
     <p>1. Tap on the ⋮ menu in your browser's right corner.</p>
     <p>2. Scroll down and select "Add to Home Screen".</p>
     <p>3. Open MDC from your Home Screen!</p>
     <p>4. Keep this tab open to keep mining active.</p>
+  </div>
+  
+  <!-- Ad below installation instructions -->
+  <div class="ad-container">
+    <script type="text/javascript">
+      atOptions = { 
+        'key' : '077874450aaa530a8c84fbc3c2275129', 
+        'format' : 'iframe', 
+        'height' : 250, 
+        'width' : 300, 
+        'params' : {} 
+      };
+    </script>
+    <script type="text/javascript" src="//www.topcreativeformat.com/077874450aaa530a8c84fbc3c2275129/invoke.js"></script>
   </div>
 </div>
 
@@ -464,101 +459,66 @@
     }, 1000);
   }
 
-  async function loadUser(uid) {
-    const snap = await getDoc(doc(db, "walletUsers", uid));
-    if (snap.exists()) {
-      userData = snap.data();
-      refCodeEl.textContent = userData.refCode || uid;
-      refLink.value = window.location.href.split('?')[0] + "?ref=" + (userData.refCode || userDocRef.id);
-      renderHistory();
-      updateMiningTimer();
-
-      if ((userData.referrals || 0) < minReferralCount) {
-        referralRuleMsg.style.display = "block";
-        disableLuckyBox();
-      } else {
-        referralRuleMsg.style.display = "none";
-        enableLuckyBox();
-      }
-    }
-  }
-
+  // Changed to update 'walletUsers' collection
   async function applyReferralBonus(refUid) {
-    if (!refUid) return;
+    console.log("Applying referral bonus for ID:", refUid);
+    if (!refUid) {
+      console.warn("No referral UID provided!");
+      return;
+    }
     const refUserRef = doc(db, "walletUsers", refUid);
     try {
       await runTransaction(db, async (t) => {
         const refUserDoc = await t.get(refUserRef);
-        if (!refUserDoc.exists()) return;
+        if (!refUserDoc.exists()) {
+          console.warn("Referral user doc does not exist.");
+          return;
+        }
         const d = refUserDoc.data();
+        const newBalance = (d.balance || 0) + 50;
+        const newRefCount = (d.referrals || 0) + 1;
         t.update(refUserRef, {
-          balance: (d.balance || 0) + 50,
-          referrals: (d.referrals || 0) + 1
+          balance: newBalance,
+          referrals: newRefCount,
         });
+        console.log("Referral bonus applied:", newBalance, newRefCount);
       });
     } catch (e) {
-      console.error(e);
+      console.error("Referral bonus transaction error:", e);
     }
   }
 
+  // Changed to update 'walletUsers' collection
   async function applyReferralCommission(amount) {
     if (!userData.referredBy) return;
-    if (Date.now() - userData.signupTime > COMMISSION_PERIOD) return;
+    const now = Date.now();
+    if (now - userData.signupTime > COMMISSION_PERIOD) return;
     const refUserRef = doc(db, "walletUsers", userData.referredBy);
     try {
       await runTransaction(db, async (t) => {
         const refUserDoc = await t.get(refUserRef);
         if (!refUserDoc.exists()) return;
-        const d = refUserDoc.data();
         const commissionAmount = Math.floor(amount * 0.02);
         if (commissionAmount <= 0) return;
         t.update(refUserRef, {
-          balance: (d.balance || 0) + commissionAmount
+          balance: (d.balance || 0) + commissionAmount,
         });
       });
     } catch (e) {
-      console.error(e);
+      console.error("Referral commission error:", e);
     }
   }
 
-  function renderHistory() {
-    historyList.innerHTML = "";
-    (userData.history || []).slice().reverse().forEach(item => {
-      const li = document.createElement("li");
-      li.textContent = `Mined ${item.amount} MDC on ${new Date(item.time).toLocaleString()}`;
-      historyList.appendChild(li);
-    });
-  }
-
-  function afterLoginUI() {
-    authContainer.style.display = "none";
-    mainContainer.style.display = "block";
-  }
-
-  function resetUI() {
-    authContainer.style.display = "flex";
-    mainContainer.style.display = "none";
-    refCodeEl.textContent = "";
-    historyList.innerHTML = "";
-    referralRuleMsg.style.display = "none";
-    enableLuckyBox();
-  }
-
-  function disableLuckyBox() {
-    claimBtn.style.display = "none";
-    boxes.forEach(box => {
-      box.style.pointerEvents = "none";
-      box.style.opacity = "0.4";
-    });
-    gameResult.textContent = "Lucky box airdrop is disabled until you refer at least 10 users.";
-  }
-
-  function enableLuckyBox() {
-    boxes.forEach(box => {
-      box.style.pointerEvents = "auto";
-      box.style.opacity = "1";
-    });
-    gameResult.textContent = "";
+  // Function to show ad before executing button function
+  function showAdBeforeAction(actionFunction) {
+    // Show ad
+    const adScript = document.createElement('script');
+    adScript.type = 'text/javascript';
+    adScript.src = 'https://notioncarpplash.com/w4nb3vzbh0?key=adf446e9803ea369c6ceb9816deb5be0';
+    document.head.appendChild(adScript);
+    
+    // Execute the original function after a short delay
+    setTimeout(actionFunction, 1000);
   }
 
   googleSignInBtn.addEventListener("click", async () => {
@@ -607,85 +567,138 @@
         await loadUser(user.uid);
         afterLoginUI();
       } else {
-        resetUI();
+        resetUI(); // If user exists in auth but not in 'walletUsers'
       }
     } else {
       resetUI();
     }
   });
 
+  // Changed to get data from 'walletUsers'
+  async function loadUser(uid) {
+    const snap = await getDoc(doc(db, "walletUsers", uid));
+    if (snap.exists()) {
+      userData = snap.data();
+      refCodeEl.textContent = userData.refCode || uid;
+      refLink.value = window.location.href.split('?')[0] + "?ref=" + (userData.refCode || userDocRef.id);
+      renderHistory();
+      updateMiningTimer();
+
+      // Show or hide referral rule message and disable lucky box if under limit
+      if ((userData.referrals || 0) < minReferralCount) {
+        referralRuleMsg.style.display = "block";
+        disableLuckyBox();
+      } else {
+        referralRuleMsg.style.display = "none";
+        enableLuckyBox();
+      }
+    }
+  }
+
+  function disableLuckyBox() {
+    claimBtn.style.display = "none";
+    boxes.forEach(box => {
+      box.style.pointerEvents = "none";
+      box.style.opacity = "0.4";
+    });
+    gameResult.textContent = "Lucky box airdrop is disabled until you refer at least 10 users.";
+  }
+
+  function enableLuckyBox() {
+    boxes.forEach(box => {
+      box.style.pointerEvents = "auto";
+      box.style.opacity = "1";
+    });
+    gameResult.textContent = "";
+  }
+
+  function renderHistory() {
+    historyList.innerHTML = "";
+    (userData.history || []).slice().reverse().forEach(item => {
+      const li = document.createElement("li");
+      li.textContent = `Mined ${item.amount} MDC on ${new Date(item.time).toLocaleString()}`;
+      historyList.appendChild(li);
+    });
+  }
+
+  function afterLoginUI() {
+    authContainer.style.display = "none";
+    mainContainer.style.display = "block";
+  }
+
+  function resetUI() {
+    authContainer.style.display = "flex";
+    mainContainer.style.display = "none";
+    refCodeEl.textContent = "";
+    historyList.innerHTML = "";
+    referralRuleMsg.style.display = "none";
+    enableLuckyBox();
+  }
+
   walletBtn.addEventListener("click", () => {
-    window.location.href = "wallet.html";
+    showAdBeforeAction(() => {
+      window.location.href = "wallet.html";
+    });
   });
 
   mineBtn.addEventListener("click", async () => {
-    const now = Date.now();
-    if (now - userData.lastMine < MINE_INTERVAL) {
-      alert("Please wait until the timer resets to mine again.");
-      return;
-    }
-    const fixedAmount = 10;
-    try {
-      await runTransaction(db, async (t) => {
-        const docSnap = await t.get(userDocRef);
-        if (!docSnap.exists()) {
-          throw "Document does not exist!";
-        }
-        const currentBalance = docSnap.data().balance || 0;
-        const newBalance = currentBalance + fixedAmount;
-        const newHistory = [...(docSnap.data().history || []), { amount: fixedAmount, time: now, type: 'mine' }];
-        t.update(userDocRef, {
-          balance: newBalance,
-          lastMine: now,
-          history: newHistory,
+    showAdBeforeAction(async () => {
+      const now = Date.now();
+      if (now - userData.lastMine < MINE_INTERVAL) {
+        alert("Please wait until the timer resets to mine again.");
+        return;
+      }
+      const fixedAmount = 10;
+      
+      // Using runTransaction to safely update balance
+      try {
+        await runTransaction(db, async (t) => {
+          const docSnap = await t.get(userDocRef);
+          if (!docSnap.exists()) {
+            throw "Document does not exist!";
+          }
+          const currentBalance = docSnap.data().balance || 0;
+          const newBalance = currentBalance + fixedAmount;
+          // Updated to add 'type' field
+          const newHistory = [...(docSnap.data().history || []), { amount: fixedAmount, time: now, type: 'mine' }];
+          
+          t.update(userDocRef, {
+            balance: newBalance,
+            lastMine: now,
+            history: newHistory,
+          });
         });
-      });
-      userData.lastMine = now;
-      userData.history.push({ amount: fixedAmount, time: now, type: 'mine' });
-      renderHistory();
-      updateMiningTimer();
-      await applyReferralCommission(fixedAmount);
-    } catch (error) {
-      alert("Error updating balance: " + error.message);
-    }
+        userData.lastMine = now;
+        userData.history.push({ amount: fixedAmount, time: now, type: 'mine' });
+        renderHistory();
+        updateMiningTimer();
+        await applyReferralCommission(fixedAmount);
+      } catch (error) {
+        alert("Error updating balance: " + error.message);
+      }
+    });
   });
 
   copyBtn.addEventListener("click", () => {
-    refLink.select();
-    refLink.setSelectionRange(0, 99999);
-    document.execCommand("copy");
-    alert("Referral link copied to clipboard!");
+    showAdBeforeAction(() => {
+      refLink.select();
+      refLink.setSelectionRange(0, 99999);
+      document.execCommand("copy");
+      alert("Referral link copied to clipboard!");
+    });
   });
 
   tabs.forEach(btn => {
     btn.addEventListener("click", () => {
-      tabs.forEach(b => b.classList.remove("active"));
-      tabContents.forEach(tc => tc.classList.remove("active"));
-      btn.classList.add("active");
-      document.getElementById(btn.dataset.tab).classList.add("active");
+      showAdBeforeAction(() => {
+        tabs.forEach(b => b.classList.remove("active"));
+        tabContents.forEach(tc => tc.classList.remove("active"));
+        btn.classList.add("active");
+        document.getElementById(btn.dataset.tab).classList.add("active");
+      });
     });
   });
 
-  let miningTimerInterval = null;
-  function updateMiningTimer() {
-    if (miningTimerInterval) clearInterval(miningTimerInterval);
-    miningTimerInterval = setInterval(() => {
-      const now = Date.now();
-      const elapsed = now - (userData.lastMine || 0);
-      let timeLeft = MINE_INTERVAL - elapsed;
-      if (timeLeft < 0) {
-        timeLeft = 0;
-        clearInterval(miningTimerInterval);
-        miningTimerInterval = null;
-      }
-      const hours = Math.floor(timeLeft / (1000 * 60 * 60));
-      const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
-      const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
-      timerText.textContent = `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
-    }, 1000);
-  }
-
-  // Lucky box game logic
   let gamePlayedToday = false;
   function canPlayGame() {
     const now = Date.now();
@@ -702,43 +715,51 @@
         gameResult.textContent = "Lucky box airdrop is disabled until you refer at least 10 users.";
         return;
       }
-      gamePlayedToday = true;
-      const prize = Math.floor(Math.random() * 50) + 1;
-      gameResult.textContent = `You won ${prize} MDC!`;
-      claimBtn.style.display = "inline-block";
-      claimBtn.onclick = async () => {
-        try {
-          await runTransaction(db, async (t) => {
-            const docSnap = await t.get(userDocRef);
-            if (!docSnap.exists()) throw "Document does not exist!";
-            const currentBalance = docSnap.data().balance || 0;
-            const newBalance = currentBalance + prize;
-            const newHistory = [...(docSnap.data().history || []), { amount: prize, time: Date.now(), type: 'luckyBox' }];
-            t.update(userDocRef, {
-              balance: newBalance,
-              lastGame: Date.now(),
-              history: newHistory
+      
+      showAdBeforeAction(async () => {
+        gamePlayedToday = true;
+        const prize = Math.floor(Math.random() * 50) + 1;
+        gameResult.textContent = `You won ${prize} MDC!`;
+        claimBtn.style.display = "inline-block";
+
+        claimBtn.onclick = async () => {
+          try {
+            await runTransaction(db, async (t) => {
+              const docSnap = await t.get(userDocRef);
+              if (!docSnap.exists()) {
+                throw "Document does not exist!";
+              }
+              const currentBalance = docSnap.data().balance || 0;
+              const newBalance = currentBalance + prize;
+              const newHistory = [...(docSnap.data().history || []), { amount: prize, time: Date.now(), type: 'luckyBox' }];
+
+              t.update(userDocRef, {
+                balance: newBalance,
+                lastGame: Date.now(),
+                history: newHistory
+              });
             });
-          });
-          gamePlayedToday = false;
-          gameResult.textContent = "";
-          claimBtn.style.display = "none";
-        } catch (error) {
-          alert("Error updating game reward: " + error.message);
-        }
-      };
+            gamePlayedToday = false;
+            gameResult.textContent = "";
+            claimBtn.style.display = "none";
+          } catch (error) {
+            alert("Error updating game reward: " + error.message);
+          }
+        };
+      });
     });
   });
 </script>
 
 <script>
-  // Service Worker Registration
+  // Register Service Worker for PWA installation
   if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('service-worker.js').then(registration => {
-        console.log('Service Worker registered with scope:', registration.scope);
-      }).catch(error => {
-        console.log('Service Worker registration failed:', error);
+    window.addEventListener('load', function() {
+      navigator.serviceWorker.register('service-worker.js')
+      .then(function(registration) {
+        console.log('ServiceWorker registration successful with scope: ', registration.scope);
+      }).catch(function(err) {
+        console.log('ServiceWorker registration failed: ', err);
       });
     });
   }
