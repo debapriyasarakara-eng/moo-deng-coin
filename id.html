@@ -15,21 +15,20 @@
     .form-box {
         background: #fff;
         padding: 15px;
-        margin: 20px auto;
+        margin: 18px auto 6px auto;
         border-radius: 8px;
         width: 360px;
         box-shadow: 0 0 10px rgba(0,0,0,0.2);
     }
     .id-card {
         width: 340px;
-        margin: 20px auto;
+        margin: 18px auto;
         background: #fff;
         position: relative;
         box-shadow: 0 0 8px rgba(0,0,0,0.3);
         overflow: hidden;
         border: 2px solid #b30000;
         border-radius: 16px;
-        padding-bottom: 20px;
         min-height: 510px; 
         display: flex;
         flex-direction: column;
@@ -164,6 +163,10 @@
         font-size:33vw;
       }
     }
+    /* Hide back card initially */
+    .hide {
+      display: none;
+    }
 </style>
 </head>
 <body>
@@ -207,15 +210,12 @@ document.getElementById("idForm").addEventListener("submit", function(e){
     let reader = new FileReader();
     reader.onload = function(event){
         let photo = event.target.result;
-        
-        let cardHTML = `
-        <div class="id-card" id="genCard">
+        let cardFront = `
+        <div class="id-card" id="idFront">
             <div class="watermark">BONG BULLETIN</div>
             <div class="id-header">MEDIA</div>
             <div class="company">Bong Bulletin</div>
-            
             <img src="${photo}" class="photo">
-            
             <div class="info">
                 Name: ${name}<br>
                 Designation: ${designation}<br>
@@ -226,51 +226,51 @@ document.getElementById("idForm").addEventListener("submit", function(e){
                 Aadhaar: ${aadhaar}<br>
                 Blood Group: ${blood}
             </div>
-            
             <img src="barcode.jpeg" class="barcode">
-
+        </div>`;
+        let cardBack = `
+        <div class="id-card" id="idBack">
+            <div class="watermark">BONG BULLETIN</div>
+            <div class="id-header">MEDIA</div>
+            <div class="company">Bong Bulletin</div>
             <div class="terms-box">
-                This identity card is property of Bong Bulletin<br><br>
+                This identity card is property of Bong Bulletin.<br><br>
                 This card in to be carried by the employee at all the time on duty.<br><br>
                 Any loss of or subsequent recovery of this card must be reported immediately to the editor in writing.<br><br>
                 This card is to be surrendered on cessation of employee/freelance service. Any loss of or subsequent recovery of this card must be reported immediately.<br><br>
                 This right of accreditation are personal and non-transferable.
             </div>
-
             <img class="qrcode" src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=https://ibb.co/fKCRkJg">
-
             <div class="signatures">
                 <div class="sign-box">Signature of Card Holder</div>
                 <div class="sign-box">Authorized Signatory</div>
             </div>
         </div>`;
-        
-        document.getElementById("cardContainer").innerHTML = cardHTML;
+        document.getElementById("cardContainer").innerHTML = cardFront + cardBack;
         document.getElementById("downloadBtn").style.display = "inline-block";
     };
     reader.readAsDataURL(document.getElementById("photoUpload").files[0]);
 });
 
+// PDF Two Sided Logic
 document.getElementById("downloadBtn").addEventListener("click", function(){
-    let card = document.getElementById("genCard");
-    // Wait for images to finish loading for accurate capture
-    let imgs = card.querySelectorAll("img");
-    let totalImgs = imgs.length, loaded = 0;
-    for(let i=0;i<totalImgs;i++){
-      imgs[i].onload = imgReady;
-    }
-    function imgReady(){
-      loaded++;
-      if(loaded === totalImgs) capturePDF(); // All images loaded
-    }
-    // If all images are already loaded, or no images present
-    if(totalImgs === 0 || Array.from(imgs).every(img=>img.complete)){capturePDF();}
-    function capturePDF(){
-        html2canvas(card, {scale:2, useCORS:true, backgroundColor:null, logging:false}).then(canvas=>{
+    let front = document.getElementById("idFront");
+    let back = document.getElementById("idBack");
+    imagePDF(front, back);
+    function imagePDF(cardFront, cardBack){
+        // Capture Front
+        Promise.all([
+          html2canvas(cardFront, {scale:2, useCORS:true, backgroundColor:null}),
+          html2canvas(cardBack, {scale:2, useCORS:true, backgroundColor:null})
+        ]).then(([canvasFront, canvasBack])=>{
             const { jsPDF } = window.jspdf;
-            let pdf = new jsPDF("p","pt",[canvas.width, canvas.height]);
-            let imgData = canvas.toDataURL("image/png");
-            pdf.addImage(imgData,"PNG",0,0,canvas.width,canvas.height);
+            let pdf = new jsPDF("p","pt",[canvasFront.width, canvasFront.height]);
+            let imgFront = canvasFront.toDataURL("image/png");
+            let imgBack  = canvasBack.toDataURL("image/png");
+            // Add Front
+            pdf.addImage(imgFront,"PNG",0,0,canvasFront.width,canvasFront.height);
+            pdf.addPage([canvasBack.width, canvasBack.height]);
+            pdf.addImage(imgBack,"PNG",0,0,canvasBack.width,canvasBack.height);
             pdf.save("BongBulletin_ID.pdf");
         });
     }
