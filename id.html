@@ -1,279 +1,272 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
+<meta charset="UTF-8" />
 <title>Bong Bulletin ID Card Generator</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
-    body {
-        font-family: Arial, sans-serif;
-        background: #f3f3f3;
-        text-align: center;
-    }
-    .form-box {
-        background: #fff;
-        padding: 15px;
-        margin: 18px auto 6px auto;
-        border-radius: 8px;
-        width: 360px;
-        box-shadow: 0 0 10px rgba(0,0,0,0.2);
-    }
-    .id-card {
-        width: 340px;
-        margin: 18px auto;
-        background: #fff;
-        position: relative;
-        box-shadow: 0 0 8px rgba(0,0,0,0.3);
-        overflow: hidden;
-        border: 2px solid #b30000;
-        border-radius: 16px;
-        min-height: 510px; 
-        display: flex;
-        flex-direction: column;
-        justify-content: flex-start;
-    }
-    .id-header {
-        background: #b30000;
-        color: white;
-        padding: 6px;
-        font-size: 24px;
-        font-weight: bold;
-        border-top-left-radius: 14px;
-        border-top-right-radius: 14px;
-        letter-spacing: 2px;
-    }
-    .company {
-        font-size: 20px;
-        font-family: "Times New Roman", serif;
-        font-weight: bold;
-        color: #111;
-        margin-top: 2px;
-    }
-    .photo {
-        width: 120px;
-        height: 130px;
-        background: #ddd;
-        margin: 8px auto 4px auto;
-        border: 2px solid #000;
-        object-fit: cover;
-        display: block;
-        border-radius: 8px;
-        z-index: 1;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.11);
-    }
-    .info {
-        text-align: center;
-        font-size: 15px;
-        margin: 8px 10px;
-        font-weight: bold;
-        line-height: 1.6em;
-        z-index: 1;
-        word-break: break-word;
-        color: #222;
-    }
-    .barcode {
-        width: 84%;
-        display: block;
-        margin: 10px auto 4px auto;
-        border:1px solid #eee;
-        background: #fafafa;
-        border-radius: 6px;
+  body {
+    font-family: Arial, sans-serif;
+    background: #f3f3f3;
+    text-align: center;
+  }
+  .form-box {
+    background: white;
+    padding: 15px;
+    margin: 18px auto 6px auto;
+    border-radius: 8px;
+    width: 360px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.2);
+  }
+  .id-card {
+    width: 340px;
+    margin: 18px auto;
+    background: white;
+    position: relative;
+    box-shadow: 0 0 8px rgba(0,0,0,0.3);
+    overflow: hidden;
+    border: 2px solid #b30000;
+    border-radius: 16px;
+    min-height: 510px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+  }
+  .id-header {
+    background: #b30000;
+    color: white;
+    padding: 6px;
+    font-size: 24px;
+    font-weight: bold;
+    border-top-left-radius: 14px;
+    border-top-right-radius: 14px;
+    letter-spacing: 2px;
+  }
+  .company {
+    font-size: 20px;
+    font-family: "Times New Roman", serif;
+    font-weight: bold;
+    color: #111;
+    margin-top: 2px;
+  }
+  .photo {
+    width: 120px;
+    height: 130px;
+    background: #ddd;
+    margin: 8px auto 4px auto;
+    border: 2px solid #000;
+    object-fit: cover;
+    display: block;
+    border-radius: 8px;
+    z-index: 1;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.11);
+  }
+  .info {
+    text-align: center;
+    font-size: 15px;
+    margin: 8px 10px;
+    font-weight: bold;
+    line-height: 1.6em;
+    z-index: 1;
+    word-break: break-word;
+    color: #222;
+  }
+  .barcode {
+    width: 84%;
+    display: block;
+    margin: 10px auto 4px auto;
+    border:1px solid #eee;
+    background: #fafafa;
+    border-radius: 6px;
+    object-fit: contain;
+  }
+  .watermark {
+    position: absolute;
+    top: 65px;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    opacity: 0.13;
+    font-size: 59px;
+    transform: rotate(-23deg);
+    color: #b30000;
+    font-weight: 900;
+    pointer-events: none;
+    z-index: 0;
+    user-select: none;
+    white-space: nowrap;
+  }
+  .terms-box {
+    border: 1px solid #000;
+    margin: 8px auto 4px auto;
+    width: 90%;
+    font-size: 12px;
+    padding: 5px;
+    text-align: center;
+    font-weight: bold;
+    line-height: 1.4em;
+    background: #f7f7f7;
+    border-radius: 7px;
+    z-index: 1;
+  }
+  .qrcode {
+    width: 80px;
+    display: block;
+    margin: 10px auto;
+    border-radius: 6px;
+    background:#fff;
+    border: 1px solid #ddd;
+    z-index: 1;
+  }
+  .signatures {
+    display: flex;
+    justify-content: space-between;
+    padding: 0 22px;
+    margin-top: 7px;
+    font-size: 12px;
+    text-align: center;
+    z-index: 2;
+    gap:12px;
+  }
+  .sign-box {
+    border-top: 1px solid #000;
+    width: 47%;
+    padding-top: 3px;
+    color: #b30000;
+    font-weight: 700;
+    background: #f3f3f3;
+    border-radius: 3px;
+  }
+  #downloadBtn {
+    display: none;
+    padding: 8px 15px;
+    background: #b30000;
+    color: #fff;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    margin-top: 12px;
+    margin-bottom:14px;
+    font-weight: 600;
+    font-size: 16px;
+    letter-spacing:1px;
+  }
+  @media (max-width: 430px) {
+    .form-box, .id-card {
+      width: 98%;
+      min-width: 0;
+      font-size: 92%;
     }
     .watermark {
-        position: absolute;
-        top: 65px;
-        left: 0;
-        width: 100%;
-        text-align: center;
-        opacity: 0.13;
-        font-size: 59px;
-        transform: rotate(-23deg);
-        color: #b30000;
-        font-weight: 900;
-        pointer-events: none;
-        z-index: 0;
-        user-select: none;
-        white-space: nowrap;
+      font-size:33vw;
     }
-    .terms-box {
-        border: 1px solid #000;
-        margin: 8px auto 4px auto;
-        width: 90%;
-        font-size: 12px;
-        padding: 5px;
-        text-align: center;
-        font-weight: bold;
-        line-height: 1.4em;
-        background: #f7f7f7;
-        border-radius: 7px;
-        z-index: 1;
-    }
-    .qrcode {
-        width: 80px;
-        display: block;
-        margin: 10px auto;
-        border-radius: 6px;
-        background:#fff;
-        border: 1px solid #ddd;
-        z-index: 1;
-    }
-    .signatures {
-        display: flex;
-        justify-content: space-between;
-        padding: 0 22px;
-        margin-top: 7px;
-        font-size: 12px;
-        text-align: center;
-        z-index: 2;
-        gap:12px;
-    }
-    .sign-box {
-        border-top: 1px solid #000;
-        width: 47%;
-        padding-top: 3px;
-        color: #b30000;
-        font-weight: 700;
-        background: #f3f3f3;
-        border-radius: 3px;
-    }
-    #downloadBtn {
-        display: none;
-        padding: 8px 15px;
-        background: #b30000;
-        color: #fff;
-        border: none;
-        border-radius: 3px;
-        cursor: pointer;
-        margin-top: 12px;
-        margin-bottom:14px;
-        font-weight: 600;
-        font-size: 16px;
-        letter-spacing:1px;
-    }
-
-    @media (max-width: 430px) {
-      .form-box, .id-card {
-        width: 98%;
-        min-width: 0;
-        font-size: 92%;
-      }
-      .watermark {
-        font-size:33vw;
-      }
-    }
-    /* Hide back card initially */
-    .hide {
-      display: none;
-    }
+  }
 </style>
 </head>
 <body>
+
 <div class="form-box">
-    <h2>Generate Bong Bulletin ID</h2>
-    <form id="idForm">
-        <input type="file" id="photoUpload" accept="image/*" required><br><br>
-        <input type="text" id="name" placeholder="Full Name" required><br><br>
-        <select id="designation">
-            <option>Reporter</option>
-            <option>HR</option>
-            <option>Editor</option>
-            <option>Intern</option>
-            <option>Photographer</option>
-        </select><br><br>
-        <input type="date" id="dob" required><br><br>
-        <input type="text" id="address" placeholder="Address" required><br><br>
-        <input type="text" id="phone" placeholder="Phone" required><br><br>
-        <input type="text" id="aadhaar" placeholder="Aadhaar Number" required><br><br>
-        <input type="text" id="blood" placeholder="Blood Group" required><br><br>
-        <button type="submit">Generate Card</button>
-    </form>
+  <h2>Generate Bong Bulletin ID</h2>
+  <form id="idForm">
+    <input type="file" id="photoUpload" accept="image/*" required /><br /><br />
+    <input type="text" id="name" placeholder="Full Name" required /><br /><br />
+    <select id="designation">
+      <option>Reporter</option>
+      <option>HR</option>
+      <option>Editor</option>
+      <option>Intern</option>
+      <option>Photographer</option>
+    </select><br /><br />
+    <input type="date" id="dob" required /><br /><br />
+    <input type="text" id="address" placeholder="Address" required /><br /><br />
+    <input type="text" id="phone" placeholder="Phone" required /><br /><br />
+    <input type="text" id="aadhaar" placeholder="Aadhaar Number" required /><br /><br />
+    <input type="text" id="blood" placeholder="Blood Group" required /><br /><br />
+    <button type="submit">Generate Card</button>
+  </form>
 </div>
 
 <div id="cardContainer"></div>
 <button id="downloadBtn">Download as PDF</button>
 
 <script>
-let serial = 1;
-document.getElementById("idForm").addEventListener("submit", function(e){
-    e.preventDefault();
-    let name = document.getElementById("name").value;
-    let designation = document.getElementById("designation").value;
-    let dob = document.getElementById("dob").value;
-    let address = document.getElementById("address").value;
-    let phone = document.getElementById("phone").value;
-    let aadhaar = document.getElementById("aadhaar").value;
-    let blood = document.getElementById("blood").value;
-    let idNum = "BB/C" + (200 + serial++) + "/2025"; 
+const barcodeBase64 = "data:image/jpeg;base64,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...
 
-    let reader = new FileReader();
-    reader.onload = function(event){
-        let photo = event.target.result;
-        let cardFront = `
+document.getElementById('idForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  let name = document.getElementById('name').value;
+  let designation = document.getElementById('designation').value;
+  let dob = document.getElementById('dob').value;
+  let address = document.getElementById('address').value;
+  let phone = document.getElementById('phone').value;
+  let aadhaar = document.getElementById('aadhaar').value;
+  let blood = document.getElementById('blood').value;
+  let idNum = "BB/C" + (200 + serial++) + "/2025";
+
+  let reader = new FileReader();
+  reader.onload = function(event) {
+    let photo = event.target.result;
+    let cardFront = `
         <div class="id-card" id="idFront">
-            <div class="watermark">BONG BULLETIN</div>
-            <div class="id-header">MEDIA</div>
-            <div class="company">Bong Bulletin</div>
-            <img src="${photo}" class="photo">
-            <div class="info">
-                Name: ${name}<br>
-                Designation: ${designation}<br>
-                ID No: ${idNum}<br>
-                DOB: ${dob}<br>
-                Address: ${address}<br>
-                Phone: ${phone}<br>
-                Aadhaar: ${aadhaar}<br>
-                Blood Group: ${blood}
-            </div>
-            <img src="barcode.jpeg" class="barcode">
+          <div class="watermark">BONG BULLETIN</div>
+          <div class="id-header">MEDIA</div>
+          <div class="company">Bong Bulletin</div>
+          <img src="${photo}" class="photo" alt="Photo" />
+          <div class="info">
+            Name: ${name}<br />
+            Designation: ${designation}<br />
+            ID No: ${idNum}<br />
+            DOB: ${dob}<br />
+            Address: ${address}<br />
+            Phone: ${phone}<br />
+            Aadhaar: ${aadhaar}<br />
+            Blood Group: ${blood}
+          </div>
+          <img src="${barcodeBase64}" class="barcode" alt="Barcode" />
         </div>`;
-        let cardBack = `
+    let cardBack = `
         <div class="id-card" id="idBack">
-            <div class="watermark">BONG BULLETIN</div>
-            <div class="id-header">MEDIA</div>
-            <div class="company">Bong Bulletin</div>
-            <div class="terms-box">
-                This identity card is property of Bong Bulletin.<br><br>
-                This card in to be carried by the employee at all the time on duty.<br><br>
-                Any loss of or subsequent recovery of this card must be reported immediately to the editor in writing.<br><br>
-                This card is to be surrendered on cessation of employee/freelance service. Any loss of or subsequent recovery of this card must be reported immediately.<br><br>
-                This right of accreditation are personal and non-transferable.
-            </div>
-            <img class="qrcode" src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=https://ibb.co/fKCRkJg">
-            <div class="signatures">
-                <div class="sign-box">Signature of Card Holder</div>
-                <div class="sign-box">Authorized Signatory</div>
-            </div>
+          <div class="watermark">BONG BULLETIN</div>
+          <div class="id-header">MEDIA</div>
+          <div class="company">Bong Bulletin</div>
+          <div class="terms-box">
+            This identity card is property of Bong Bulletin.<br /><br />
+            This card in to be carried by the employee at all the time on duty.<br /><br />
+            Any loss of or subsequent recovery of this card must be reported immediately to the editor in writing.<br /><br />
+            This card is to be surrendered on cessation of employee/freelance service. Any loss of or subsequent recovery of this card must be reported immediately.<br /><br />
+            This right of accreditation are personal and non-transferable.
+          </div>
+          <img class="qrcode" src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=https://ibb.co/fKCRkJg" alt="QR Code" />
+          <div class="signatures">
+            <div class="sign-box">Signature of Card Holder</div>
+            <div class="sign-box">Authorized Signatory</div>
+          </div>
         </div>`;
-        document.getElementById("cardContainer").innerHTML = cardFront + cardBack;
-        document.getElementById("downloadBtn").style.display = "inline-block";
-    };
-    reader.readAsDataURL(document.getElementById("photoUpload").files[0]);
+    document.getElementById('cardContainer').innerHTML = cardFront + cardBack;
+    document.getElementById('downloadBtn').style.display = 'inline-block';
+  };
+  reader.readAsDataURL(document.getElementById('photoUpload').files[0]);
 });
 
-// PDF Two Sided Logic
-document.getElementById("downloadBtn").addEventListener("click", function(){
-    let front = document.getElementById("idFront");
-    let back = document.getElementById("idBack");
-    imagePDF(front, back);
-    function imagePDF(cardFront, cardBack){
-        // Capture Front
-        Promise.all([
-          html2canvas(cardFront, {scale:2, useCORS:true, backgroundColor:null}),
-          html2canvas(cardBack, {scale:2, useCORS:true, backgroundColor:null})
-        ]).then(([canvasFront, canvasBack])=>{
-            const { jsPDF } = window.jspdf;
-            let pdf = new jsPDF("p","pt",[canvasFront.width, canvasFront.height]);
-            let imgFront = canvasFront.toDataURL("image/png");
-            let imgBack  = canvasBack.toDataURL("image/png");
-            // Add Front
-            pdf.addImage(imgFront,"PNG",0,0,canvasFront.width,canvasFront.height);
-            pdf.addPage([canvasBack.width, canvasBack.height]);
-            pdf.addImage(imgBack,"PNG",0,0,canvasBack.width,canvasBack.height);
-            pdf.save("BongBulletin_ID.pdf");
-        });
-    }
+document.getElementById('downloadBtn').addEventListener('click', function() {
+  let front = document.getElementById('idFront');
+  let back = document.getElementById('idBack');
+
+  Promise.all([
+    html2canvas(front, { scale: 2, useCORS: true, backgroundColor: null }),
+    html2canvas(back, { scale: 2, useCORS: true, backgroundColor: null }),
+  ]).then(([canvasFront, canvasBack]) => {
+    const { jsPDF } = window.jspdf;
+    let pdf = new jsPDF("p", "pt", [canvasFront.width, canvasFront.height]);
+    let imgFront = canvasFront.toDataURL("image/png");
+    let imgBack = canvasBack.toDataURL("image/png");
+    pdf.addImage(imgFront, "PNG", 0, 0, canvasFront.width, canvasFront.height);
+    pdf.addPage([canvasBack.width, canvasBack.height]);
+    pdf.addImage(imgBack, "PNG", 0, 0, canvasBack.width, canvasBack.height);
+    pdf.save("BongBulletin_ID.pdf");
+  });
 });
 </script>
 </body>
