@@ -193,10 +193,9 @@
 
 <script>
 const barcodeBase64 = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAYGBgYHBgcICAcKCwoLCg8ODAwODxYQERAREBYiFRkVFRkVIh4kHhweJB42KiYmKjY+NDI0PkxERExfWl98fKcBBgYGBgcGBwgIBwoLCgsKDw4MDA4PFhAREBEQFiIVGRUVGRUiHiQeHB4kHjYqJiYqNj40MjQ+TERETF9aX3x8p//CABEIAGQCvgMBIgACEQEDEQH/xAAuAAEBAQEBAQEAAAAAAAAAAAAABQYEAwIBAQEBAQAAAAAAAAAAAAAAAAAAAQL/2gAMAwEAAhADEAAAArGS1uSFaTWJOtyWtJEmtJK0mtJNbktbkhrclrTJVpNYk1pNYr5LW5IArV5FcSK8gkgVpNYAk1pNYr5LW5I1sivIJIGtyWtJEmtJGtyWtMlWk1ivIryCSBrclrSRJrSRrclrSRJrSSsCTWk1hXkVzJAa3Ja0kSa0krV5FcyQK1eRXMkBrclrSRJrSTW5LW5IA1uS1uSFaTWJOtyWtJEmtJK0mtJNbktbkhrclrTJVpNYk1pNYr5LW5IArV5FcSK8gkgVpNYAk1pNYr5LW5I1sivIJIGtyWtJEmtJGtyWtMlWk1ivIryCSBrclrSRJrSRrclrSRJrSSsCTWk1hXkVzJAa3Ja0kSa0krV5FcyQK1eRXMkBrclrSRJrSTW5LW5IA1uS1uSFaTWJOtyWtJEmtJK0mtJNbktbkhrclrTJVpNYk1pNYr5LW5IArV5FcSK8gkgVpNYAk1pNYr5LW5I1sivIJIGtyWtJEmtJGtyWtMlWk1ivIryCSBrclrSRJrSRrclrSRJrSSsCTWk1hXkVzJAa3Ja0kSa0krV5FcyQK1eRXMkBrclrSRJrSTW5LW5IA1uS3Ekztbs6zJa3krGdk63kOOTreQ68luJJndbyVjD1uzrMlW7OsZLcSTOtEOOu6zkkaLkMk0Qztbs6yQrjJVuzrGS3Ek65Gi5DJNEM7reSsZ2TreQzut5Kxh63Z1iRouQyTRDO63krGdk63kM7reSsZ2TreQ41cZKt2dZIrusw7RDO63krGdk63kOOu6zDtEOOu6zDtEM7reSsZ2TreQ68luJJnWiF0AAAAAAAAAAAAAHB6/HFH49fmz79OpEvp5/Jezg6OjU75Hfw5vzy9nqT9JG7bOP66PWWfZk9dnFS5+6WVx9/FVDm6e9I/r6peTw0HHZx2OLtUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/xAAC/9oADAMBAAIAAwAAACFTyjzxSjzxTyhTzzzxRTyjyjxTyjyjzzyjyjyjyjyjxTxTyjzxSjzxTyhTzzzxRTyjyjxTyjyjzzyjyjyjyjyjxTxTyjzxSjzxTyhTzzzxRTyjyjxTyjyjzzyjyjyjyjyjxTxTyjzxSjzxTyhTzzzxRTyjyjxTyjyjzzyjyjyjyjyjxTxDCDDBCDDBDCBDDDDBBDCDCDBDCDCDDDCDCDCDCDCDBDAAAAAAAAAAAAAAB1Ic2Gr69o9o0I5cAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/xAAC/9oADAMBAAIAAwAAABABQCigABRQAChQBTxQBQACgBRQACgCjxSgACigCgACgAABQCigABRQAChQBTxQBQACgBRQACgCjxSgACigCgACgAABQCigABRQAChQBTxQBQACgBRQACgCjxSgACigCgACgAABQCigABRQAChQBTxQBQACgBRQACgCjxSgACigCgACgAAhASCAgRBAgCRgBDBAhgASARBgASASDBCQASCQCQASAgDzzzzzzzzzz";
-
 let serial = 1;
 
-document.getElementById("idForm").addEventListener("submit", function(e) {
+document.getElementById("idForm").addEventListener("submit", function (e) {
   e.preventDefault();
 
   let name = document.getElementById("name").value;
@@ -209,68 +208,96 @@ document.getElementById("idForm").addEventListener("submit", function(e) {
   let idNum = "BB/C" + (200 + serial++) + "/2025";
 
   let reader = new FileReader();
-  reader.onload = function(event) {
+  reader.onload = function (event) {
     let photo = event.target.result;
     let cardFront = `
-        <div class="id-card" id="idFront">
-          <div class="watermark">BONG BULLETIN</div>
-          <div class="id-header">MEDIA</div>
-          <div class="company">Bong Bulletin</div>
-          <img src="${photo}" class="photo" alt="Photo" />
-          <div class="info">
-            Name: ${name}<br />
-            Designation: ${designation}<br />
-            ID No: ${idNum}<br />
-            DOB: ${dob}<br />
-            Address: ${address}<br />
-            Phone: ${phone}<br />
-            Aadhaar: ${aadhaar}<br />
-            Blood Group: ${blood}
-          </div>
-          <img src="${barcodeBase64}" class="barcode" alt="Barcode" />
-        </div>`;
+      <div class="id-card" id="idFront">
+        <div class="watermark">BONG BULLETIN</div>
+        <div class="id-header">MEDIA</div>
+        <div class="company">Bong Bulletin</div>
+        <img src="${photo}" class="photo" alt="Photo" />
+        <div class="info">
+          Name: ${name}<br />
+          Designation: ${designation}<br />
+          ID No: ${idNum}<br />
+          DOB: ${dob}<br />
+          Address: ${address}<br />
+          Phone: ${phone}<br />
+          Aadhaar: ${aadhaar}<br />
+          Blood Group: ${blood}
+        </div>
+        <img src="${barcodeBase64}" class="barcode" alt="Barcode" />
+      </div>`;
+
     let cardBack = `
-        <div class="id-card" id="idBack">
-          <div class="watermark">BONG BULLETIN</div>
-          <div class="id-header">MEDIA</div>
-          <div class="company">Bong Bulletin</div>
-          <div class="terms-box">
-            This identity card is property of Bong Bulletin.<br /><br />
-            This card in to be carried by the employee at all the time on duty.<br /><br />
-            Any loss of or subsequent recovery of this card must be reported immediately to the editor in writing.<br /><br />
-            This card is to be surrendered on cessation of employee/freelance service. Any loss of or subsequent recovery of this card must be reported immediately.<br /><br />
-            This right of accreditation are personal and non-transferable.
-          </div>
-          <img class="qrcode" src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=https://ibb.co/fKCRkJg" alt="QR Code" />
-          <div class="signatures">
-            <div class="sign-box">Signature of Card Holder</div>
-            <div class="sign-box">Authorized Signatory</div>
-          </div>
-        </div>`;
+      <div class="id-card" id="idBack">
+        <div class="watermark">BONG BULLETIN</div>
+        <div class="id-header">MEDIA</div>
+        <div class="company">Bong Bulletin</div>
+        <div class="terms-box">
+          This identity card is property of Bong Bulletin.<br /><br />
+          This card in to be carried by the employee at all the time on duty.<br /><br />
+          Any loss of or subsequent recovery of this card must be reported immediately to the editor in writing.<br /><br />
+          This card is to be surrendered on cessation of employee/freelance service. Any loss of or subsequent recovery of this card must be reported immediately.<br /><br />
+          This right of accreditation are personal and non-transferable.
+        </div>
+        <img class="qrcode" src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=https://ibb.co/fKCRkJg" alt="QR Code" />
+        <div class="signatures">
+          <div class="sign-box">Signature of Card Holder</div>
+          <div class="sign-box">Authorized Signatory</div>
+        </div>
+      </div>`;
+
     document.getElementById("cardContainer").innerHTML = cardFront + cardBack;
     document.getElementById("downloadBtn").style.display = "inline-block";
   };
+
   reader.readAsDataURL(document.getElementById("photoUpload").files[0]);
 });
 
-document.getElementById("downloadBtn").addEventListener("click", function() {
-  let front = document.getElementById("idFront");
-  let back = document.getElementById("idBack");
+document.getElementById("downloadBtn").addEventListener("click", function () {
+  const front = document.getElementById("idFront");
+  const back = document.getElementById("idBack");
 
-  Promise.all([
-    html2canvas(front, { scale: 2, useCORS: true, backgroundColor: null }),
-    html2canvas(back, { scale: 2, useCORS: true, backgroundColor: null }),
-  ]).then(([canvasFront, canvasBack]) => {
-    const { jsPDF } = window.jspdf;
-    let pdf = new jsPDF("p", "pt", [canvasFront.width, canvasFront.height]);
-    let imgFront = canvasFront.toDataURL("image/png");
-    let imgBack = canvasBack.toDataURL("image/png");
-    pdf.addImage(imgFront, "PNG", 0, 0, canvasFront.width, canvasFront.height);
-    pdf.addPage([canvasBack.width, canvasBack.height]);
-    pdf.addImage(imgBack, "PNG", 0, 0, canvasBack.width, canvasBack.height);
-    pdf.save("BongBulletin_ID.pdf");
-  });
+  // Wait for all images inside front and back cards to load before capturing canvas
+  let images = [...front.querySelectorAll("img"), ...back.querySelectorAll("img")];
+  let loadedCount = 0;
+  if (images.length === 0) generatePDF();
+  else {
+    images.forEach((img) => {
+      if (img.complete) {
+        loadedCount++;
+      } else {
+        img.onload = () => {
+          loadedCount++;
+          if (loadedCount === images.length) generatePDF();
+        };
+        img.onerror = () => {
+          loadedCount++;
+          if (loadedCount === images.length) generatePDF();
+        };
+      }
+    });
+    if (loadedCount === images.length) generatePDF();
+  }
+
+  function generatePDF() {
+    Promise.all([
+      html2canvas(front, { scale: 2, useCORS: true, backgroundColor: null }),
+      html2canvas(back, { scale: 2, useCORS: true, backgroundColor: null }),
+    ]).then(([canvasFront, canvasBack]) => {
+      const { jsPDF } = window.jspdf;
+      let pdf = new jsPDF("p", "pt", [canvasFront.width, canvasFront.height]);
+      let imgFront = canvasFront.toDataURL("image/png");
+      let imgBack = canvasBack.toDataURL("image/png");
+      pdf.addImage(imgFront, "PNG", 0, 0, canvasFront.width, canvasFront.height);
+      pdf.addPage([canvasBack.width, canvasBack.height]);
+      pdf.addImage(imgBack, "PNG", 0, 0, canvasBack.width, canvasBack.height);
+      pdf.save("BongBulletin_ID.pdf");
+    });
+  }
 });
 </script>
+
 </body>
 </html>
