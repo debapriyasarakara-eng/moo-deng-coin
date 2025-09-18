@@ -148,16 +148,6 @@
     font-size: 16px;
     letter-spacing:1px;
   }
-  @media (max-width: 430px) {
-    .form-box, .id-card {
-      width: 98%;
-      min-width: 0;
-      font-size: 92%;
-    }
-    .watermark {
-      font-size:33vw;
-    }
-  }
 </style>
 </head>
 <body>
@@ -187,111 +177,121 @@
 <button id="downloadBtn">Download as PDF</button>
 
 <script>
-let serial = 1;
+  // Configurable starting values
+  let serialBase = 101;   // শুরু সিরিয়াল নাম্বার (B101 থেকে)
+  let currentYear = new Date().getFullYear();
 
-document.getElementById("idForm").addEventListener("submit", function (e) {
-  e.preventDefault();
+  // সিরিয়াল নাম্বার গণনা (উদাহরণ: B101, B102,...)
+  let serialCounter = 0;
 
-  let name = document.getElementById("name").value;
-  let designation = document.getElementById("designation").value;
-  let dob = document.getElementById("dob").value;
-  let address = document.getElementById("address").value;
-  let phone = document.getElementById("phone").value;
-  let aadhaar = document.getElementById("aadhaar").value;
-  let blood = document.getElementById("blood").value;
-  let idNum = "BB/C" + (200 + serial++) + "/2025";
+  document.getElementById("idForm").addEventListener("submit", function (e) {
+    e.preventDefault();
 
-  let reader = new FileReader();
-  reader.onload = function (event) {
-    let photo = event.target.result;
-    let cardFront = `
-      <div class="id-card" id="idFront">
-        <div class="watermark">BONG BULLETIN</div>
-        <div class="id-header">MEDIA</div>
-        <div class="company">Bong Bulletin</div>
-        <img src="${photo}" class="photo" alt="Photo" />
-        <div class="info">
-          Name: ${name}<br />
-          Designation: ${designation}<br />
-          ID No: ${idNum}<br />
-          DOB: ${dob}<br />
-          Address: ${address}<br />
-          Phone: ${phone}<br />
-          Aadhaar: ${aadhaar}<br />
-          Blood Group: ${blood}
-        </div>
-        <!-- Bar code image from root folder -->
-        <img src="barcode.png" class="barcode" alt="Barcode" />
-      </div>`;
+    let name = document.getElementById("name").value.trim();
+    let designation = document.getElementById("designation").value;
+    let dob = document.getElementById("dob").value;
+    let address = document.getElementById("address").value.trim();
+    let phone = document.getElementById("phone").value.trim();
+    let aadhaar = document.getElementById("aadhaar").value.trim();
+    let blood = document.getElementById("blood").value.trim();
+    
+    // সিরিয়াল নম্বর অটো ইনক্রিমেন্ট
+    serialCounter++;
+    let serialNumber = 'B' + (serialBase + serialCounter - 1);
 
-    let cardBack = `
-      <div class="id-card" id="idBack">
-        <div class="watermark">BONG BULLETIN</div>
-        <div class="id-header">MEDIA</div>
-        <div class="company">Bong Bulletin</div>
-        <div class="terms-box">
-          This identity card is property of Bong Bulletin.<br /><br />
-          This card in to be carried by the employee at all the time on duty.<br /><br />
-          Any loss of or subsequent recovery of this card must be reported immediately to the editor in writing.<br /><br />
-          This card is to be surrendered on cessation of employee/freelance service. Any loss of or subsequent recovery of this card must be reported immediately.<br /><br />
-          This right of accreditation are personal and non-transferable.
-        </div>
-        <img class="qrcode" src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=https://ibb.co/fKCRkJg" alt="QR Code" />
-        <div class="signatures">
-          <div class="sign-box">Signature of Card Holder</div>
-          <div class="sign-box">Authorized Signatory</div>
-        </div>
-      </div>`;
+    // আইডি নাম্বার ফরম্যাট: BB/B101/2025 (2025 হলো বর্তমান বছর)
+    let idNum = `BB/${serialNumber}/${currentYear}`;
 
-    document.getElementById("cardContainer").innerHTML = cardFront + cardBack;
-    document.getElementById("downloadBtn").style.display = "inline-block";
-  };
+    let reader = new FileReader();
+    reader.onload = function (event) {
+      let photo = event.target.result;
+      let cardFront = `
+        <div class="id-card" id="idFront">
+          <div class="watermark">BONG BULLETIN</div>
+          <div class="id-header">MEDIA</div>
+          <div class="company">Bong Bulletin</div>
+          <img src="${photo}" class="photo" alt="Photo" />
+          <div class="info">
+            Name: ${name}<br />
+            Designation: ${designation}<br />
+            ID No: ${idNum}<br />
+            DOB: ${dob}<br />
+            Address: ${address}<br />
+            Phone: ${phone}<br />
+            Aadhaar: ${aadhaar}<br />
+            Blood Group: ${blood}
+          </div>
+          <img src="barcode.png" class="barcode" alt="Barcode" />
+        </div>`;
 
-  reader.readAsDataURL(document.getElementById("photoUpload").files[0]);
-});
+      let cardBack = `
+        <div class="id-card" id="idBack">
+          <div class="watermark">BONG BULLETIN</div>
+          <div class="id-header">MEDIA</div>
+          <div class="company">Bong Bulletin</div>
+          <div class="terms-box">
+            This identity card is property of Bong Bulletin.<br /><br />
+            This card in to be carried by the employee at all the time on duty.<br /><br />
+            Any loss of or subsequent recovery of this card must be reported immediately to the editor in writing.<br /><br />
+            This card is to be surrendered on cessation of employee/freelance service. Any loss of or subsequent recovery of this card must be reported immediately.<br /><br />
+            This right of accreditation are personal and non-transferable.
+          </div>
+          <img class="qrcode" src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=https://ibb.co/fKCRkJg" alt="QR Code" />
+          <div class="signatures">
+            <div class="sign-box">Signature of Card Holder</div>
+            <div class="sign-box">Authorized Signatory</div>
+          </div>
+        </div>`;
 
-document.getElementById("downloadBtn").addEventListener("click", function () {
-  const front = document.getElementById("idFront");
-  const back = document.getElementById("idBack");
+      document.getElementById("cardContainer").innerHTML = cardFront + cardBack;
+      document.getElementById("downloadBtn").style.display = "inline-block";
+    };
 
-  // Wait until all images loaded before PDF generation
-  let images = [...front.querySelectorAll("img"), ...back.querySelectorAll("img")];
-  let loadedCount = 0;
-  if (images.length === 0) generatePDF();
-  else {
-    images.forEach((img) => {
-      if (img.complete) {
-        loadedCount++;
-      } else {
-        img.onload = () => {
+    reader.readAsDataURL(document.getElementById("photoUpload").files[0]);
+  });
+
+  document.getElementById("downloadBtn").addEventListener("click", function () {
+    const front = document.getElementById("idFront");
+    const back = document.getElementById("idBack");
+
+    // Ensure all images are loaded before generating PDF
+    let images = [...front.querySelectorAll("img"), ...back.querySelectorAll("img")];
+    let loadedCount = 0;
+    if (images.length === 0) generatePDF();
+    else {
+      images.forEach((img) => {
+        if (img.complete) {
           loadedCount++;
-          if (loadedCount === images.length) generatePDF();
-        };
-        img.onerror = () => {
-          loadedCount++;
-          if (loadedCount === images.length) generatePDF();
-        };
-      }
-    });
-    if (loadedCount === images.length) generatePDF();
-  }
+        } else {
+          img.onload = () => {
+            loadedCount++;
+            if (loadedCount === images.length) generatePDF();
+          };
+          img.onerror = () => {
+            loadedCount++;
+            if (loadedCount === images.length) generatePDF();
+          };
+        }
+      });
+      if (loadedCount === images.length) generatePDF();
+    }
 
-  function generatePDF() {
-    Promise.all([
-      html2canvas(front, { scale: 2, useCORS: true, backgroundColor: null }),
-      html2canvas(back, { scale: 2, useCORS: true, backgroundColor: null }),
-    ]).then(([canvasFront, canvasBack]) => {
-      const { jsPDF } = window.jspdf;
-      let pdf = new jsPDF("p", "pt", [canvasFront.width, canvasFront.height]);
-      let imgFront = canvasFront.toDataURL("image/png");
-      let imgBack = canvasBack.toDataURL("image/png");
-      pdf.addImage(imgFront, "PNG", 0, 0, canvasFront.width, canvasFront.height);
-      pdf.addPage([canvasBack.width, canvasBack.height]);
-      pdf.addImage(imgBack, "PNG", 0, 0, canvasBack.width, canvasBack.height);
-      pdf.save("BongBulletin_ID.pdf");
-    });
-  }
-});
+    function generatePDF() {
+      Promise.all([
+        html2canvas(front, { scale: 2, useCORS: true, backgroundColor: null }),
+        html2canvas(back, { scale: 2, useCORS: true, backgroundColor: null }),
+      ]).then(([canvasFront, canvasBack]) => {
+        const { jsPDF } = window.jspdf;
+        let pdf = new jsPDF("p", "pt", [canvasFront.width, canvasFront.height]);
+        let imgFront = canvasFront.toDataURL("image/png");
+        let imgBack = canvasBack.toDataURL("image/png");
+        pdf.addImage(imgFront, "PNG", 0, 0, canvasFront.width, canvasFront.height);
+        pdf.addPage([canvasBack.width, canvasBack.height]);
+        pdf.addImage(imgBack, "PNG", 0, 0, canvasBack.width, canvasBack.height);
+        pdf.save("BongBulletin_ID.pdf");
+      });
+    }
+  });
 </script>
 
 </body>
