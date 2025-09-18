@@ -66,21 +66,16 @@
   .info {
     text-align: center;
     font-size: 15px;
-    margin: 8px 10px;
+    margin: 8px 10px 12px 10px;
     font-weight: bold;
-    line-height: 1.6em;
-    z-index: 1;
-    word-break: break-word;
+    line-height: 1.4em;
     color: #222;
   }
   .barcode {
-    width: 84%;
+    width: 300px;
+    height: auto;
     display: block;
-    margin: 10px auto 4px auto;
-    border:1px solid #eee;
-    background: #fafafa;
-    border-radius: 6px;
-    object-fit: contain;
+    margin: 0 auto 12px auto;
   }
   .watermark {
     position: absolute;
@@ -192,7 +187,6 @@
 <button id="downloadBtn">Download as PDF</button>
 
 <script>
-const barcodeBase64 = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAYGBgYHBgcICAcKCwoLCg8ODAwODxYQERAREBYiFRkVFRkVIh4kHhweJB42KiYmKjY+NDI0PkxERExfWl98fKcBBgYGBgcGBwgIBwoLCgsKDw4MDA4PFhAREBEQFiIVGRUVGRUiHiQeHB4kHjYqJiYqNj40MjQ+TERETF9aX3x8p//CABEIAGQCvgMBIgACEQEDEQH/xAAuAAEBAQEBAQEAAAAAAAAAAAAABQYEAwIBAQEBAQAAAAAAAAAAAAAAAAAAAQL/2gAMAwEAAhADEAAAArGS1uSFaTWJOtyWtJEmtJK0mtJNbktbkhrclrTJVpNYk1pNYr5LW5IArV5FcSK8gkgVpNYAk1pNYr5LW5I1sivIJIGtyWtJEmtJGtyWtMlWk1ivIryCSBrclrSRJrSRrclrSRJrSSsCTWk1hXkVzJAa3Ja0kSa0krV5FcyQK1eRXMkBrclrSRJrSTW5LW5IA1uS1uSFaTWJOtyWtJEmtJK0mtJNbktbkhrclrTJVpNYk1pNYr5LW5IArV5FcSK8gkgVpNYAk1pNYr5LW5I1sivIJIGtyWtJEmtJGtyWtMlWk1ivIryCSBrclrSRJrSRrclrSRJrSSsCTWk1hXkVzJAa3Ja0kSa0krV5FcyQK1eRXMkBrclrSRJrSTW5LW5IA1uS1uSFaTWJOtyWtJEmtJK0mtJNbktbkhrclrTJVpNYk1pNYr5LW5IArV5FcSK8gkgVpNYAk1pNYr5LW5I1sivIJIGtyWtJEmtJGtyWtMlWk1ivIryCSBrclrSRJrSRrclrSRJrSSsCTWk1hXkVzJAa3Ja0kSa0krV5FcyQK1eRXMkBrclrSRJrSTW5LW5IA1uS3Ekztbs6zJa3krGdk63kOOTreQ68luJJndbyVjD1uzrMlW7OsZLcSTOtEOOu6zkkaLkMk0Qztbs6yQrjJVuzrGS3Ek65Gi5DJNEM7reSsZ2TreQzut5Kxh63Z1iRouQyTRDO63krGdk63kM7reSsZ2TreQ41cZKt2dZIrusw7RDO63krGdk63kOOu6zDtEOOu6zDtEM7reSsZ2TreQ68luJJnWiF0AAAAAAAAAAAAAHB6/HFH49fmz79OpEvp5/Jezg6OjU75Hfw5vzy9nqT9JG7bOP66PWWfZk9dnFS5+6WVx9/FVDm6e9I/r6peTw0HHZx2OLtUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/xAAC/9oADAMBAAIAAwAAACFTyjzxSjzxTyhTzzzxRTyjyjxTyjyjzzyjyjyjyjyjxTxTyjzxSjzxTyhTzzzxRTyjyjxTyjyjzzyjyjyjyjyjxTxTyjzxSjzxTyhTzzzxRTyjyjxTyjyjzzyjyjyjyjyjxTxTyjzxSjzxTyhTzzzxRTyjyjxTyjyjzzyjyjyjyjyjxTxDCDDBCDDBDCBDDDDBBDCDCDBDCDCDDDCDCDCDCDCDBDAAAAAAAAAAAAAAB1Ic2Gr69o9o0I5cAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/xAAC/9oADAMBAAIAAwAAABABQCigABRQAChQBTxQBQACgBRQACgCjxSgACigCgACgAABQCigABRQAChQBTxQBQACgBRQACgCjxSgACigCgACgAABQCigABRQAChQBTxQBQACgBRQACgCjxSgACigCgACgAABQCigABRQAChQBTxQBQACgBRQACgCjxSgACigCgACgAAhASCAgRBAgCRgBDBAhgASARBgASASDBCQASCQCQASAgDzzzzzzzzzz";
 let serial = 1;
 
 document.getElementById("idForm").addEventListener("submit", function (e) {
@@ -226,7 +220,8 @@ document.getElementById("idForm").addEventListener("submit", function (e) {
           Aadhaar: ${aadhaar}<br />
           Blood Group: ${blood}
         </div>
-        <img src="${barcodeBase64}" class="barcode" alt="Barcode" />
+        <!-- Bar code image from root folder -->
+        <img src="barcode.png" class="barcode" alt="Barcode" />
       </div>`;
 
     let cardBack = `
@@ -259,7 +254,7 @@ document.getElementById("downloadBtn").addEventListener("click", function () {
   const front = document.getElementById("idFront");
   const back = document.getElementById("idBack");
 
-  // Wait for all images inside front and back cards to load before capturing canvas
+  // Wait until all images loaded before PDF generation
   let images = [...front.querySelectorAll("img"), ...back.querySelectorAll("img")];
   let loadedCount = 0;
   if (images.length === 0) generatePDF();
