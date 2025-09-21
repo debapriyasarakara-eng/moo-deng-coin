@@ -149,7 +149,11 @@
     border-radius: 7px;
     z-index: 1;
   }
-  .qrcode, .youtube-qr, .youtube-logo {
+  .qrcode-container {
+    text-align: center;
+    margin: 10px 0 4px 0;
+  }
+  .qrcode, .youtube-qr {
     display: inline-block;
     vertical-align: middle;
     border-radius: 6px;
@@ -166,19 +170,14 @@
     height: 80px;
     margin: 10px 0 12px 0;
   }
-  .youtube-logo {
+  .youtube-logo-svg {
+    display: inline-block;
     width: 30px;
     height: 30px;
     margin-left: 6px;
     margin-top: 24px;
-  }
-  .youtube-logo svg {
-    width: 100%;
-    height: 100%;
-  }
-  .qrcode-container {
-    text-align: center;
-    margin: 10px 0 4px 0;
+    vertical-align: middle;
+    fill: #ff0000;
   }
   .signatures {
     display: flex;
@@ -200,15 +199,15 @@
     border-radius: 3px;
     position: relative;
   }
-  .sign-box img.auth-signature {
+  .sign-box .signature-text {
     position: absolute;
-    top: -18px;
     left: 50%;
+    top: -20px;
     transform: translateX(-50%);
-    width: 60px;
-    height: auto;
-    opacity: 0.9;
-    z-index: 5;
+    font-family: "Lucida Handwriting", cursive, Arial, sans-serif;
+    font-size: 18px;
+    font-style: italic;
+    color: #b30000;
   }
   #downloadBtn {
     display: none;
@@ -354,10 +353,13 @@
             <img class="youtube-logo" src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/75/YouTube_social_white_squircle_icon.svg/2048px-YouTube_social_white_squircle_icon.svg.png" alt="YouTube Logo" title="YouTube Channel" />
             <img class="youtube-qr" src="https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=https://youtube.com/@bongbulletin?si=pGCbCFTKdmBHrvb7" alt="YouTube QR Code" />
           </div>
-          <img class="auth-signature" src="signature.png" alt="Authorized Signature" />
+          <!--<img class="auth-signature" src="signature.png" alt="Authorized Signature" />-->
           <div class="signatures">
+            <div class="sign-box">
+              <span class="signature-text"></span>
+              Chief Editor Signatory
+            </div>
             <div class="sign-box">Signature of Card Holder</div>
-            <div class="sign-box">Authorized Signatory</div>
           </div>
         </div>`;
 
@@ -395,7 +397,7 @@
           let imgBack = canvasBack.toDataURL("image/png");
           pdf.addImage(imgFront, "PNG", 0, 0, canvasFront.width, canvasFront.height);
           pdf.addPage([canvasBack.width, canvasBack.height]);
-          pdf.addImage(imgBack, "PNG", 0, 0, canvasBack.width, canvasBack.height);
+          pdf.addImage(imgBack, "PNG", 0, 0, back.width, canvasBack.height);
           pdf.save("BongBulletin_ID.pdf");
         });
       });
