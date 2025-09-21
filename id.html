@@ -152,17 +152,17 @@
   .qrcode {
     width: 80px;
     display: block;
-    margin: 10px auto;
+    margin: 10px auto 12px auto;
     border-radius: 6px;
     background:#fff;
     border: 1px solid #ddd;
-    z-index: 1;
+    z-index: 2;
   }
   .signatures {
     display: flex;
     justify-content: space-between;
     padding: 0 22px;
-    margin-top: 7px;
+    margin-top: 20px;
     font-size: 12px;
     text-align: center;
     z-index: 2;
@@ -171,7 +171,7 @@
   .sign-box {
     border-top: 1px solid #000;
     width: 47%;
-    padding-top: 3px;
+    padding-top: 25px;
     color: #b30000;
     font-weight: 700;
     background: #f3f3f3;
@@ -180,11 +180,13 @@
   }
   .sign-box img.auth-signature {
     position: absolute;
-    top: -30px;
+    top: -18px;
     left: 50%;
     transform: translateX(-50%);
-    width: 80px;
-    height: 30px;
+    width: 60px;
+    height: auto;
+    opacity: 0.9;
+    z-index: 5;
   }
   #downloadBtn {
     display: none;
@@ -194,8 +196,7 @@
     border: none;
     border-radius: 3px;
     cursor: pointer;
-    margin-top: 12px;
-    margin-bottom:14px;
+    margin: 12px auto 22px auto;
     font-weight: 600;
     font-size: 16px;
     letter-spacing: 1px;
@@ -246,7 +247,6 @@
   const loginBtn = document.getElementById("loginBtn");
   const loginError = document.getElementById("loginError");
 
-  // Login credentials
   const validId = "bong";
   const validPassword = "bong";
 
@@ -279,7 +279,6 @@
     const aadhaarInput = document.getElementById("aadhaar");
     const bloodInput = document.getElementById("blood");
 
-    // Validation of required fields
     if(!photoInput.files[0]) return alert("Please upload a photo.");
     if(serialInput.value.trim() === "") return alert("Please enter serial number.");
     if(nameInput.value.trim() === "") return alert("Please enter full name.");
@@ -327,6 +326,7 @@
             This card is to be surrendered on cessation of employee/freelance service. Any loss of or subsequent recovery of this card must be reported immediately.<br /><br />
             This right of accreditation are personal and non-transferable.
           </div>
+          <img class="qrcode" src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=https://ibb.co/fKCRkJg" alt="QR Code" />
           <img class="auth-signature" src="signature.png" alt="Authorized Signature" />
           <div class="signatures">
             <div class="sign-box">Signature of Card Holder</div>
@@ -345,7 +345,6 @@
     const front = document.getElementById("idFront");
     const back = document.getElementById("idBack");
 
-    // Ensure all images loaded before PDF generate
     let images = [...front.querySelectorAll("img"), ...back.querySelectorAll("img")];
     let loadedCount = 0;
     if (images.length === 0) generatePDF();
