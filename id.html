@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bn">
 <head>
 <meta charset="UTF-8" />
 <title>Bong Bulletin ID Card Generator - Login</title>
@@ -63,7 +63,6 @@
   #idForm {
     display: none;
   }
-  /* ID Card styles */
   .id-card {
     width: 340px;
     margin: 18px auto;
@@ -280,7 +279,7 @@
     const aadhaarInput = document.getElementById("aadhaar");
     const bloodInput = document.getElementById("blood");
 
-    // Simple validation for all required fields
+    // Validation of required fields
     if(!photoInput.files[0]) return alert("Please upload a photo.");
     if(serialInput.value.trim() === "") return alert("Please enter serial number.");
     if(nameInput.value.trim() === "") return alert("Please enter full name.");
