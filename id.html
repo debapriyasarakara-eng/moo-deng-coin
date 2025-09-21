@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<title>Bong Bulletin ID Card Generator</title>
+<title>Bong Bulletin ID Card Generator - Login</title>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -11,15 +11,59 @@
     font-family: Arial, sans-serif;
     background: #f3f3f3;
     text-align: center;
+    margin:0; padding:0;
   }
-  .form-box {
+  .container {
+    max-width: 400px;
+    margin: 30px auto;
     background: white;
-    padding: 15px;
-    margin: 18px auto 6px auto;
-    border-radius: 8px;
-    width: 360px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    padding: 20px 25px 30px 25px;
+    border-radius: 10px;
+    box-shadow: 0 0 12px rgba(0,0,0,0.2);
   }
+  h2 {
+    margin-bottom: 15px;
+  }
+  input[type=text], input[type=password], input[type=date], select, input[type=file] {
+    width: 90%;
+    padding: 10px;
+    margin: 8px 0 15px 0;
+    display: inline-block;
+    border: 1px solid #b30000;
+    border-radius: 6px;
+    box-sizing: border-box;
+    font-size: 16px;
+  }
+  input[type=date]::-webkit-inner-spin-button,
+  input[type=date]::-webkit-calendar-picker-indicator {
+    -webkit-appearance: none;
+    display: block;
+  }
+  button {
+    background-color: #b30000;
+    color: white;
+    padding: 12px 20px;
+    margin: 15px 0 0 0;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    width: 95%;
+  }
+  button:hover {
+    background-color: #800000;
+  }
+  .error-msg {
+    color: red;
+    font-weight: 700;
+    margin-top: -10px;
+  }
+  #idForm {
+    display: none;
+  }
+  /* ID Card styles */
   .id-card {
     width: 340px;
     margin: 18px auto;
@@ -133,6 +177,15 @@
     font-weight: 700;
     background: #f3f3f3;
     border-radius: 3px;
+    position: relative;
+  }
+  .sign-box img.auth-signature {
+    position: absolute;
+    top: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 30px;
   }
   #downloadBtn {
     display: none;
@@ -146,30 +199,41 @@
     margin-bottom:14px;
     font-weight: 600;
     font-size: 16px;
-    letter-spacing:1px;
+    letter-spacing: 1px;
+    width: 200px;
   }
 </style>
 </head>
 <body>
 
-<div class="form-box">
+<div class="container" id="loginBox">
+  <h2>Login</h2>
+  <input type="text" id="loginId" placeholder="User ID" />
+  <input type="password" id="loginPassword" placeholder="Password" />
+  <button id="loginBtn">Login</button>
+  <p class="error-msg" id="loginError" style="display:none;"></p>
+</div>
+
+<div class="container" id="formBox" style="display:none;">
   <h2>Generate Bong Bulletin ID</h2>
-  <form id="idForm">
-    <input type="file" id="photoUpload" accept="image/*" required /><br /><br />
-    <input type="text" id="name" placeholder="Full Name" required /><br /><br />
-    <select id="designation">
+  <form id="idForm" novalidate>
+    <input type="file" id="photoUpload" accept="image/*" required /><br />
+    <input type="text" id="serial" placeholder="Serial (e.g. B101)" required /><br />
+    <input type="text" id="name" placeholder="Full Name" required /><br />
+    <select id="designation" required>
+      <option value="" disabled selected>Select Designation</option>
       <option>Chief Editor</option>
       <option>HR</option>
       <option>Reporter</option>
       <option>Anchor</option>
       <option>Video Journalist/Photography</option>
       <option>Intern</option>
-    </select><br /><br />
-    <input type="date" id="dob" required /><br /><br />
-    <input type="text" id="address" placeholder="Address" required /><br /><br />
-    <input type="text" id="phone" placeholder="Phone" required /><br /><br />
-    <input type="text" id="aadhaar" placeholder="Aadhaar Number" required /><br /><br />
-    <input type="text" id="blood" placeholder="Blood Group" required /><br /><br />
+    </select><br />
+    <input type="date" id="dob" required /><br />
+    <input type="text" id="address" placeholder="Address" required /><br />
+    <input type="text" id="phone" placeholder="Phone" required /><br />
+    <input type="text" id="aadhaar" placeholder="Aadhaar Number" required /><br />
+    <input type="text" id="blood" placeholder="Blood Group" required /><br />
     <button type="submit">Generate Card</button>
   </form>
 </div>
@@ -178,54 +242,81 @@
 <button id="downloadBtn">Download as PDF</button>
 
 <script>
-  // Configurable starting values
-  let serialBase = 101;   // শুরু সিরিয়াল নাম্বার (B101 থেকে)
-  let currentYear = new Date().getFullYear();
+  const loginBox = document.getElementById("loginBox");
+  const formBox = document.getElementById("formBox");
+  const loginBtn = document.getElementById("loginBtn");
+  const loginError = document.getElementById("loginError");
 
-  // সিরিয়াল নাম্বার গণনা (উদাহরণ: B101, B102,...)
-  let serialCounter = 0;
+  // Login credentials
+  const validId = "bong";
+  const validPassword = "bong";
 
-  document.getElementById("idForm").addEventListener("submit", function (e) {
+  loginBtn.addEventListener("click", () => {
+    const idValue = document.getElementById("loginId").value.trim();
+    const pwValue = document.getElementById("loginPassword").value.trim();
+    loginError.style.display = "none";
+
+    if(idValue === validId && pwValue === validPassword){
+      loginBox.style.display = "none";
+      formBox.style.display = "block";
+    } else {
+      loginError.style.display = "block";
+      loginError.textContent = "Invalid User ID or Password";
+    }
+  });
+
+  const currentYear = new Date().getFullYear();
+
+  document.getElementById("idForm").addEventListener("submit", function(e) {
     e.preventDefault();
 
-    let name = document.getElementById("name").value.trim();
-    let designation = document.getElementById("designation").value;
-    let dob = document.getElementById("dob").value;
-    let address = document.getElementById("address").value.trim();
-    let phone = document.getElementById("phone").value.trim();
-    let aadhaar = document.getElementById("aadhaar").value.trim();
-    let blood = document.getElementById("blood").value.trim();
-    
-    // সিরিয়াল নম্বর অটো ইনক্রিমেন্ট
-    serialCounter++;
-    let serialNumber = 'B' + (serialBase + serialCounter - 1);
+    const photoInput = document.getElementById("photoUpload");
+    const serialInput = document.getElementById("serial");
+    const nameInput = document.getElementById("name");
+    const designationInput = document.getElementById("designation");
+    const dobInput = document.getElementById("dob");
+    const addressInput = document.getElementById("address");
+    const phoneInput = document.getElementById("phone");
+    const aadhaarInput = document.getElementById("aadhaar");
+    const bloodInput = document.getElementById("blood");
 
-    // আইডি নাম্বার ফরম্যাট: BB/B101/2025 (2025 হলো বর্তমান বছর)
-    let idNum = `BB/${serialNumber}/${currentYear}`;
+    // Simple validation for all required fields
+    if(!photoInput.files[0]) return alert("Please upload a photo.");
+    if(serialInput.value.trim() === "") return alert("Please enter serial number.");
+    if(nameInput.value.trim() === "") return alert("Please enter full name.");
+    if(designationInput.value === "") return alert("Please select designation.");
+    if(dobInput.value === "") return alert("Please select date of birth.");
+    if(addressInput.value.trim() === "") return alert("Please enter address.");
+    if(phoneInput.value.trim() === "") return alert("Please enter phone number.");
+    if(aadhaarInput.value.trim() === "") return alert("Please enter Aadhaar number.");
+    if(bloodInput.value.trim() === "") return alert("Please enter blood group.");
 
-    let reader = new FileReader();
-    reader.onload = function (event) {
-      let photo = event.target.result;
-      let cardFront = `
+    const serialNumber = serialInput.value.trim();
+    const idNum = `BB/${serialNumber}/${currentYear}`;
+
+    const reader = new FileReader();
+    reader.onload = function(event) {
+      const photo = event.target.result;
+      const cardFront = `
         <div class="id-card" id="idFront">
           <div class="watermark">BONG BULLETIN</div>
           <div class="id-header">MEDIA</div>
           <div class="company">Bong Bulletin</div>
           <img src="${photo}" class="photo" alt="Photo" />
           <div class="info">
-            Name: ${name}<br />
-            Designation: ${designation}<br />
+            Name: ${nameInput.value.trim()}<br />
+            Designation: ${designationInput.value}<br />
             ID No: ${idNum}<br />
-            DOB: ${dob}<br />
-            Address: ${address}<br />
-            Phone: ${phone}<br />
-            Aadhaar: ${aadhaar}<br />
-            Blood Group: ${blood}
+            DOB: ${dobInput.value}<br />
+            Address: ${addressInput.value.trim()}<br />
+            Phone: ${phoneInput.value.trim()}<br />
+            Aadhaar: ${aadhaarInput.value.trim()}<br />
+            Blood Group: ${bloodInput.value.trim()}
           </div>
           <img src="barcode.png" class="barcode" alt="Barcode" />
         </div>`;
 
-      let cardBack = `
+      const cardBack = `
         <div class="id-card" id="idBack">
           <div class="watermark">BONG BULLETIN</div>
           <div class="id-header">MEDIA</div>
@@ -237,7 +328,7 @@
             This card is to be surrendered on cessation of employee/freelance service. Any loss of or subsequent recovery of this card must be reported immediately.<br /><br />
             This right of accreditation are personal and non-transferable.
           </div>
-          <img class="qrcode" src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=https://ibb.co/fKCRkJg" alt="QR Code" />
+          <img class="auth-signature" src="signature.png" alt="Authorized Signature" />
           <div class="signatures">
             <div class="sign-box">Signature of Card Holder</div>
             <div class="sign-box">Authorized Signatory</div>
@@ -248,48 +339,40 @@
       document.getElementById("downloadBtn").style.display = "inline-block";
     };
 
-    reader.readAsDataURL(document.getElementById("photoUpload").files[0]);
+    reader.readAsDataURL(photoInput.files[0]);
   });
 
   document.getElementById("downloadBtn").addEventListener("click", function () {
     const front = document.getElementById("idFront");
     const back = document.getElementById("idBack");
 
-    // Ensure all images are loaded before generating PDF
+    // Ensure all images loaded before PDF generate
     let images = [...front.querySelectorAll("img"), ...back.querySelectorAll("img")];
     let loadedCount = 0;
     if (images.length === 0) generatePDF();
     else {
       images.forEach((img) => {
-        if (img.complete) {
-          loadedCount++;
-        } else {
-          img.onload = () => {
-            loadedCount++;
-            if (loadedCount === images.length) generatePDF();
-          };
-          img.onerror = () => {
-            loadedCount++;
-            if (loadedCount === images.length) generatePDF();
-          };
+        if (img.complete) loadedCount++;
+        else {
+          img.onload = () => { loadedCount++; if(loadedCount === images.length) generatePDF(); };
+          img.onerror = () => { loadedCount++; if(loadedCount === images.length) generatePDF(); };
         }
       });
       if (loadedCount === images.length) generatePDF();
     }
 
     function generatePDF() {
-      Promise.all([
-        html2canvas(front, { scale: 2, useCORS: true, backgroundColor: null }),
-        html2canvas(back, { scale: 2, useCORS: true, backgroundColor: null }),
-      ]).then(([canvasFront, canvasBack]) => {
-        const { jsPDF } = window.jspdf;
-        let pdf = new jsPDF("p", "pt", [canvasFront.width, canvasFront.height]);
-        let imgFront = canvasFront.toDataURL("image/png");
-        let imgBack = canvasBack.toDataURL("image/png");
-        pdf.addImage(imgFront, "PNG", 0, 0, canvasFront.width, canvasFront.height);
-        pdf.addPage([canvasBack.width, canvasBack.height]);
-        pdf.addImage(imgBack, "PNG", 0, 0, canvasBack.width, canvasBack.height);
-        pdf.save("BongBulletin_ID.pdf");
+      const { jsPDF } = window.jspdf;
+      html2canvas(front, { scale: 2, useCORS: true, backgroundColor: null }).then(canvasFront => {
+        html2canvas(back, { scale: 2, useCORS: true, backgroundColor: null }).then(canvasBack => {
+          let pdf = new jsPDF("p", "pt", [canvasFront.width, canvasFront.height]);
+          let imgFront = canvasFront.toDataURL("image/png");
+          let imgBack = canvasBack.toDataURL("image/png");
+          pdf.addImage(imgFront, "PNG", 0, 0, canvasFront.width, canvasFront.height);
+          pdf.addPage([canvasBack.width, canvasBack.height]);
+          pdf.addImage(imgBack, "PNG", 0, 0, canvasBack.width, canvasBack.height);
+          pdf.save("BongBulletin_ID.pdf");
+        });
       });
     }
   });
