@@ -72,7 +72,7 @@
     overflow: hidden;
     border: 2px solid #b30000;
     border-radius: 16px;
-    min-height: 510px;
+    min-height: 530px;
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
@@ -149,14 +149,36 @@
     border-radius: 7px;
     z-index: 1;
   }
-  .qrcode {
-    width: 80px;
-    display: block;
-    margin: 10px auto 12px auto;
+  .qrcode, .youtube-qr, .youtube-logo {
+    display: inline-block;
+    vertical-align: middle;
     border-radius: 6px;
     background:#fff;
     border: 1px solid #ddd;
     z-index: 2;
+  }
+  .qrcode {
+    width: 80px;
+    margin: 10px 10px 12px 0;
+  }
+  .youtube-qr {
+    width: 80px;
+    height: 80px;
+    margin: 10px 0 12px 0;
+  }
+  .youtube-logo {
+    width: 30px;
+    height: 30px;
+    margin-left: 6px;
+    margin-top: 24px;
+  }
+  .youtube-logo svg {
+    width: 100%;
+    height: 100%;
+  }
+  .qrcode-container {
+    text-align: center;
+    margin: 10px 0 4px 0;
   }
   .signatures {
     display: flex;
@@ -166,7 +188,7 @@
     font-size: 12px;
     text-align: center;
     z-index: 2;
-    gap:12px;
+    gap: 12px;
   }
   .sign-box {
     border-top: 1px solid #000;
@@ -295,6 +317,7 @@
     const reader = new FileReader();
     reader.onload = function(event) {
       const photo = event.target.result;
+
       const cardFront = `
         <div class="id-card" id="idFront">
           <div class="watermark">BONG BULLETIN</div>
@@ -326,7 +349,11 @@
             This card is to be surrendered on cessation of employee/freelance service. Any loss of or subsequent recovery of this card must be reported immediately.<br /><br />
             This right of accreditation are personal and non-transferable.
           </div>
-          <img class="qrcode" src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=https://ibb.co/fKCRkJg" alt="QR Code" />
+          <div class="qrcode-container">
+            <img class="qrcode" src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=https://ibb.co/fKCRkJg" alt="QR Code" />
+            <img class="youtube-logo" src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/75/YouTube_social_white_squircle_icon.svg/2048px-YouTube_social_white_squircle_icon.svg.png" alt="YouTube Logo" title="YouTube Channel" />
+            <img class="youtube-qr" src="https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=https://youtube.com/@bongbulletin?si=pGCbCFTKdmBHrvb7" alt="YouTube QR Code" />
+          </div>
           <img class="auth-signature" src="signature.png" alt="Authorized Signature" />
           <div class="signatures">
             <div class="sign-box">Signature of Card Holder</div>
